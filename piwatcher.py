@@ -95,7 +95,7 @@ try:
         print (tnow + ", diskState=" + diskState + " for " + str(int(diskStateTime)) + "s, currentLedStatus=" + str(currentLedStatus)+ ", cpuTemp=" + str(cpuTemp) + ", load=" + str(cpuLoad))
         es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad})
         GPIO.output(11, currentLedStatus)
-        time.sleep(1)
+        time.sleep(5)
 
 finally:
     GPIO.cleanup()
