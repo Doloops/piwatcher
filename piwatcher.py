@@ -4,9 +4,12 @@ import time
 import subprocess
 import re
 import elasticsearch
+import bmp280
 
 currentLedStatus = False
+ledPinout = 11
 disk_name="sda"
+statsInterval = 5
 
 hdparmPattern = re.compile("\n.*\n drive state is:  (.*)\n")
 cpuTempPattern = re.compile("temp=(.*)'C")
@@ -17,11 +20,22 @@ previousDiskStateTime = time.time()
 
 es = elasticsearch.Elasticsearch()
 
-GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
-GPIO.setup(11, GPIO.OUT) ## Setup GPIO Pin 7 to OUT
-GPIO.output(11,currentLedStatus) ## Turn on GPIO pin 7
 
-GPIO.setup(5, GPIO.IN) # Switch
+tempSensorBmp280 = bmp280.BMP280()
+chip_id, chip_version = tempSensorBmp280.read_id()
+
+if chip_id == 88:
+	tempSensorBmp280.reg_check()
+else:
+    raise ValueError ("Unsupported chip : " + chip_id)
+
+
+GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
+GPIO.setup(ledPinout, GPIO.OUT) ## Setup GPIO Pin 7 to OUT
+GPIO.output(ledPinout,currentLedStatus) ## Turn on GPIO pin 7
+
+# GPIO.setup(5, GPIO.IN) # Switch
+#        state = GPIO.input(5)
 
 
 def checkDiskActivity():
@@ -87,15 +101,17 @@ try:
             currentLedStatus = not currentLedStatus
         else:
             currentLedStatus = True
-#        state = GPIO.input(5)
         diskStateTime = time.time() - previousDiskStateTime
         tnow = time.strftime("%Y%m%d-%H%M%S")
         cpuTemp = getCPUTemp()
         cpuLoad = getCPULoad()
-        print (tnow + ", diskState=" + diskState + " for " + str(int(diskStateTime)) + "s, currentLedStatus=" + str(currentLedStatus)+ ", cpuTemp=" + str(cpuTemp) + ", load=" + str(cpuLoad))
-        es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad})
+        
+        temperature, pressure = tempSensorBmp280.read()
+
+        print (tnow + ", diskState=" + diskState + " for " + str(int(diskStateTime)) + "s, currentLedStatus=" + str(currentLedStatus)+ ", cpuTemp=" + str(cpuTemp) + ", load=" + str(cpuLoad)+ ", temp=" + ("%2.2f'C" % temperature) + ", pressure=" + ("%5.4f mbar" % pressure))
+        es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad, "indoorTemp": temperature, "indoorPressure": pressure, "statsInterval": statsInterval, })
         GPIO.output(11, currentLedStatus)
-        time.sleep(5)
+        time.sleep(statsInterval)
 
 finally:
     GPIO.cleanup()
