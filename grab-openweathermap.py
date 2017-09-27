@@ -38,8 +38,8 @@ jsonConfig = getConfig()
 # print("jsonConfig :" + str(jsonConfig))
 owmUrlPath = forgeOWMUrlPath(jsonConfig)
 
-weatherResult = getWeatherResult_Static()
-# weatherResult = getWeatherResult(owmUrlHost, owmUrlPath)
+# weatherResult = getWeatherResult_Static()
+weatherResult = getWeatherResult(owmUrlHost, owmUrlPath)
 jsonResult = json.loads(weatherResult)
 
 # jsonResult["timestamp"] = datetime.utcnow().timestamp()
