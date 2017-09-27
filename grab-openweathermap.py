@@ -25,10 +25,9 @@ def getWeatherResult(owmUrlHost, owmUrlPath):
     httpConn = http.client.HTTPConnection(owmUrlHost)
     httpConn.request("GET", owmUrlPath)
     httpRes = httpConn.getresponse()
-    print(httpRes.status, httpRes.reason)
+    if httpRes.status != 200:
+        raise ValueError("Invalid HTTP result " + str(httpRes.status) + ":" + httpRes.reason)
     data = httpRes.read()
-    print(len(data))
-    print(str(data))
     return data.decode("utf-8")
 
 def getWeatherResult_Static():
@@ -53,3 +52,4 @@ print("uniqueId=" + uniqueId + ", timestamp=" + timestamp + ", dt=" + str(jsonRe
 print("jsonResult=" + str(jsonResult))
 
 es.index(index="oswh", doc_type="openweathermap", id=uniqueId, body=jsonResult)
+
