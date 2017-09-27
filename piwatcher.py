@@ -6,7 +6,6 @@ import re
 import elasticsearch
 import bmp280
 
-currentLedStatus = False
 ledPinout = 11
 disk_name="sda"
 statsInterval = 5
@@ -32,7 +31,10 @@ else:
 
 GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
 GPIO.setup(ledPinout, GPIO.OUT) ## Setup GPIO Pin 7 to OUT
-GPIO.output(ledPinout,currentLedStatus) ## Turn on GPIO pin 7
+GPIO.output(ledPinout, False) ## Turn on GPIO pin 7
+
+ledPwm = GPIO.PWM(ledPinout, 0.5)
+ledPwm.start(25)
 
 # GPIO.setup(5, GPIO.IN) # Switch
 #        state = GPIO.input(5)
@@ -98,9 +100,19 @@ try:
         diskState = checkDiskState()
         updateDiskStateTime(diskState)
         if diskState == "active":
-            currentLedStatus = not currentLedStatus
+            ledPwm.ChangeFrequency(4)
+            ledPwm.ChangeDutyCycle(50)
+        elif diskState == "idle":
+            ledPwm.ChangeFrequency(0.5)
+            ledPwm.ChangeDutyCycle(50)
         else:
-            currentLedStatus = True
+            ledPwm.ChangeFrequency(0.5)
+            ledPwm.ChangeDutyCycle(100)        
+
+#        currentLedStatus = not currentLedStatus
+#        currentLedStatus = True
+#        GPIO.output(11, currentLedStatus)
+            
         diskStateTime = time.time() - previousDiskStateTime
         tnow = time.strftime("%Y%m%d-%H%M%S")
         cpuTemp = getCPUTemp()
@@ -108,10 +120,12 @@ try:
         
         temperature, pressure = tempSensorBmp280.read()
 
-        print (tnow + ", diskState=" + diskState + " for " + str(int(diskStateTime)) + "s, currentLedStatus=" + str(currentLedStatus)+ ", cpuTemp=" + str(cpuTemp) + ", load=" + str(cpuLoad)+ ", temp=" + ("%2.2f'C" % temperature) + ", pressure=" + ("%5.4f mbar" % pressure))
+        print (tnow + ", diskState=" + diskState + " for " + str(int(diskStateTime)) + "s, cpuTemp=" + str(cpuTemp) + ", load=" + str(cpuLoad)+ ", temp=" + ("%2.2f'C" % temperature) + ", pressure=" + ("%5.4f mbar" % pressure))
         es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad, "indoorTemp": temperature, "indoorPressure": pressure, "statsInterval": statsInterval})
-        GPIO.output(11, currentLedStatus)
+
+
         time.sleep(statsInterval)
 
 finally:
+    ledPwm.stop()
     GPIO.cleanup()
