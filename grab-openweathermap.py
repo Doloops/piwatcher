@@ -43,9 +43,11 @@ weatherResult = getWeatherResult_Static()
 jsonResult = json.loads(weatherResult)
 
 # jsonResult["timestamp"] = datetime.utcnow().timestamp()
-timestamp = datetime.utcfromtimestamp(jsonResult["dt"]).isoformat()
+timestamp = datetime.utcnow().isoformat()
+dt_date = datetime.utcfromtimestamp(jsonResult["dt"]).isoformat()
 jsonResult["timestamp"] = timestamp;
-uniqueId = jsonConfig["cityId"] + "-" + str(jsonResult["dt"]) + "-" + datetime.utcnow().isoformat()
+jsonResult["dt_date"] = dt_date;
+uniqueId = jsonConfig["cityId"] + "-" + str(jsonResult["dt"]) + "-" + timestamp
 print("uniqueId=" + uniqueId + ", timestamp=" + timestamp + ", dt=" + str(jsonResult["dt"]) + ", temp=" + str(jsonResult["main"]["temp"]))
 
 print("jsonResult=" + str(jsonResult))
