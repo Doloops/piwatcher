@@ -8,7 +8,8 @@ import bmp280
 
 ledPinout = 11
 disk_name="sda"
-statsInterval = 5
+updateInterval = 1
+statsInterval = 30
 
 hdparmPattern = re.compile("\n.*\n drive state is:  (.*)\n")
 cpuTempPattern = re.compile("temp=(.*)'C")
@@ -18,7 +19,7 @@ previousDiskState = "unknown"
 previousDiskStateTime = time.time()
 
 es = elasticsearch.Elasticsearch()
-
+lastESUpdate = time.time()
 
 tempSensorBmp280 = bmp280.BMP280()
 chip_id, chip_version = tempSensorBmp280.read_id()
@@ -72,6 +73,17 @@ def checkDiskState():
         return "standby"
     raise ValueError("Unknown disk state exception : [" + state + "]");
 
+def setLedFromDiskState(diskState):
+    if diskState == "active":
+        ledPwm.ChangeFrequency(4)
+        ledPwm.ChangeDutyCycle(50)
+    elif diskState == "idle":
+        ledPwm.ChangeFrequency(0.5)
+        ledPwm.ChangeDutyCycle(50)
+    else:
+        ledPwm.ChangeFrequency(0.5)
+        ledPwm.ChangeDutyCycle(100)        
+
 def updateDiskStateTime(diskState):
     global previousDiskState
     global previousDiskStateTime
@@ -95,39 +107,36 @@ def getCPULoad():
         loadavg_file.close()
 
 
+
 try:
     while True:
         diskState = checkDiskState()
+        setLedFromDiskState(diskState)
+        
         updateDiskStateTime(diskState)
-        if diskState == "active":
-            ledPwm.ChangeFrequency(4)
-            ledPwm.ChangeDutyCycle(50)
-        elif diskState == "idle":
-            ledPwm.ChangeFrequency(0.5)
-            ledPwm.ChangeDutyCycle(50)
-        else:
-            ledPwm.ChangeFrequency(0.5)
-            ledPwm.ChangeDutyCycle(100)        
+        
+        now = time.time()
+        diskStateTime = now - previousDiskStateTime
 
-#        currentLedStatus = not currentLedStatus
-#        currentLedStatus = True
-#        GPIO.output(11, currentLedStatus)
-            
-        diskStateTime = time.time() - previousDiskStateTime
         tnow = time.strftime("%Y%m%d-%H%M%S")
         cpuTemp = getCPUTemp()
         cpuLoad = getCPULoad()
         
         temperature, pressure = tempSensorBmp280.read()
 
-        print (tnow + ", diskState=" + diskState + " for " + str(int(diskStateTime)) + "s, cpuTemp=" + str(cpuTemp) + ", load=" + str(cpuLoad)+ ", temp=" + ("%2.2f'C" % temperature) + ", pressure=" + ("%5.4f mbar" % pressure))
-        try:
-            es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad, "indoorTemp": temperature, "indoorPressure": pressure, "statsInterval": statsInterval})
-        except:
-            print("Could not index to ES: ", sys.exc_info()[0])
+        print (tnow + ", diskState=" + diskState + " for " + str(int(diskStateTime)) + "s, cpuTemp=" + str(cpuTemp) + ", load=" + str(cpuLoad)+ ", temp=" + ("%2.2f'C" % temperature) + ", pressure=" + ("%5.4f mbar" % pressure), end='')
+        
+        if ( now - lastESUpdate >= statsInterval ):
+            try:
+                tsBefore = time.time()
+                es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad, "indoorTemp": temperature, "indoorPressure": pressure, "statsInterval": statsInterval})
+                lastESUpdate = now
+                print (" * Indexed in " + ("%.2f ms" % (time.time() - tsBefore)), end='')
+            except:
+                print("Could not index to ES: ", sys.exc_info()[0])
 
-
-        time.sleep(statsInterval)
+        print(".")
+        time.sleep(updateInterval)
 
 finally:
     ledPwm.stop()
