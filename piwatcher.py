@@ -121,7 +121,10 @@ try:
         temperature, pressure = tempSensorBmp280.read()
 
         print (tnow + ", diskState=" + diskState + " for " + str(int(diskStateTime)) + "s, cpuTemp=" + str(cpuTemp) + ", load=" + str(cpuLoad)+ ", temp=" + ("%2.2f'C" % temperature) + ", pressure=" + ("%5.4f mbar" % pressure))
-        es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad, "indoorTemp": temperature, "indoorPressure": pressure, "statsInterval": statsInterval})
+        try:
+            es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad, "indoorTemp": temperature, "indoorPressure": pressure, "statsInterval": statsInterval})
+        except:
+            print("Could not index to ES: ", sys.exc_info()[0])
 
 
         time.sleep(statsInterval)
