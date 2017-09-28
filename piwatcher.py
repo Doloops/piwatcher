@@ -8,7 +8,7 @@ import bmp280
 
 ledPinout = 11
 disk_name="sda"
-updateInterval = 1
+updateInterval = 2
 statsInterval = 30
 
 hdparmPattern = re.compile("\n.*\n drive state is:  (.*)\n")
