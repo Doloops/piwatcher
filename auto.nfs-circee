@@ -1,0 +1,29 @@
+#!/bin/bash
+# circee	-fstype=nfs,rw,intr	circee:/home/kondor
+
+# Modify these values
+hostname="circee"
+hwaddr="00:16:17:8f:0b:e5"
+sharename="circee"
+sharepath="/home/kondor"
+mountopts="-fstype=nfs,rw,intr"
+wolcmd="etherwake"
+maxping=300
+
+logger "Checking NFS mount host=$hostname, sharepath=$sharepath"
+# test "$1" == "$sharename" || exit 0
+
+if ! ping "$hostname" -nqc1 > /dev/null 2>&1; then
+    logger "No ping, trying WOL"
+    $wolcmd "$hwaddr" > /dev/null
+    starttime=$(date +%s)
+    for n in `seq 1 $maxping`; do
+        ping "$hostname" -nqc1 > /dev/null 2>&1 && break
+        sleep 1
+    done
+    endtime=$(date +%s)
+    logger "Server available after $(($endtime - $starttime)) seconds"
+else
+    logger "Server already available !"
+fi
+echo "$mountopts $hostname:$sharepath"
