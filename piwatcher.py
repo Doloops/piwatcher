@@ -5,6 +5,7 @@ import subprocess
 import re
 import elasticsearch
 import bmp280
+import sys
 
 ledPinout = 11
 disk_name="sda"
@@ -131,7 +132,7 @@ try:
                 tsBefore = time.time()
                 es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad, "indoorTemp": temperature, "indoorPressure": pressure, "statsInterval": statsInterval})
                 lastESUpdate = now
-                print (" * Indexed in " + ("%.2f ms" % (time.time() - tsBefore)), end='')
+                print (" * Indexed in " + ("%.3f s" % (time.time() - tsBefore)), end='')
             except:
                 print("Could not index to ES: ", sys.exc_info()[0])
 
