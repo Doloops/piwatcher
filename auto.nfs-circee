@@ -1,6 +1,4 @@
 #!/bin/bash
-# circee	-fstype=nfs,rw,intr	circee:/home/kondor
-
 # Modify these values
 hostname="circee"
 hwaddr="00:16:17:8f:0b:e5"
