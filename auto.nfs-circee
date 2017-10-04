@@ -4,15 +4,15 @@
 # Modify these values
 hostname="circee"
 hwaddr="00:16:17:8f:0b:e5"
-sharename="circee"
-sharepath="/home/kondor1k"
+sharename="kondor"
+sharepath="/home/kondor"
 mountopts="-fstype=nfs,rw,intr"
 wolcmd="etherwake"
 maxping=300
 pingtimeout=1
 
-logger "Checking NFS mount host=$hostname, sharepath=$sharepath"
-# test "$1" == "$sharename" || exit 0
+logger "Checking NFS mount sharename=$sharename, host=$hostname, sharepath=$sharepath"
+test "$1" == "$sharename" || exit 0
 
 if ! ping "$hostname" -nqc1 -W $pingtimeout > /dev/null 2>&1; then
     logger "No ping, trying WOL"
