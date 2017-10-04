@@ -10,7 +10,7 @@ import sys
 ledPinout = 11
 disk_name="sda"
 updateInterval = 2
-statsInterval = 30
+statsInterval = 60
 
 hdparmPattern = re.compile("\n.*\n drive state is:  (.*)\n")
 cpuTempPattern = re.compile("temp=(.*)'C")
