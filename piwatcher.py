@@ -29,9 +29,9 @@ diskWatcher = None
 if pwConfig["disk"]["enabled"]:
     diskWatcher = diskwatcher.DiskWatch(diskLedPinout=pwConfig["disk"]["ledPinout"], diskDeviceName=pwConfig["disk"]["deviceName"])
 
-updateInterval = 1
-statsInterval = 2
-
+hostname = pwConfig["hostname"]
+updateInterval = pwConfig["stats"]["updateInterval"]
+statsInterval = pwConfig["stats"]["statsInterval"]
 
 es = elasticsearch.Elasticsearch(pwConfig["elastic"]["hosts"])
 esIndex = pwConfig["elastic"]["index"]
@@ -53,7 +53,9 @@ try:
     while True:
         now = time.time()
 
-        measure={"timestamp": datetime.utcnow(), "statsInterval": statsInterval}
+        esbody = {"timestamp": datetime.utcnow()}
+        measure={"statsInterval": statsInterval}
+        esbody[hostname] = measure
 
         measure["cpuTemp"] = cpuWatcher.getCPUTemp()
         measure["cpuLoad"] = cpuWatcher.getCPULoad()
@@ -83,7 +85,7 @@ try:
         if ( now - lastESUpdate >= statsInterval ):
             try:
                 tsBefore = time.time()
-                es.index(index=esIndex, doc_type=esType, id=tnow, body=measure)
+                es.index(index=esIndex, doc_type=esType, id=tnow, body=esbody)
                 print (" * Indexed in " + ("%.3f s" % (time.time() - tsBefore)), end='')
                 lastESUpdate = now
             except:
