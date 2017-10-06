@@ -1,138 +1,91 @@
 import RPi.GPIO as GPIO ## Import GPIO library
 from datetime import datetime
 import time
-import subprocess
-import re
 import elasticsearch
+import diskwatcher
+import cpuwatcher
 import bmp280
 import sys
+import json
+from pathlib import Path
 
-ledPinout = 11
-disk_name="sda"
-updateInterval = 2
-statsInterval = 60
 
-hdparmPattern = re.compile("\n.*\n drive state is:  (.*)\n")
-cpuTempPattern = re.compile("temp=(.*)'C")
+def getConfig():
+    with (Path.home() / '.piwatcher' / 'config.json').open() as confFile:
+        confString = confFile.read()
+        return json.loads(confString)
 
-lastTotalIO = 0
-previousDiskState = "unknown"
-previousDiskStateTime = time.time()
 
-es = elasticsearch.Elasticsearch()
+pwConfig = getConfig()
+
+print ("pwConfig : " + str(pwConfig))
+
+
+# Static definitions
+
+cpuWatcher = cpuwatcher.CpuWatcher()
+
+diskWatcher = None
+if pwConfig["disk"]["enabled"]:
+    diskWatcher = diskwatcher.DiskWatch(diskLedPinout=pwConfig["disk"]["ledPinout"], diskDeviceName=pwConfig["disk"]["deviceName"])
+
+updateInterval = 1
+statsInterval = 2
+
+
+es = elasticsearch.Elasticsearch(pwConfig["elastic"]["hosts"])
+esIndex = pwConfig["elastic"]["index"]
+esType = pwConfig["elastic"]["type"]
 lastESUpdate = time.time()
 
-tempSensorBmp280 = bmp280.BMP280()
-chip_id, chip_version = tempSensorBmp280.read_id()
+tempSensorBmp280 = None
 
-if chip_id == 88:
-	tempSensorBmp280.reg_check()
-else:
-    raise ValueError ("Unsupported chip : " + chip_id)
+if pwConfig["sensors"]["bmp280"]["enabled"]:
+    tempSensorBmp280 = bmp280.BMP280()
+    chip_id, chip_version = tempSensorBmp280.read_id()
 
-
-GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
-GPIO.setup(ledPinout, GPIO.OUT) ## Setup GPIO Pin 7 to OUT
-GPIO.output(ledPinout, False) ## Turn on GPIO pin 7
-
-ledPwm = GPIO.PWM(ledPinout, 0.5)
-ledPwm.start(25)
-
-# GPIO.setup(5, GPIO.IN) # Switch
-#        state = GPIO.input(5)
-
-
-def checkDiskActivity():
-    global lastTotalIO
-    try:
-        stat_file = open("/sys/block/" + disk_name + "/stat", "r")
-        line = stat_file.read().strip().split()
-        readIO = int(line[0])
-        writeIO = int(line[4])
-        totalIO = readIO + writeIO
-#            print("line readIO=" + str(readIO) + ", writeIO=" + str(writeIO) + ", totalIO=" + str(totalIO) + ", last=" + str(lastTotalIO))
-        diskActivity = False
-        if totalIO != lastTotalIO:
-            diskActivity = True
-        lastTotalIO = totalIO
-        return diskActivity
-    finally:
-        stat_file.close()
-
-def checkDiskState():
-    result = subprocess.check_output(["hdparm", "-C", "/dev/" + disk_name], shell=False)
-    result = result.decode("utf-8")
-    match = hdparmPattern.match(result);
-    state = match.group(1);
-#    print("Result = [" + state + "]")
-    if state == "active/idle":
-        if checkDiskActivity():
-            return "active"
-        else:
-            return "idle"
-    elif state == "standby":
-        return "standby"
-    raise ValueError("Unknown disk state exception : [" + state + "]");
-
-def setLedFromDiskState(diskState):
-    if diskState == "active":
-        ledPwm.ChangeFrequency(4)
-        ledPwm.ChangeDutyCycle(50)
-    elif diskState == "idle":
-        ledPwm.ChangeFrequency(0.5)
-        ledPwm.ChangeDutyCycle(50)
+    if chip_id == 88:
+	    tempSensorBmp280.reg_check()
     else:
-        ledPwm.ChangeFrequency(0.5)
-        ledPwm.ChangeDutyCycle(100)        
-
-def updateDiskStateTime(diskState):
-    global previousDiskState
-    global previousDiskStateTime
-    if diskState != previousDiskState:
-        previousDiskStateTime = time.time()
-        previousDiskState = diskState
-
-def getCPUTemp():
-    result = subprocess.check_output(["/opt/vc/bin/vcgencmd", "measure_temp"], shell=False).decode("utf-8")
-    match = cpuTempPattern.match(result)
-    temp = float(match.group(1))
-    return temp    
-
-def getCPULoad():
-    try:
-        loadavg_file = open("/proc/loadavg")
-        line = loadavg_file.read().strip().split()
-        cpuLoad = float(line[0])
-        return cpuLoad
-    finally:
-        loadavg_file.close()
-
-
+        raise ValueError ("Unsupported chip : " + chip_id)
 
 try:
     while True:
-        diskState = checkDiskState()
-        setLedFromDiskState(diskState)
-        
-        updateDiskStateTime(diskState)
-        
         now = time.time()
-        diskStateTime = now - previousDiskStateTime
+
+        measure={"timestamp": datetime.utcnow(), "statsInterval": statsInterval}
+
+        measure["cpuTemp"] = cpuWatcher.getCPUTemp()
+        measure["cpuLoad"] = cpuWatcher.getCPULoad()
+        cpuMessage = ", cpuTemp=" + str(measure["cpuTemp"]) + ", load=" + str(measure["cpuLoad"])
+
+        diskState = None
+        diskStateTime = None
+        diskStateMessage = ""
+        if diskWatcher is not None:
+            diskState = checkDiskState()
+            setLedFromDiskState(diskState)
+            updateDiskStateTime(diskState)
+            measure["diskState"] = diskState
+            measure["cumulateDiskStateTime"] = now - previousDiskStateTime
+            diskStateMessage = ", diskState=" + diskState + " for " + str(int(measure["diskStateTime"])) + "s"
+
+        tempSensorMessage = ""    
+        if tempSensorBmp280 is not None:
+            indoorTemp, indoorPressure = tempSensorBmp280.read()
+            measure["indoorTemp"] = indoorTemp
+            measure["indoorPressure"] = indoorPressure
+            tempSensorMessage = ", temp=" + ("%2.2f'C" % indoorTemp) + ", pressure=" + ("%5.4f mbar" % indoorPressure)
 
         tnow = time.strftime("%Y%m%d-%H%M%S")
-        cpuTemp = getCPUTemp()
-        cpuLoad = getCPULoad()
-        
-        temperature, pressure = tempSensorBmp280.read()
-
-        print (tnow + ", diskState=" + diskState + " for " + str(int(diskStateTime)) + "s, cpuTemp=" + str(cpuTemp) + ", load=" + str(cpuLoad)+ ", temp=" + ("%2.2f'C" % temperature) + ", pressure=" + ("%5.4f mbar" % pressure), end='')
+        print (tnow + diskStateMessage + cpuMessage + tempSensorMessage, end='')
         
         if ( now - lastESUpdate >= statsInterval ):
             try:
                 tsBefore = time.time()
-                es.index(index="oswh", doc_type="measure", id=tnow, body={"timestamp": datetime.utcnow(), "diskState": diskState, "cumulateDiskStateTime": diskStateTime, "cpuTemp": cpuTemp, "cpuLoad": cpuLoad, "indoorTemp": temperature, "indoorPressure": pressure, "statsInterval": statsInterval})
-                lastESUpdate = now
+                es.index(index=esIndex, doc_type=esType, id=tnow, body=measure)
                 print (" * Indexed in " + ("%.3f s" % (time.time() - tsBefore)), end='')
+                lastESUpdate = now
             except:
                 print("Could not index to ES: ", sys.exc_info()[0])
 
@@ -140,5 +93,6 @@ try:
         time.sleep(updateInterval)
 
 finally:
-    ledPwm.stop()
-    GPIO.cleanup()
+    if diskWatcher is not None:
+        diskWatcher.shutdown()
+
