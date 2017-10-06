@@ -15,11 +15,9 @@ def getConfig():
         confString = confFile.read()
         return json.loads(confString)
 
-
 pwConfig = getConfig()
 
-print ("pwConfig : " + str(pwConfig))
-
+print ("Start with config : " + str(pwConfig))
 
 # Static definitions
 
@@ -39,7 +37,6 @@ esType = pwConfig["elastic"]["type"]
 lastESUpdate = time.time()
 
 tempSensorBmp280 = None
-
 if pwConfig["sensors"]["bmp280"]["enabled"]:
     tempSensorBmp280 = bmp280.BMP280()
     chip_id, chip_version = tempSensorBmp280.read_id()
