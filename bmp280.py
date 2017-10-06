@@ -97,7 +97,7 @@ class BMP280:
 					'Pi 3 Model B',
 					'Pi 2 Model B',
 					'Pi2 Model B',
-					'Model B+']
+					'Model B+', 'Zero' ]
 
 	_DEBUG = False
 	_DEBUG_INFO = 'DEBUG "BMP280.py":'
