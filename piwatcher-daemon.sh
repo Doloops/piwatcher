@@ -26,12 +26,22 @@ fi
 
 case "$1" in
 start)
-	printf "%-50s" "Starting $NAME..."
-	if [ -n $DAEMON_PATH ]; then
-    	cd $DAEMON_PATH
+    printf "%-50s" "Starting $NAME..."
+    if [ -f $PIDFILE ]; then
+        PID=`cat $PIDFILE`
+        if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+            printf "%s\n" "Process dead but pidfile exists"
+            rm -f $PIDFILE
+        else
+            echo "Daemon $DAEMON already running !"
+            exit 1
+        fi
     fi
-	PID=`$DAEMON_EXEC $DAEMON_OPTS > $LOGFILE 2>&1 & echo $!`
-	# echo "Saving PID" $PID " to " $PIDFILE
+    if [ -n $DAEMON_PATH ]; then
+        cd $DAEMON_PATH
+    fi
+    PID=`$DAEMON_EXEC $DAEMON_OPTS > $LOGFILE 2>&1 & echo $!`
+    # echo "Saving PID" $PID " to " $PIDFILE
     if [ -z $PID ]; then
         printf "%s\n" "Fail"
     else
@@ -68,8 +78,8 @@ stop)
 ;;
 
 restart)
-  	$0 stop
-  	$0 start
+    $0 stop
+    $0 start
 ;;
 
 *)

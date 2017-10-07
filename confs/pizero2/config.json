@@ -1,0 +1,22 @@
+{
+    "hostname" : "pizero2",
+    "disk": {
+	"enabled": false,
+	"ledPinout": 11,
+	"deviceName": "sda"
+    },
+    "sensors" : {
+	"bmp280" : {
+	    "enabled": true
+	}
+    },
+    "elastic" : {
+	"hosts":[{"host" : "osmc"}],
+	"index": "oswh-pizero2",
+	"type": "sys-measure"
+    },
+    "stats" : {
+	"updateInterval" : 10,
+	"statsInterval" : 60
+    }
+}
