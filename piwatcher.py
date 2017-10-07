@@ -7,11 +7,11 @@ import cpuwatcher
 import bmp280
 import sys
 import json
-from pathlib import Path
+from os.path import expanduser
 
 
 def getConfig():
-    with (Path.home() / '.piwatcher' / 'config.json').open() as confFile:
+    with (open(expanduser("~") + "/.piwatcher/config.json")) as confFile:
         confString = confFile.read()
         return json.loads(confString)
 
@@ -25,7 +25,7 @@ cpuWatcher = cpuwatcher.CpuWatcher()
 
 diskWatcher = None
 if pwConfig["disk"]["enabled"]:
-    diskWatcher = diskwatcher.DiskWatch(diskLedPinout=pwConfig["disk"]["ledPinout"], diskDeviceName=pwConfig["disk"]["deviceName"])
+    diskWatcher = diskwatcher.DiskWatcher(diskLedPinout=pwConfig["disk"]["ledPinout"], diskDeviceName=pwConfig["disk"]["deviceName"])
 
 hostname = pwConfig["hostname"]
 updateInterval = pwConfig["stats"]["updateInterval"]
@@ -62,12 +62,12 @@ try:
         diskStateTime = None
         diskStateMessage = ""
         if diskWatcher is not None:
-            diskState = checkDiskState()
-            setLedFromDiskState(diskState)
-            updateDiskStateTime(diskState)
+            diskState = diskWatcher.checkDiskState()
+            diskWatcher.setLedFromDiskState(diskState)
+            previousDiskStateTime = diskWatcher.updateDiskStateTime(diskState)
             measure["diskState"] = diskState
             measure["cumulateDiskStateTime"] = now - previousDiskStateTime
-            diskStateMessage = ", diskState=" + diskState + " for " + str(int(measure["diskStateTime"])) + "s"
+            diskStateMessage = ", diskState=" + diskState + " for " + str(int(measure["cumulateDiskStateTime"])) + "s"
 
         tempSensorMessage = ""    
         if tempSensorBmp280 is not None:

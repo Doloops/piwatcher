@@ -3,6 +3,7 @@ Utility class to monitor disk activity
 '''
 import re
 import time
+import subprocess
 import RPi.GPIO as GPIO
 
 class DiskWatcher:
@@ -25,7 +26,7 @@ class DiskWatcher:
 
     def checkDiskActivity(self):
         try:
-            stat_file = open("/sys/block/" + diskDeviceName + "/stat", "r")
+            stat_file = open("/sys/block/" + self.diskDeviceName + "/stat", "r")
             line = stat_file.read().strip().split()
             readIO = int(line[0])
             writeIO = int(line[4])
@@ -33,18 +34,18 @@ class DiskWatcher:
             diskActivity = False
             if totalIO != self.lastTotalIO:
                 diskActivity = True
-            lastTotalIO = totalIO
+            self.lastTotalIO = totalIO
             return diskActivity
         finally:
             stat_file.close()
 
     def checkDiskState(self):
-        result = subprocess.check_output(["hdparm", "-C", "/dev/" + diskDeviceName], shell=False)
+        result = subprocess.check_output(["hdparm", "-C", "/dev/" + self.diskDeviceName], shell=False)
         result = result.decode("utf-8")
-        match = hdparmPattern.match(result);
+        match = self.hdparmPattern.match(result);
         state = match.group(1);
         if state == "active/idle":
-            if checkDiskActivity():
+            if self.checkDiskActivity():
                 return "active"
             else:
                 return "idle"
@@ -64,9 +65,10 @@ class DiskWatcher:
             self.ledPwm.ChangeDutyCycle(100)        
 
     def updateDiskStateTime(self, diskState):
-        if diskState != previousDiskState:
+        if diskState != self.previousDiskState:
             self.previousDiskStateTime = time.time()
             self.previousDiskState = diskState
+        return self.previousDiskStateTime
 
     def shutdown(self):
         self.ledPwm.stop()
