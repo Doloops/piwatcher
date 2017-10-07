@@ -18,8 +18,8 @@ start)
 	if [ -n $DAEMON_PATH ]; then
     	cd $DAEMON_PATH
     fi
-	PID=`$DAEMON $DAEMONOPTS > /dev/null 2>&1 & echo $!`
-	#echo "Saving PID" $PID " to " $PIDFILE
+	PID=`$DAEMON_EXEC $DAEMONOPTS > $LOGFILE 2>&1 & echo $!`
+	echo "Saving PID" $PID " to " $PIDFILE
     if [ -z $PID ]; then
         printf "%s\n" "Fail"
     else
