@@ -52,6 +52,11 @@ See examples in `confs/*` to see how it can be set up.
     }
 
 
+## /etc/piwatcher-daemon.config : piwatcher service daemon configuration
+
+This config file only deals with running the daemon service properly.
+Config values are pretty straightforward.
+
 # Features
 
 Notation :
@@ -73,10 +78,4 @@ Temperature is pushed to stats:`$host.indoorTemp`, pressured is pushed to stats:
 ## Disk monitoring
 Disk state is pushed to stats:`$host.diskState` and can take values `standby`, `idle` or `active`.
 stats:`$host.cumulateDiskStateTime` counts the number of seconds the state did not change. That's a float with may too much precision ATM...
-
-
-## /etc/piwatcher-daemon.config : piwatcher service daemon configuration
-
-This config file only deals with running the daemon service properly.
-Config values are pretty straightforward.
 
