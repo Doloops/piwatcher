@@ -51,5 +51,5 @@ print("uniqueId=" + uniqueId + ", timestamp=" + timestamp + ", dt=" + str(jsonRe
 
 print("jsonResult=" + str(jsonResult))
 
-es.index(index="oswh", doc_type="openweathermap", id=uniqueId, body=jsonResult)
+es.index(index="oswh-owm-sartrouville", doc_type="openweathermap", id=uniqueId, body=jsonResult)
 
