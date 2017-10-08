@@ -1,0 +1,22 @@
+{
+    "hostname" : "osmc",
+    "disk": {
+	"enabled": true,
+	"ledPinout": 11,
+	"deviceName": "sda"
+    },
+    "sensors" : {
+	"bmp280" : {
+	    "enabled": true
+	}
+    },
+    "elastic" : {
+	"hosts":[{"host" : "osmc"}],
+	"index": "oswh-osmc",
+	"type": "sys-measure"
+    },
+    "stats" : {
+	"updateInterval" : 2,
+	"statsInterval" : 60
+    }
+}
