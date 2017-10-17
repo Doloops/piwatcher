@@ -75,7 +75,7 @@ try:
                 indoorTemp, indoorPressure = tempSensorBmp280.read()
                 # Guard against absurd values
                 if indoorPressure < 980.0:
-                    raise ValueError("Invalid indoorPressure provided : " + indoorPressure + ", skipping value");
+                    raise ValueError("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
                 measure["indoorTemp"] = indoorTemp
                 measure["indoorPressure"] = indoorPressure
                 tempSensorMessage = ", temp=" + ("%2.2f'C" % indoorTemp) + ", pressure=" + ("%5.4f mbar" % indoorPressure)
