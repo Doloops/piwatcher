@@ -11,7 +11,7 @@
 	}
     },
     "elastic" : {
-	"hosts":[{"host" : "osmc"}],
+	"hosts":[{"host" : "osmc"},{"host" : "lenovo-fba"}],
 	"index": "oswh-pizero2",
 	"type": "sys-measure"
     },
