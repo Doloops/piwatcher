@@ -71,10 +71,15 @@ try:
 
         tempSensorMessage = ""    
         if tempSensorBmp280 is not None:
-            indoorTemp, indoorPressure = tempSensorBmp280.read()
-            measure["indoorTemp"] = indoorTemp
-            measure["indoorPressure"] = indoorPressure
-            tempSensorMessage = ", temp=" + ("%2.2f'C" % indoorTemp) + ", pressure=" + ("%5.4f mbar" % indoorPressure)
+            try:
+                indoorTemp, indoorPressure = tempSensorBmp280.read()
+                measure["indoorTemp"] = indoorTemp
+                measure["indoorPressure"] = indoorPressure
+                tempSensorMessage = ", temp=" + ("%2.2f'C" % indoorTemp) + ", pressure=" + ("%5.4f mbar" % indoorPressure)
+            except:
+                print("Could not get BMP280 sensor information : ", sys.exc_info()[0])
+                time.sleep(updateInterval)
+                continue
 
         tnow = time.strftime("%Y%m%d-%H%M%S")
         print (tnow + diskStateMessage + cpuMessage + tempSensorMessage, end='')
