@@ -56,7 +56,9 @@ class PiCommandWatcher(pimodule.PiModule):
                     raise ValueError("No property " + self.esPropertyName + " in result " + str(firstResult))
                 value = firstResult[self.esPropertyName]
                 print("=" + str(value), end='')
-                measure[self.esPropertyName] = value
+
+                measure[self.esType] = {}
+                measure[self.esType][self.esPropertyName] = value
                 self.applyCommand(self.esPropertyName, value)
             else:
                 raise ValueError("Wrong number of results " + str(results))
