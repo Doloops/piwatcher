@@ -6,12 +6,12 @@
         }
     },
     "elastic" : {
-        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"}],
+        "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
         "index": "oswh-pizero1",
         "type": "sys-measure"
     },
     "picommander" : {
-        "hosts":[{"host" : "osmc"}],
+        "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
         "index": "oswh-pizero1-cmd",
         "type": "heaterCommand",
         "property" : "state",
