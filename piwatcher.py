@@ -1,10 +1,10 @@
 import RPi.GPIO as GPIO ## Import GPIO library
-from datetime import datetime
 import time
-import elasticsearch
 import diskwatcher
 import cpuwatcher
-import bmp280
+import tempwatcher
+import push2es
+
 import sys
 import json
 from os.path import expanduser
@@ -19,70 +19,65 @@ pwConfig = getConfig()
 
 print ("Start with config : " + str(pwConfig))
 
+piModules = []
+
 # Static definitions
-
-cpuWatcher = cpuwatcher.CpuWatcher()
-
-diskWatcher = None
-if pwConfig["disk"]["enabled"]:
-    diskWatcher = diskwatcher.DiskWatcher(diskLedPinout=pwConfig["disk"]["ledPinout"], diskDeviceName=pwConfig["disk"]["deviceName"])
+piModules.append(cpuwatcher.CpuWatcher())
 
 hostname = pwConfig["hostname"]
 updateInterval = pwConfig["stats"]["updateInterval"]
 statsInterval = pwConfig["stats"]["statsInterval"]
 
-es = elasticsearch.Elasticsearch(pwConfig["elastic"]["hosts"])
-esIndex = pwConfig["elastic"]["index"]
-esType = pwConfig["elastic"]["type"]
-lastESUpdate = time.time()
+diskWatcher = None
+if pwConfig["disk"]["enabled"]:
+    piModules.append(diskwatcher.DiskWatcher(diskLedPinout=pwConfig["disk"]["ledPinout"], diskDeviceName=pwConfig["disk"]["deviceName"]))
 
-tempSensorBmp280 = None
 if pwConfig["sensors"]["bmp280"]["enabled"]:
-    tempSensorBmp280 = bmp280.BMP280()
-    chip_id, chip_version = tempSensorBmp280.read_id()
+    piModules.append(tempwatcher.TempWatcher())
 
-    if chip_id == 88:
-	    tempSensorBmp280.reg_check()
-    else:
-        raise ValueError ("Unsupported chip : " + chip_id)
+piModules.append(push2es.Push2ES(
+    hosts = pwConfig["elastic"]["hosts"], 
+    hostname = hostname,
+    esIndex = pwConfig["elastic"]["index"], 
+    esType =  pwConfig["elastic"]["type"],
+    statsInterval = pwConfig["stats"]["statsInterval"]))
+    
+for module in piModules:
+    print("* using module " + module.getModuleName())
 
 try:
     while True:
-        now = time.time()
         tnow = time.strftime("%Y%m%d-%H%M%S")
         print (tnow, end='')
         
-        esbody = {"timestamp": datetime.utcnow()}
         measure={"statsInterval": statsInterval}
-        esbody[hostname] = measure
+        
+        for module in piModules:
+            module.update(measure)
 
-        if cpuWatcher is not None:
-            cpuWatcher.update(measure)
+#        if cpuWatcher is not None:
+#            cpuWatcher.update(measure)
 
-        if diskWatcher is not None:
-            diskWatcher.update(measure)
+#        if diskWatcher is not None:
+#            diskWatcher.update(measure)
 
-        if tempSensorBmp280 is not None:
-            try:
-                tempSensorBmp280.update(measure)
-            except:
-                print("Could not get BMP280 sensor information : ", sys.exc_info()[0])
-                time.sleep(updateInterval)
-                continue
+#        if tempSensorBmp280 is not None:
+#            try:
+#                tempSensorBmp280.update(measure)
+#            except:
+#                print("Could not get BMP280 sensor information : ", sys.exc_info()[0])
+#                time.sleep(updateInterval)
+#                continue
 
-        if ( now - lastESUpdate >= statsInterval ):
-            try:
-                tsBefore = time.time()
-                es.index(index=esIndex, doc_type=esType, id=tnow, body=esbody)
-                print (" * Indexed in " + ("%.3f s" % (time.time() - tsBefore)), end='')
-                lastESUpdate = now
-            except:
-                print("Could not index to ES: ", sys.exc_info()[0])
+
 
         print(".")
         time.sleep(updateInterval)
 
 finally:
-    if diskWatcher is not None:
-        diskWatcher.shutdown()
+    for module in piModules:
+        try:
+            module.shutdown()
+        except:
+            print("Could not shutdown " + module.getModuleName(), sys.exc_info()[0])
 

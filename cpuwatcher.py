@@ -1,9 +1,12 @@
+import pimodule
 import re
 import subprocess
 
-class CpuWatcher:
+class CpuWatcher(pimodule.PiModule):
     cpuTempPattern = re.compile("temp=(.*)'C")
 
+    def __init__(self):
+        pimodule.PiModule.__init__(self,"CPU")
 
     def getCPUTemp(self):
         result = subprocess.check_output(["/opt/vc/bin/vcgencmd", "measure_temp"], shell=False).decode("utf-8")
@@ -25,4 +28,7 @@ class CpuWatcher:
         measure["cpuLoad"] = self.getCPULoad()
         cpuMessage = ", cpuTemp=" + str(measure["cpuTemp"]) + ", load=" + str(measure["cpuLoad"])
         print(cpuMessage, end='')
+
+    def shutdown(self):
+        print("Shutdown " + self.getModuleName())
 

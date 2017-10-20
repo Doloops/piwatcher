@@ -1,27 +1,30 @@
 '''
 Utility class to monitor disk activity
 '''
+import pimodule
 import re
 import time
 import subprocess
 import RPi.GPIO as GPIO
 
-class DiskWatcher:
+class DiskWatcher(pimodule.PiModule):
     hdparmPattern = re.compile("\n.*\n drive state is:  (.*)\n")
 
     diskLedPinout = None
+    diskDeviceName = None
     lastTotalIO = 0
     previousDiskState = "unknown"
     previousDiskStateTime = time.time()
     ledPwm = None
 
     def __init__(self, diskLedPinout=None, diskDeviceName=None):
+        pimodule.PiModule.__init__(self,"Disk")    
         self.diskLedPinout=diskLedPinout
         self.diskDeviceName=diskDeviceName
         GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
-        GPIO.setup(diskLedPinout, GPIO.OUT) ## Setup GPIO Pin 7 to OUT
-        GPIO.output(diskLedPinout, False) ## Turn on GPIO pin 7
-        self.ledPwm = GPIO.PWM(diskLedPinout, 0.5)
+        GPIO.setup(self.diskLedPinout, GPIO.OUT) ## Setup GPIO Pin 7 to OUT
+        GPIO.output(self.diskLedPinout, False) ## Turn on GPIO pin 7
+        self.ledPwm = GPIO.PWM(self.diskLedPinout, 0.5)
         self.ledPwm.start(25)
 
     def checkDiskActivity(self):
@@ -81,6 +84,7 @@ class DiskWatcher:
         print(diskStateMessage, end='')
 
     def shutdown(self):
+        print("Shutdown " + self.getModuleName())
         self.ledPwm.stop()
         GPIO.cleanup()
 
