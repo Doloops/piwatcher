@@ -26,7 +26,7 @@ class CpuWatcher(pimodule.PiModule):
     def update(self, measure):
         measure["cpuTemp"] = self.getCPUTemp()
         measure["cpuLoad"] = self.getCPULoad()
-        cpuMessage = ", cpuTemp=" + str(measure["cpuTemp"]) + ", load=" + str(measure["cpuLoad"])
+        cpuMessage = ", cpuTemp=" + ("%2.1f'C" % measure["cpuTemp"]) + ", load=" + ("%.2f" % measure["cpuLoad"])
         print(cpuMessage, end='')
 
     def shutdown(self):
