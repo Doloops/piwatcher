@@ -52,24 +52,14 @@ try:
         
         measure={"statsInterval": statsInterval}
         
+        
         for module in piModules:
-            module.update(measure)
-
-#        if cpuWatcher is not None:
-#            cpuWatcher.update(measure)
-
-#        if diskWatcher is not None:
-#            diskWatcher.update(measure)
-
-#        if tempSensorBmp280 is not None:
-#            try:
-#                tempSensorBmp280.update(measure)
-#            except:
-#                print("Could not get BMP280 sensor information : ", sys.exc_info()[0])
-#                time.sleep(updateInterval)
-#                continue
-
-
+            try:
+                module.update(measure)
+            except:
+                print("!")
+                print("Could not update module " + module.getModuleName(), sys.exc_info()[0])
+                break
 
         print(".")
         time.sleep(updateInterval)
