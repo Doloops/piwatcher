@@ -1,10 +1,5 @@
 {
     "hostname" : "pizero1",
-    "disk": {
-        "enabled": false,
-        "ledPinout": 11,
-        "deviceName": "sda"
-    },
     "sensors" : {
         "bmp280" : {
             "enabled": true

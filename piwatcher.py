@@ -20,7 +20,7 @@ updateInterval = pwConfig["stats"]["updateInterval"]
 statsInterval = pwConfig["stats"]["statsInterval"]
 
 diskWatcher = None
-if pwConfig["disk"]["enabled"]:
+if ("disk" in pwConfig) and pwConfig["disk"]["enabled"]:
     piModules.append(diskwatcher.DiskWatcher(diskLedPinout=pwConfig["disk"]["ledPinout"], diskDeviceName=pwConfig["disk"]["deviceName"]))
 
 if pwConfig["sensors"]["bmp280"]["enabled"]:
