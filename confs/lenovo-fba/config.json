@@ -1,0 +1,6 @@
+{
+    "elastic" : {
+        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"}]
+    }
+}
+
