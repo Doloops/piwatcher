@@ -11,12 +11,13 @@ class PiCommandWatcher(pimodule.PiModule):
     esIndex = None
     esType = None
     esPropertyName = None
+    esPropertyDefaultValue = None
     channels = None
     commands = None
     lastESUpdate = time.time()
     statsInterval = 60
 
-    def __init__(self, hosts, hostname, esIndex, esType, esPropertyName, channels, commands):
+    def __init__(self, hosts, hostname, esIndex, esType, esPropertyName, esPropertyDefaultValue, channels, commands):
         pimodule.PiModule.__init__(self,"PiCommandWatcher")
         GPIO.setmode(GPIO.BOARD)
         self.es = elasticsearch.Elasticsearch(hosts)
@@ -24,6 +25,7 @@ class PiCommandWatcher(pimodule.PiModule):
         self.esIndex = esIndex
         self.esType = esType
         self.esPropertyName = esPropertyName
+        self.esPropertyDefaultValue = esPropertyDefaultValue;
         print("esPropertyName=" + self.esPropertyName)
         self.channels = channels
         self.commands = commands
@@ -44,20 +46,24 @@ class PiCommandWatcher(pimodule.PiModule):
              "from":0,"size":1,
              "sort":[{"timestamp":{"order":"desc"}}],
              "aggs":{}}
-        results = self.es.search(index = self.esIndex, doc_type = self.esType, _source = True, body = query)
-        print(", [" + str(results["hits"]["total"]) + "]", end='')
-        if results["hits"]["total"] >= 1:
-            firstResult = results["hits"]["hits"][0]["_source"]
-            print(", " + self.esPropertyName, end='')
-#            print("firstResult=" + str(firstResult))
-            if self.esPropertyName not in firstResult:
-                raise ValueError("No property " + self.esPropertyName + " in result " + str(firstResult))
-            value = firstResult[self.esPropertyName]
-            print("=" + str(value), end='')
-            measure[self.esPropertyName] = value
-            self.applyCommand(self.esPropertyName, value)
-        else:
-            raise ValueError("Wrong number of results " + str(results))
+        try:
+            results = self.es.search(index = self.esIndex, doc_type = self.esType, _source = True, body = query)
+            print(", [" + str(results["hits"]["total"]) + "]", end='')
+            if results["hits"]["total"] >= 1:
+                firstResult = results["hits"]["hits"][0]["_source"]
+                print(", " + self.esPropertyName, end='')
+                if self.esPropertyName not in firstResult:
+                    raise ValueError("No property " + self.esPropertyName + " in result " + str(firstResult))
+                value = firstResult[self.esPropertyName]
+                print("=" + str(value), end='')
+                measure[self.esPropertyName] = value
+                self.applyCommand(self.esPropertyName, value)
+            else:
+                raise ValueError("Wrong number of results " + str(results))
+        except Exception as err:
+            print("[Default=" + self.esPropertyDefaultValue + "]", end='')
+            self.applyCommand(self.esPropertyName, self.esPropertyDefaultValue)
+            raise err
 
     def applyCommand(self, propertyName, propertyValue):
         if propertyValue in self.commands:
@@ -71,7 +77,6 @@ class PiCommandWatcher(pimodule.PiModule):
                     GPIO.output(pinout, commandValue)
                 else:
                     raise ValueError("Invalid command key " + commandKey)
-                
         else:
             raise ValueError("Unknown value " + propertyValue + " for property " + propertyName)
 

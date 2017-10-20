@@ -15,6 +15,7 @@
         "index": "oswh-pizero1-cmd",
         "type": "heaterCommand",
         "property" : "state",
+        "defaultValue" : "standby",
         "channels": {"mp":{"pinout":16},"mn":{"pinout":18}},
         "commands": { 
             "comfort": { "mp": false, "mn": false },

@@ -34,6 +34,7 @@ if "picommander" in pwConfig:
         esIndex = pwConfig["picommander"]["index"], 
         esType =  pwConfig["picommander"]["type"],
         esPropertyName = pwConfig["picommander"]["property"],
+        esPropertyDefaultValue = pwConfig["picommander"]["defaultValue"],        
         channels = pwConfig["picommander"]["channels"],
         commands = pwConfig["picommander"]["commands"]
         ))
@@ -63,7 +64,7 @@ try:
             except Exception as err:
                 print("! " + str(err))
                 print("Could not update module " + module.getModuleName(), sys.exc_info()[0])
-                raise err
+                # raise err
                 break
 
         print(".")
