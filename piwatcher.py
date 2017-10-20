@@ -60,7 +60,7 @@ try:
             cpuWatcher.update(measure)
 
         if diskWatcher is not None:
-            diskWatcher.udpate(measure)
+            diskWatcher.update(measure)
 
         if tempSensorBmp280 is not None:
             try:

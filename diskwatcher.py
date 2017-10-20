@@ -71,13 +71,14 @@ class DiskWatcher:
         return self.previousDiskStateTime
 
     def update(self, measure):
-        diskState = diskWatcher.checkDiskState()
+        now = time.time()
+        diskState = self.checkDiskState()
         self.setLedFromDiskState(diskState)
         previousDiskStateTime = self.updateDiskStateTime(diskState)
         measure["diskState"] = diskState
         measure["cumulateDiskStateTime"] = now - previousDiskStateTime
         diskStateMessage = ", diskState=" + diskState + " for " + str(int(measure["cumulateDiskStateTime"])) + "s"
-        print(diskStateMessage, end='')        
+        print(diskStateMessage, end='')
 
     def shutdown(self):
         self.ledPwm.stop()
