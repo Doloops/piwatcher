@@ -3,8 +3,11 @@ import time
 import sys
 import select
 
-# print ('Number of arguments:', len(sys.argv), 'arguments.')
-# print ('Argument List:', str(sys.argv))
+# States
+# 0 : Confort
+# 1 : (MN) Arrêt
+# 2 : (MP) Hors-gel
+# 3 : Eco
 
 PIN_MP=16
 PIN_MN=18

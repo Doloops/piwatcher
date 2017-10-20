@@ -20,4 +20,9 @@ class CpuWatcher:
         finally:
             loadavg_file.close()
 
+    def update(self, measure):
+        measure["cpuTemp"] = self.getCPUTemp()
+        measure["cpuLoad"] = self.getCPULoad()
+        cpuMessage = ", cpuTemp=" + str(measure["cpuTemp"]) + ", load=" + str(measure["cpuLoad"])
+        print(cpuMessage, end='')
 

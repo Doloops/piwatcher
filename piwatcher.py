@@ -49,44 +49,27 @@ if pwConfig["sensors"]["bmp280"]["enabled"]:
 try:
     while True:
         now = time.time()
-
+        tnow = time.strftime("%Y%m%d-%H%M%S")
+        print (tnow, end='')
+        
         esbody = {"timestamp": datetime.utcnow()}
         measure={"statsInterval": statsInterval}
         esbody[hostname] = measure
 
-        measure["cpuTemp"] = cpuWatcher.getCPUTemp()
-        measure["cpuLoad"] = cpuWatcher.getCPULoad()
-        cpuMessage = ", cpuTemp=" + str(measure["cpuTemp"]) + ", load=" + str(measure["cpuLoad"])
+        if cpuWatcher is not None:
+            cpuWatcher.update(measure)
 
-        diskState = None
-        diskStateTime = None
-        diskStateMessage = ""
         if diskWatcher is not None:
-            diskState = diskWatcher.checkDiskState()
-            diskWatcher.setLedFromDiskState(diskState)
-            previousDiskStateTime = diskWatcher.updateDiskStateTime(diskState)
-            measure["diskState"] = diskState
-            measure["cumulateDiskStateTime"] = now - previousDiskStateTime
-            diskStateMessage = ", diskState=" + diskState + " for " + str(int(measure["cumulateDiskStateTime"])) + "s"
+            diskWatcher.udpate(measure)
 
-        tempSensorMessage = ""    
         if tempSensorBmp280 is not None:
             try:
-                indoorTemp, indoorPressure = tempSensorBmp280.read()
-                # Guard against absurd values
-                if indoorPressure < 980.0:
-                    raise ValueError("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
-                measure["indoorTemp"] = indoorTemp
-                measure["indoorPressure"] = indoorPressure
-                tempSensorMessage = ", temp=" + ("%2.2f'C" % indoorTemp) + ", pressure=" + ("%5.4f mbar" % indoorPressure)
+                tempSensorBmp280.update(measure)
             except:
                 print("Could not get BMP280 sensor information : ", sys.exc_info()[0])
                 time.sleep(updateInterval)
                 continue
 
-        tnow = time.strftime("%Y%m%d-%H%M%S")
-        print (tnow + diskStateMessage + cpuMessage + tempSensorMessage, end='')
-        
         if ( now - lastESUpdate >= statsInterval ):
             try:
                 tsBefore = time.time()

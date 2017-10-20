@@ -230,6 +230,17 @@ class BMP280:
 
 		return temp, press/ 100.0
 
+    def update(self, measure):
+        indoorTemp, indoorPressure = tempSensorBmp280.read()
+        # Guard against absurd values
+        if indoorPressure < 980.0:
+            raise ValueError("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
+        measure["indoorTemp"] = indoorTemp
+        measure["indoorPressure"] = indoorPressure
+        tempSensorMessage = ", temp=" + ("%2.2f'C" % indoorTemp) + ", pressure=" + ("%5.4f mbar" % indoorPressure)
+        print(tempSensorMessage, end='')
+
+
 def main():
 	bmp = BMP280()
 	chip_id, chip_version = bmp.read_id()
