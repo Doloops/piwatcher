@@ -1,22 +1,17 @@
 {
     "hostname" : "pizero2",
-    "disk": {
-	"enabled": false,
-	"ledPinout": 11,
-	"deviceName": "sda"
-    },
     "sensors" : {
-	"bmp280" : {
-	    "enabled": true
-	}
+	    "bmp280" : {
+	        "enabled": true
+	    }
     },
     "elastic" : {
-	"hosts":[{"host" : "osmc"},{"host" : "lenovo-fba"}],
-	"index": "oswh-pizero2",
-	"type": "sys-measure"
+	    "hosts":[{"host" : "osmc"},{"host" : "lenovo-fba"}],
+	    "index": "oswh-pizero2",
+	    "type": "sys-measure"
     },
     "stats" : {
-	"updateInterval" : 10,
-	"statsInterval" : 60
+	    "updateInterval" : 10,
+	    "statsInterval" : 60
     }
 }
