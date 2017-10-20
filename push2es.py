@@ -24,7 +24,7 @@ class Push2ES(pimodule.PiModule):
         esbody = {"timestamp": datetime.utcnow()}
         esbody[self.hostname] = measure
     
-        tnow = time.strftime("%Y%m%d-%H%M%S")    
+        tnow = time.strftime("%Y%m%d-%H%M%S")
         now = time.time()
         if ( now - self.lastESUpdate >= self.statsInterval ):
             try:

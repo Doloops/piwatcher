@@ -1,23 +1,14 @@
-import RPi.GPIO as GPIO ## Import GPIO library
-import time
+import piwatcherconfig
 import diskwatcher
 import cpuwatcher
 import tempwatcher
 import push2es
+import picommandwatcher
 
 import sys
-import json
-from os.path import expanduser
+import time
 
-
-def getConfig():
-    with (open(expanduser("~") + "/.piwatcher/config.json")) as confFile:
-        confString = confFile.read()
-        return json.loads(confString)
-
-pwConfig = getConfig()
-
-print ("Start with config : " + str(pwConfig))
+pwConfig = piwatcherconfig.PiWatcherConfig.getConfig()
 
 piModules = []
 
@@ -34,6 +25,19 @@ if pwConfig["disk"]["enabled"]:
 
 if pwConfig["sensors"]["bmp280"]["enabled"]:
     piModules.append(tempwatcher.TempWatcher())
+
+
+if "picommander" in pwConfig:    
+    piModules.append(picommandwatcher.PiCommandWatcher(
+        hosts = pwConfig["picommander"]["hosts"], 
+        hostname = hostname,
+        esIndex = pwConfig["picommander"]["index"], 
+        esType =  pwConfig["picommander"]["type"],
+        esPropertyName = pwConfig["picommander"]["property"],
+        channels = pwConfig["picommander"]["channels"],
+        commands = pwConfig["picommander"]["commands"]
+        ))
+
 
 piModules.append(push2es.Push2ES(
     hosts = pwConfig["elastic"]["hosts"], 
@@ -56,9 +60,10 @@ try:
         for module in piModules:
             try:
                 module.update(measure)
-            except:
-                print("!")
+            except Exception as err:
+                print("! " + str(err))
                 print("Could not update module " + module.getModuleName(), sys.exc_info()[0])
+                raise err
                 break
 
         print(".")
