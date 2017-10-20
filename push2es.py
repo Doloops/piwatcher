@@ -1,6 +1,7 @@
 import pimodule
 import elasticsearch
 import time
+import sys
 from datetime import datetime
 
 class Push2ES(pimodule.PiModule):
