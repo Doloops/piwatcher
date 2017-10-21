@@ -10,6 +10,7 @@ class PiCommandWatcher(pimodule.PiModule):
     hostname = None
     esIndex = None
     esType = None
+    esId = None
     esPropertyName = None
     esPropertyDefaultValue = None
     channels = None
@@ -17,13 +18,14 @@ class PiCommandWatcher(pimodule.PiModule):
     lastESUpdate = time.time()
     statsInterval = 60
 
-    def __init__(self, hosts, hostname, esIndex, esType, esPropertyName, esPropertyDefaultValue, channels, commands):
+    def __init__(self, hosts, hostname, esIndex, esType, esId, esPropertyName, esPropertyDefaultValue, channels, commands):
         pimodule.PiModule.__init__(self,"PiCommandWatcher")
         GPIO.setmode(GPIO.BOARD)
         self.es = elasticsearch.Elasticsearch(hosts)
         self.hostname = hostname
         self.esIndex = esIndex
         self.esType = esType
+        self.esId = esId
         self.esPropertyName = esPropertyName
         self.esPropertyDefaultValue = esPropertyDefaultValue;
         print("esPropertyName=" + self.esPropertyName)
@@ -47,10 +49,10 @@ class PiCommandWatcher(pimodule.PiModule):
              "sort":[{"timestamp":{"order":"desc"}}],
              "aggs":{}}
         try:
-            results = self.es.search(index = self.esIndex, doc_type = self.esType, _source = True, body = query)
-            print(", [" + str(results["hits"]["total"]) + "]", end='')
-            if results["hits"]["total"] >= 1:
-                firstResult = results["hits"]["hits"][0]["_source"]
+            result = self.es.get(index = self.esIndex, doc_type = self.esType, id = self.esId)
+#            print(", [" + str(result["hits"]["total"]) + "]", end='')
+            if result["found"] == True:
+                firstResult = result["_source"]
                 print(", " + self.esPropertyName, end='')
                 if self.esPropertyName not in firstResult:
                     raise ValueError("No property " + self.esPropertyName + " in result " + str(firstResult))
@@ -61,7 +63,7 @@ class PiCommandWatcher(pimodule.PiModule):
                 measure[self.esType][self.esPropertyName] = value
                 self.applyCommand(self.esPropertyName, value)
             else:
-                raise ValueError("Wrong number of results " + str(results))
+                raise ValueError("Wrong number of results " + str(result))
         except Exception as err:
             print("[Default=" + self.esPropertyDefaultValue + "]", end='')
             self.applyCommand(self.esPropertyName, self.esPropertyDefaultValue)

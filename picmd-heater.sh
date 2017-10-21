@@ -10,5 +10,8 @@ fi
 
 echo Setting heater to $STATE
 
-python3 picommander.py oswh-pizero1-cmd heaterCommand state $STATE
+# python3 picommander.py oswh-pizero1-cmd heaterCommand state $STATE
+
+curl -XPUT 'osmc:9200/oswh-commands/command/pizero1-heater' -d"{\"state\":\"$STATE\"}"
+
 

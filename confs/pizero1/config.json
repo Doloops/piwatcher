@@ -12,8 +12,9 @@
     },
     "picommander" : {
         "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
-        "index": "oswh-pizero1-cmd",
-        "type": "heaterCommand",
+        "index": "oswh-commands",
+        "type": "command",
+        "id": "pizero1-heater",
         "property" : "state",
         "defaultValue" : "standby",
         "channels": {"mp":{"pinout":16},"mn":{"pinout":18}},
@@ -23,7 +24,7 @@
         }
     },
     "stats" : {
-        "updateInterval" : 5,
+        "updateInterval" : 1,
         "statsInterval" : 60
     }
 }
