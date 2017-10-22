@@ -1,6 +1,7 @@
 import pimodule
 import re
 import subprocess
+import time
 
 class CpuWatcher(pimodule.PiModule):
     cpuTempPattern = re.compile("temp=(.*)'C")
@@ -8,20 +9,30 @@ class CpuWatcher(pimodule.PiModule):
     def __init__(self):
         pimodule.PiModule.__init__(self,"CPU")
 
-    def getCPUTemp(self):
+    # Deprecated, long method
+    def getCPUTemp_VCGENCMD(self):
+        start = time.time()
         result = subprocess.check_output(["/opt/vc/bin/vcgencmd", "measure_temp"], shell=False).decode("utf-8")
         match = self.cpuTempPattern.match(result)
         temp = float(match.group(1))
-        return temp    
+
+        end = time.time()
+        print("{CT:" + ("%.3f"%((end-start)*1000)) + "}", end='')
+
+        return temp
+
+    def getCPUTemp(self):
+        with open("/sys/devices/virtual/thermal/thermal_zone0/temp") as temp_file:
+            line = temp_file.read()
+            temp = float(line)
+            temp = temp / 1000
+            return temp
 
     def getCPULoad(self):
-        try:
-            loadavg_file = open("/proc/loadavg")
+        with open("/proc/loadavg") as loadavg_file:
             line = loadavg_file.read().strip().split()
             cpuLoad = float(line[0])
             return cpuLoad
-        finally:
-            loadavg_file.close()
 
     def update(self, measure):
         measure["cpuTemp"] = self.getCPUTemp()

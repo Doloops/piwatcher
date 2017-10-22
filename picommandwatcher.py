@@ -50,7 +50,6 @@ class PiCommandWatcher(pimodule.PiModule):
              "aggs":{}}
         try:
             result = self.es.get(index = self.esIndex, doc_type = self.esType, id = self.esId)
-#            print(", [" + str(result["hits"]["total"]) + "]", end='')
             if result["found"] == True:
                 firstResult = result["_source"]
                 print(", " + self.esPropertyName, end='')
@@ -77,28 +76,13 @@ class PiCommandWatcher(pimodule.PiModule):
                 if commandKey in self.channels:
                     channel = self.channels[commandKey]
                     pinout = channel["pinout"]
-                    print(", {channel:" + commandKey + ", pin:" + str(pinout) + "=" + str(commandValue) + "}", end='')
+#                    print(", {channel:" + commandKey + ", pin:" + str(pinout) + "=" + str(commandValue) + "}", end='')
                     GPIO.output(pinout, commandValue)
                 else:
                     raise ValueError("Invalid command key " + commandKey)
         else:
             raise ValueError("Unknown value " + propertyValue + " for property " + propertyName)
 
-    def update___(self, measure):
-        esbody = {"timestamp": datetime.utcnow()}
-        esbody[self.hostname] = measure
-    
-        tnow = time.strftime("%Y%m%d-%H%M%S")
-        now = time.time()
-        if ( now - self.lastESUpdate >= self.statsInterval ):
-            try:
-                tsBefore = time.time()
-                self.es.index(index=self.esIndex, doc_type=self.esType, id=tnow, body=esbody)
-                print (" * Indexed in " + ("%.3f s" % (time.time() - tsBefore)), end='')
-                self.lastESUpdate = now
-            except:
-                print("Could not index to ES: ", sys.exc_info()[0])    
-    
     def shutdown(self):
         print("Shutdown " + self.getModuleName())    
         GPIO.cleanup()

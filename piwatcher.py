@@ -53,6 +53,7 @@ for module in piModules:
 
 try:
     while True:
+        loopstart = time.time()
         tnow = time.strftime("%Y%m%d-%H%M%S")
         print (tnow, end='')
         
@@ -61,13 +62,18 @@ try:
         
         for module in piModules:
             try:
+#                start = time.time()
                 module.update(measure)
+#                end = time.time()
+#                print("{" + ("%.3f"%((end-start)*1000)) + "}", end='')
             except Exception as err:
-                print("! " + str(err))
+                print(" ! Caught " + str(err))
                 print("Could not update module " + module.getModuleName(), sys.exc_info()[0])
                 # raise err
                 break
 
+        loopend = time.time()
+        print(" {" + ("%.3f"%((loopend-loopstart)*1000)) + "}", end='')
         print(".")
         time.sleep(updateInterval)
 
