@@ -24,7 +24,7 @@
         }
     },
     "stats" : {
-        "updateInterval" : 1,
+        "updateInterval" : 5,
         "statsInterval" : 60
     }
 }
