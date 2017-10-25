@@ -40,14 +40,14 @@ class PiCommandWatcher(pimodule.PiModule):
                 print("Configuring channel " + name + " to pinout " + str(pinout))
                 GPIO.setup(pinout, GPIO.OUT)
                 GPIO.output(pinout, False)
-            elif "pwm" in channel:
-                pinout = channel["pwm"]
-                freq = channel["freq"]
-                print("Configuring channel " + name + " to pwm " + str(pinout) + ", freq=" + str(freq))
-                GPIO.setup(pinout, GPIO.OUT)
-                pwm = GPIO.PWM(pinout, freq)
-                pwm.start(0)
-                self.pwms[name] = pwm
+#            elif "pwm" in channel:
+#                pinout = channel["pwm"]
+#                freq = channel["freq"]
+#                print("Configuring channel " + name + " to pwm " + str(pinout) + ", freq=" + str(freq))
+#                GPIO.setup(pinout, GPIO.OUT)
+#                pwm = GPIO.PWM(pinout, freq)
+#                pwm.start(0)
+#                self.pwms[name] = pwm
 
     def update(self, measure):
         timestamp = datetime.utcnow()
@@ -80,26 +80,57 @@ class PiCommandWatcher(pimodule.PiModule):
             self.applyCommand(self.esPropertyName, self.esPropertyDefaultValue)
             raise err
 
+    def applyCommandKey(self, commandKey, commandValue):
+        print("k:" + commandKey + "=" + str(commandValue))
+        if commandKey == "sleep":
+            time.sleep(commandValue)
+        elif commandKey in self.channels:
+            channel = self.channels[commandKey]
+            if "pinout" in channel:
+                pinout = channel["pinout"]
+                if isinstance(commandValue, bool):
+                    if commandKey in self.pwms:
+                        print("Disabling PWM for channel :" + commandKey)
+                        self.pwms[commandKey].stop()
+                        self.pwms.pop(commandKey)
+                    GPIO.output(pinout, commandValue)
+                else:
+                    if commandKey not in self.pwms:
+                        freq = channel["freq"]
+                        pwm = GPIO.PWM(pinout, freq)
+                        pwm.start(0)
+                        self.pwms[commandKey] = pwm
+                        print("Setting PWM for channel :" + commandKey)
+                    else:
+                        pwm = self.pwms[commandKey]
+                        
+                    pwm.ChangeDutyCycle(commandValue)
+#                GPIO.output(pinout, commandValue)
+#            elif "pwm" in channel:
+#                if isinstance(commandValue, bool):
+#                    if commandValue:
+#                        commandValue = 50
+#                    else:
+#                        commandValue = 0
+#                self.pwms[commandKey].ChangeDutyCycle(commandValue)
+#                pinout = channel["pwm"]
+#                print("{channel:" + commandKey + ", pin:" + str(pinout) + "=" + str(commandValue) + "}")
+        else:
+            raise ValueError("Invalid command key " + commandKey)
+
     def applyCommand(self, propertyName, propertyValue):
         if propertyValue in self.commands:
             command = self.commands[propertyValue]
-            for commandKey in command:
-                commandValue = command[commandKey]
-                if commandKey in self.channels:
-                    channel = self.channels[commandKey]
-                    if "pinout" in channel:
-                        pinout = channel["pinout"]
-                        GPIO.output(pinout, commandValue)
-                    elif "pwm" in channel:
-                        if isinstance(commandValue, bool):
-                            if commandValue:
-                                commandValue = 50
-                            else:
-                                commandValue = 0
-                        self.pwms[commandKey].ChangeDutyCycle(commandValue)
-#                    print(", {channel:" + commandKey + ", pin:" + str(pinout) + "=" + str(commandValue) + "}", end='')
-                else:
-                    raise ValueError("Invalid command key " + commandKey)
+            if type(command) is list:
+                for commandEntry in command:
+                    for commandKey in commandEntry:
+                        commandValue = commandEntry[commandKey]
+                        self.applyCommandKey(commandKey, commandValue)
+                            
+            elif type(command) is dict:
+                for commandKey in command:
+                    commandValue = command[commandKey]
+                    self.applyCommandKey(commandKey, commandValue)
         else:
             raise ValueError("Unknown value '" + propertyValue + "' for property " + propertyName + ", commands=" + str(self.commands.keys()))
 
@@ -107,15 +138,14 @@ class PiCommandWatcher(pimodule.PiModule):
         print("Shutdown " + self.getModuleName())
         for name in self.channels:
             channel = self.channels[name]
+            if name in self.pwms:
+                pinout = channel["pinout"]
+                print("Disabling PWM channel " + name + ", pwm " + str(pinout))
+                self.pwms[name].stop();
             if "pinout" in channel:
                 pinout = channel["pinout"]
                 print("Disabling channel " + name + ", pinout " + str(pinout))
                 GPIO.output(pinout, False)
-            elif "pwm" in channel:
-                pinout = channel["pwm"]
-                print("Disabling channel " + name + ", pwm " + str(pinout))
-                self.pwms[name].stop();
-                GPIO.output(pinout, False)                
         GPIO.cleanup()
 
 
