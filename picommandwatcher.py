@@ -84,6 +84,8 @@ class PiCommandWatcher(pimodule.PiModule):
         print("k:" + commandKey + "=" + str(commandValue))
         if commandKey == "sleep":
             time.sleep(commandValue)
+        elif commandKey == "command":
+            self.applyCommand(commandKey, commandValue)
         elif commandKey in self.channels:
             channel = self.channels[commandKey]
             if "pinout" in channel:
