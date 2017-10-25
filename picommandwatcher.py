@@ -44,7 +44,7 @@ class PiCommandWatcher(pimodule.PiModule):
                 pinout = channel["pwm"]
                 freq = channel["freq"]
                 print("Configuring channel " + name + " to pwm " + str(pinout) + ", freq=" + str(freq))
-                GPIO.setup(pinout, GPIO.OUT)                
+                GPIO.setup(pinout, GPIO.OUT)
                 pwm = GPIO.PWM(pinout, freq)
                 pwm.start(0)
                 self.pwms[name] = pwm
@@ -104,7 +104,18 @@ class PiCommandWatcher(pimodule.PiModule):
             raise ValueError("Unknown value '" + propertyValue + "' for property " + propertyName + ", commands=" + str(self.commands.keys()))
 
     def shutdown(self):
-        print("Shutdown " + self.getModuleName())    
+        print("Shutdown " + self.getModuleName())
+        for name in self.channels:
+            channel = self.channels[name]
+            if "pinout" in channel:
+                pinout = channel["pinout"]
+                print("Disabling channel " + name + ", pinout " + str(pinout))
+                GPIO.output(pinout, False)
+            elif "pwm" in channel:
+                pinout = channel["pwm"]
+                print("Disabling channel " + name + ", pwm " + str(pinout))
+                self.pwms[name].stop();
+                GPIO.output(pinout, False)                
         GPIO.cleanup()
 
 
@@ -122,13 +133,15 @@ if __name__=="__main__":
             channels = pwConfig["picommander"]["channels"],
             commands = pwConfig["picommander"]["commands"]
             )
-    while True:
-        print("Select command:")
-        input = sys.stdin.readline().strip()
-        print("Read : " + input)
-        try:
-            picmd.applyCommand("input", input)
-        except Exception as err:
-            print(" ! Caught " + str(err))
-            print("Invalid input : " + input)
-
+    try:
+        while True:
+            print("Select command:")
+            input = sys.stdin.readline().strip()
+            print("Read : " + input)
+            try:
+                picmd.applyCommand("input", input)
+            except Exception as err:
+                print(" ! Caught " + str(err))
+                print("Invalid input : " + input)
+    finally:
+        picmd.shutdown()
