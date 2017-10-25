@@ -1,20 +1,20 @@
 {
-    "hostname" : "pizero1",
+    "hostname" : "pizero3",
     "sensors" : {
         "bmp280" : {
-            "enabled": true
+            "enabled": false
         }
     },
     "elastic" : {
         "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
-        "index": "oswh-pizero1",
+        "index": "oswh-pizero3",
         "type": "sys-measure"
     },
     "picommander" : {
         "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
         "index": "oswh-commands",
         "type": "command",
-        "id": "pizero1-heater",
+        "id": "pizero3-heater",
         "property" : "state",
         "defaultValue" : "1off",
         "channels": {
