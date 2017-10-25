@@ -1,0 +1,41 @@
+{
+    "hostname" : "pizero1",
+    "sensors" : {
+        "bmp280" : {
+            "enabled": true
+        }
+    },
+    "elastic" : {
+        "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
+        "index": "oswh-pizero1",
+        "type": "sys-measure"
+    },
+    "picommander" : {
+        "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
+        "index": "oswh-commands",
+        "type": "command",
+        "id": "pizero1-heater",
+        "property" : "state",
+        "defaultValue" : "1off",
+        "channels": {
+            "1g":{"pwm":16, "freq": 1}, "1y":{"pwm":18, "freq": 3},
+            "2g":{"pwm":22, "freq": 2}, "2y":{"pwm":32, "freq": 5},
+            "3g":{"pwm":36, "freq": 4}, "3y":{"pwm":38, "freq": 7},
+            "red":{"pwm":40, "freq": 0.5}
+            },
+        "commands": { 
+            "1off": { "1g": false, "1y": false },
+            "1on": { "1g": true, "1y": true },
+            "2off": { "2g": false, "2y": false },
+            "2on": { "2g": true, "2y": true },
+            "3off": { "3g": false, "3y": false },
+            "3on": { "3g": true, "3y": true },
+            "Moff": { "red": 0 },
+            "Mon": { "red": 50 }
+        }
+    },
+    "stats" : {
+        "updateInterval" : 5,
+        "statsInterval" : 60
+    }
+}
