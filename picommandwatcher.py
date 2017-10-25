@@ -40,26 +40,13 @@ class PiCommandWatcher(pimodule.PiModule):
                 print("Configuring channel " + name + " to pinout " + str(pinout))
                 GPIO.setup(pinout, GPIO.OUT)
                 GPIO.output(pinout, False)
-#            elif "pwm" in channel:
-#                pinout = channel["pwm"]
-#                freq = channel["freq"]
-#                print("Configuring channel " + name + " to pwm " + str(pinout) + ", freq=" + str(freq))
-#                GPIO.setup(pinout, GPIO.OUT)
-#                pwm = GPIO.PWM(pinout, freq)
-#                pwm.start(0)
-#                self.pwms[name] = pwm
+            else:
+                raise ValueError("Invalid channel " + name + " : " + str(channel))
+        if "init" in self.commands:
+            self.applyCommand("__init__", "init")
 
     def update(self, measure):
         timestamp = datetime.utcnow()
-        query = {"query":
-            {"bool":
-                {"must":[
-                    {"range":{"timestamp":{"lt":timestamp}}}
-                    ],
-                 "must_not":[],"should":[]}},
-             "from":0,"size":1,
-             "sort":[{"timestamp":{"order":"desc"}}],
-             "aggs":{}}
         try:
             result = self.es.get(index = self.esIndex, doc_type = self.esType, id = self.esId)
             if result["found"] == True:
@@ -95,6 +82,9 @@ class PiCommandWatcher(pimodule.PiModule):
                         print("Disabling PWM for channel :" + commandKey)
                         self.pwms[commandKey].stop()
                         self.pwms.pop(commandKey)
+                        # When disabling PWM, we have to wait a bit before setting value
+                        freq = channel["freq"]
+                        time.sleep(2/freq)
                     GPIO.output(pinout, commandValue)
                 else:
                     if commandKey not in self.pwms:
@@ -107,16 +97,6 @@ class PiCommandWatcher(pimodule.PiModule):
                         pwm = self.pwms[commandKey]
                         
                     pwm.ChangeDutyCycle(commandValue)
-#                GPIO.output(pinout, commandValue)
-#            elif "pwm" in channel:
-#                if isinstance(commandValue, bool):
-#                    if commandValue:
-#                        commandValue = 50
-#                    else:
-#                        commandValue = 0
-#                self.pwms[commandKey].ChangeDutyCycle(commandValue)
-#                pinout = channel["pwm"]
-#                print("{channel:" + commandKey + ", pin:" + str(pinout) + "=" + str(commandValue) + "}")
         else:
             raise ValueError("Invalid command key " + commandKey)
 
@@ -128,11 +108,12 @@ class PiCommandWatcher(pimodule.PiModule):
                     for commandKey in commandEntry:
                         commandValue = commandEntry[commandKey]
                         self.applyCommandKey(commandKey, commandValue)
-                            
             elif type(command) is dict:
                 for commandKey in command:
                     commandValue = command[commandKey]
                     self.applyCommandKey(commandKey, commandValue)
+            else:
+                raise ValueError("Invalid type for command " + propertyValue)
         else:
             raise ValueError("Unknown value '" + propertyValue + "' for property " + propertyName + ", commands=" + str(self.commands.keys()))
 
@@ -177,3 +158,17 @@ if __name__=="__main__":
                 print("Invalid input : " + input)
     finally:
         picmd.shutdown()
+        
+# Garbage
+
+# Sample ES query from Python
+#        query = {"query":
+#            {"bool":
+#                {"must":[
+#                    {"range":{"timestamp":{"lt":timestamp}}}
+#                    ],
+#                 "must_not":[],"should":[]}},
+#             "from":0,"size":1,
+#             "sort":[{"timestamp":{"order":"desc"}}],
+#             "aggs":{}}
+

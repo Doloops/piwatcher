@@ -25,7 +25,7 @@
             },
         "commands": { 
             "1off": { "1g": false, "1y": false },
-            "1on": { "1g": 50, "1y": true },
+            "1on": { "1g": 50, "1y": 25 },
             "2off": { "2g": false, "2y": false },
             "2on": { "2g": true, "2y": true },
             "3off": { "3g": false, "3y": false },
@@ -40,8 +40,8 @@
                       {"2g": false}, {"sleep": 0.1}, {"2y": false}, {"sleep": 0.1},
                       {"3g": false}, {"sleep": 0.1}, {"3y": false}, {"sleep": 0.1}
                 ],
-            "init": [ {"red": 50}, {"sleep": 0.1}, {"command": "initLoop"}, {"command": "initLoop"}, {"red": 100} ]
-        }
+            "init": [ {"red": 50}, {"sleep": 0.1}, {"command": "initLoop"}, {"command": "initLoop"}, {"red": true} ]
+            }
     },
     "stats" : {
         "updateInterval" : 5,
