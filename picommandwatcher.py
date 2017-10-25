@@ -68,7 +68,7 @@ class PiCommandWatcher(pimodule.PiModule):
             raise err
 
     def applyCommandKey(self, commandKey, commandValue):
-        print("k:" + commandKey + "=" + str(commandValue))
+#        print("k:" + commandKey + "=" + str(commandValue))
         if commandKey == "sleep":
             time.sleep(commandValue)
         elif commandKey == "command":
@@ -79,7 +79,7 @@ class PiCommandWatcher(pimodule.PiModule):
                 pinout = channel["pinout"]
                 if isinstance(commandValue, bool):
                     if commandKey in self.pwms:
-                        print("Disabling PWM for channel :" + commandKey)
+#                        print("Disabling PWM for channel :" + commandKey)
                         self.pwms[commandKey].stop()
                         self.pwms.pop(commandKey)
                         # When disabling PWM, we have to wait a bit before setting value
@@ -92,7 +92,7 @@ class PiCommandWatcher(pimodule.PiModule):
                         pwm = GPIO.PWM(pinout, freq)
                         pwm.start(0)
                         self.pwms[commandKey] = pwm
-                        print("Setting PWM for channel :" + commandKey)
+#                        print("Setting PWM for channel :" + commandKey)
                     else:
                         pwm = self.pwms[commandKey]
                         
