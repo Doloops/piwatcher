@@ -4,6 +4,7 @@ import time
 import asyncio
 import signal
 import websockets
+import elasticsearch
 
 import logging
 logger = logging.getLogger('websockets.server')
@@ -15,6 +16,7 @@ import json
 
 
 wsClients = []
+es = elasticsearch.Elasticsearch([{"host":"osmc"}])
 
 async def serveWebSocket(websocket, path):
     global wsClients
@@ -50,13 +52,22 @@ asyncio.get_event_loop().run_until_complete(
    
 async def getTemp(temp, path):
     global wsClients
-    tempValue = 10.1
+    global es
+    tempValue = 0
     while True:
         print ("Run for temp:" + temp + ", path=" + path)
         await asyncio.sleep(1)
-        tempValue = tempValue + 1
+        query = {"query": {"bool": {"must": {"match_all":{}}}}, "sort":[{"timestamp":{"order":"desc"}}]}
+        esResult = es.search(index="oswh-osmc", doc_type="sys-measure", body = query)
+#        print("esResult=" + str(esResult))
+        if esResult["hits"]["total"] < 1:
+            print("No result !")
+            continue
+        tempValue = esResult["hits"]["hits"][0]["_source"]["osmc"]["indoorTemp"]
+        print("indoorTemp=" + str(tempValue))
+        tempValueStr = "%.2f" % tempValue
         eventMessage = {"msg":"event","data":{"event_raw":"io_changed id:" + temp + " state:" + str(tempValue),
-            "type":"3","type_str":"io_changed","data":{"id":temp,"state":str(tempValue)}}}
+            "type":"3","type_str":"io_changed","data":{"id":temp,"state":tempValueStr}}}
         for wsClient in wsClients:
             await wsClient.send(json.dumps(eventMessage))
 
