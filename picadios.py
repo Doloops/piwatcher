@@ -45,70 +45,47 @@ async def serveWebSocket(websocket, path):
                 await websocket.send(json.dumps(response))
     finally:
         wsClients.remove(websocket)
+
 print ("Running now !")
 
 asyncio.get_event_loop().run_until_complete(
    websockets.serve(serveWebSocket, '0.0.0.0', 5455))
    
-async def getTemp(temp, path):
+async def getTemp(esClient, tempId, index, doc_type, hostName, valueName, interval = 5):
     global wsClients
-    global es
     tempValue = 0
     while True:
-        print ("Run for temp:" + temp + ", path=" + path)
-        await asyncio.sleep(1)
+        await asyncio.sleep(interval)
         query = {"query": {"bool": {"must": {"match_all":{}}}}, "sort":[{"timestamp":{"order":"desc"}}]}
-        esResult = es.search(index="oswh-osmc", doc_type="sys-measure", body = query)
+        esResult = esClient.search(index=index, doc_type=doc_type, body = query)
 #        print("esResult=" + str(esResult))
         if esResult["hits"]["total"] < 1:
             print("No result !")
             continue
-        tempValue = esResult["hits"]["hits"][0]["_source"]["osmc"]["indoorTemp"]
-        print("indoorTemp=" + str(tempValue))
+        tempValue = esResult["hits"]["hits"][0]["_source"][hostName][valueName]
         tempValueStr = "%.2f" % tempValue
-        eventMessage = {"msg":"event","data":{"event_raw":"io_changed id:" + temp + " state:" + str(tempValue),
-            "type":"3","type_str":"io_changed","data":{"id":temp,"state":tempValueStr}}}
+        print("Got " + hostName + "." + valueName + "=" + tempValueStr + " (" + str(tempValue) + ")")
+        
+        eventMessage = {"msg":"event","data":{"event_raw":"io_changed id:" + tempId + " state:" + str(tempValue),
+            "type":"3","type_str":"io_changed","data":{"id":tempId,"state":tempValueStr}}}
         for wsClient in wsClients:
             await wsClient.send(json.dumps(eventMessage))
 
-asyncio.get_event_loop().create_task(getTemp('input_0', '123'))
+asyncio.get_event_loop().create_task(
+    getTemp(es, tempId='input_0', index="oswh-osmc", doc_type="sys-measure", hostName="osmc", valueName="indoorTemp"))
+
+asyncio.get_event_loop().create_task(
+    getTemp(es, tempId='input_1', index="oswh-pizero1", doc_type="sys-measure", hostName="pizero1", valueName="indoorTemp"))
+
+asyncio.get_event_loop().create_task(
+    getTemp(es, tempId='input_2', index="oswh-pizero2", doc_type="sys-measure", hostName="pizero2", valueName="indoorTemp"))
+
+asyncio.get_event_loop().create_task(
+    getTemp(es, tempId='input_4', index="oswh-owm-sartrouville", doc_type="openweathermap", hostName="main", valueName="temp"))
+
 
 print("Run forever !")
 asyncio.get_event_loop().run_forever()
 
 print ("Finished !")
-      
-#        await websocket.send(message)
-    
-#    websocket.ensure_open()
-#    while True:
-#        message = await websocket.read_message()
-#        print ("Message : " + str(message))
-#        pprint.pprint(message)
-#        time.sleep(1)
-#    async for message in websocket:
-#        await websocket.send(message)
-
-#async def echo(websocket, path):
-#    while True:
-#        try:
-#            msg = await websocket.recv()
-#        except websockets.ConnectionClosed:
-#            pass
-#        else:
-#            await websocket.send(msg)
-
-#async def echo_server(stop):
-#    async with websockets.serve(echo, '0.0.0.0', 5455):
-#        await stop
-
-#loop = asyncio.get_event_loop()
-
-# The stop condition is set when receiving SIGTERM.
-#stop = asyncio.Future()
-# loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
-
-# Run the server until the stop condition is met.
-#loop.run_until_complete(echo_server(stop))
-
 
