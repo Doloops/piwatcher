@@ -1,3 +1,114 @@
-{"home":[{"type":"salon","name":"Salon","hits":"23","items":[{"id":"input_0","name":"Temp\u00E9rature Salon","type":"WebInputTemp","var_type":"float","visible":"true","unit":"","gui_type":"temp","state":"19.6","io_type":"input"}]},{"type":"bureau","name":"Bureau","hits":"0","items":[{"id":"input_1","name":"Temp\u00E9rature Bureau","type":"WebInputTemp","var_type":"float","visible":"true","unit":"","gui_type":"temp","state":"19.09","io_type":"input"},{"id":"intern_0","name":"Temp\u00E9rature Cible Bureau","type":"InternalInt","var_type":"float","visible":"true","rw":"true","gui_type":"var_int","state":"19","io_type":"inout"},{"id":"intern_1","name":"Mode Confort","type":"InternalBool","var_type":"bool","visible":"true","rw":"true","gui_type":"var_bool","state":"false","io_type":"inout"},{"id":"input_3","name":"D\u00E9lai Mode Confort","type":"InputTimer","var_type":"string","visible":"false","gui_type":"timer","state":"true","io_type":"inout"},{"id":"output_0","name":"Chauffage","type":"WebOutputLight","var_type":"bool","visible":"true","gui_type":"light","state":"false","io_type":"output"}]},{"type":"chambre","name":"Mezzanine","hits":"0","items":[{"id":"input_2","name":"Temp\u00E9rature Mezzanine","type":"WebInputTemp","var_type":"float","visible":"true","unit":"","gui_type":"temp","state":"17.49","io_type":"input"}]},{"type":"exterieur","name":"Ext\u00E9rieur","hits":"0","items":[{"id":"input_4","name":"Temp\u00E9rature Ext\u00E9rieure","type":"WebInputTemp","var_type":"float","visible":"true","unit":"","gui_type":"temp","state":"9.25","io_type":"input"}]}],
-     "cameras":[],"audio":[]
+{
+  "home": [
+    {
+      "type": "salon",
+      "name": "Salon",
+      "hits": "23",
+      "items": [
+        {
+          "id": "osmc.indoorTemp",
+          "name": "Température Salon",
+          "type": "WebInputTemp",
+          "var_type": "float",
+          "visible": "true",
+          "unit": "",
+          "gui_type": "temp",
+          "state": "0.0",
+          "io_type": "input",
+          "es" : { "index":"oswh-osmc", "doc_type":"sys-measure" }
+        }
+      ]
+    },
+    {
+      "type": "bureau",
+      "name": "Bureau",
+      "hits": "0",
+      "items": [
+        {
+          "id": "pizero1.indoorTemp",
+          "name": "Température Bureau",
+          "type": "WebInputTemp",
+          "var_type": "float",
+          "visible": "true",
+          "unit": "",
+          "gui_type": "temp",
+          "state": "0.0",
+          "io_type": "input",
+          "es" : { "index":"oswh-pizero1", "doc_type":"sys-measure" }
+        },
+        {
+          "id": "pizero1.heater.target.comfort",
+          "name": "Température Cible Bureau",
+          "type": "InternalInt",
+          "var_type": "float",
+          "visible": "true",
+          "rw": "true",
+          "gui_type": "var_int",
+          "state": "18.0",
+          "io_type": "inout"
+        },
+        {
+          "id": "pizero1.heater.mode.comfort",
+          "name": "Mode Confort",
+          "type": "InternalBool",
+          "var_type": "bool",
+          "visible": "true",
+          "rw": "true",
+          "gui_type": "var_bool",
+          "state": "false",
+          "io_type": "inout"
+        },
+        {
+          "id": "pizero1.heater.heating",
+          "name": "Chauffage",
+          "type": "WebOutputLight",
+          "var_type": "bool",
+          "visible": "true",
+          "gui_type": "light",
+          "state": "false",
+          "io_type": "output"
+        }
+      ]
+    },
+    {
+      "type": "chambre",
+      "name": "Mezzanine",
+      "hits": "0",
+      "items": [
+        {
+          "id": "pizero2.indoorTemp",
+          "name": "Température Mezzanine",
+          "type": "WebInputTemp",
+          "var_type": "float",
+          "visible": "true",
+          "unit": "",
+          "gui_type": "temp",
+          "state": "0.0",
+          "io_type": "input",
+          "es" : { "index":"oswh-pizero2", "doc_type":"sys-measure" }
+        }
+      ]
+    },
+    {
+      "type": "exterieur",
+      "name": "Extérieur",
+      "hits": "0",
+      "items": [
+        {
+          "id": "main.temp",
+          "name": "Température Extérieure",
+          "type": "WebInputTemp",
+          "var_type": "float",
+          "visible": "true",
+          "unit": "",
+          "gui_type": "temp",
+          "state": "0.0",
+          "io_type": "input",
+          "es" : { "index":"oswh-owm-sartrouville", "doc_type":"openweathermap" }
+        }
+      ]
+    }
+  ],
+  "cameras": [],
+  "audio": []
 }
