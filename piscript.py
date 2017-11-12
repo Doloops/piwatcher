@@ -1,15 +1,19 @@
 import pimodule
 import fetchfromes
+import elasticsearch
 
-
-def simpleHeater(measure):
+def simpleHeater(esClient, measure, prefix):
     # print("Incoming measure : " + str(measure))
+    # modeComfort = fetchfromes.extractFragment(measure, "heater.mode.comfort")
+    # targetComfort = fetchfromes.extractFragment(measure, "heater.target.comfort")
+    # targetStandby = fetchfromes.extractFragment(measure, "heater.target.standby")
     indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
-    modeComfort = fetchfromes.extractFragment(measure, "heater.mode.comfort")
-    targetComfort = fetchfromes.extractFragment(measure, "heater.target.comfort")
-    targetStandby = fetchfromes.extractFragment(measure, "heater.target.standby")
-    
-    # print("Update : temp=" + str(indoorTemp) + ", mode=" + str(modeComfort) + ", targetComfort=" + str(targetComfort) + ", targetStandby=" + str(targetStandby))
+    index = "oswh-states"
+    doc_type = "state"
+    modeComfort = fetchfromes.llReadFromES(esClient, prefix + "." + "heater.mode.comfort", index, doc_type, esMode = "get")
+    targetComfort = fetchfromes.llReadFromES(esClient, prefix + "." + "heater.target.comfort", index, doc_type, esMode = "get")
+    targetStandby = fetchfromes.llReadFromES(esClient, prefix + "." + "heater.target.standby", index, doc_type, esMode = "get")
+    print("Update : temp=" + str(indoorTemp) + ", mode=" + str(modeComfort) + ", targetComfort=" + str(targetComfort) + ", targetStandby=" + str(targetStandby))
     
     heaterCommand = "heaterOff"
     if modeComfort and indoorTemp < targetComfort:
@@ -27,6 +31,8 @@ class PiScript(pimodule.PiModule):
         self.script = moduleConfig["script"]
         if "wrapMeasureIn" in moduleConfig:
             self.wrapMeasureIn = moduleConfig["wrapMeasureIn"]
+        if "hosts" in moduleConfig:
+            self.esClient = elasticsearch.Elasticsearch(moduleConfig["hosts"])
         
     def update(self, measure):
         measure = self.mayWrap(measure)

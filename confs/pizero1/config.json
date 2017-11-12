@@ -5,14 +5,9 @@
             "enabled": true
         }
     },
-    "fetchfromes": {
-        "hosts":[{"host" : "osmc", "retry_on_timeout": true}],
-         "index":"oswh-states", "doc_type":"state",
-         "states":["pizero1.heater.target.comfort", "pizero1.heater.target.standby", "pizero1.heater.mode.comfort"],
-         "wrapMeasureIn":"pizero1"
-    },
     "piscript": {
-        "script":"simpleHeater(measure)"
+        "hosts":[{"host" : "osmc", "retry_on_timeout": true}],    
+        "script":"simpleHeater(self.esClient, measure,'pizero1')"
     },
     "picommander" : {
         "property" : "heater.command",
