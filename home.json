@@ -15,7 +15,8 @@
           "gui_type": "temp",
           "state": "0.0",
           "io_type": "input",
-          "es" : { "index":"oswh-osmc", "doc_type":"sys-measure" }
+          "es" : { "index":"oswh-osmc", "doc_type":"sys-measure" },
+          "displayFormat" : "%.2f"
         }
       ]
     },
@@ -34,7 +35,8 @@
           "gui_type": "temp",
           "state": "0.0",
           "io_type": "input",
-          "es" : { "index":"oswh-pizero1", "doc_type":"sys-measure" }
+          "es" : { "index":"oswh-pizero1", "doc_type":"sys-measure" },
+          "displayFormat" : "%.2f"
         },
         {
           "id": "pizero1.heater.target.comfort",
@@ -45,7 +47,8 @@
           "rw": "true",
           "gui_type": "var_int",
           "state": "18.0",
-          "io_type": "inout"
+          "io_type": "inout",
+          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
         {
           "id": "pizero1.heater.mode.comfort",
@@ -56,7 +59,8 @@
           "rw": "true",
           "gui_type": "var_bool",
           "state": "false",
-          "io_type": "inout"
+          "io_type": "inout",
+          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
         {
           "id": "pizero1.heater.heating",
@@ -85,7 +89,8 @@
           "gui_type": "temp",
           "state": "0.0",
           "io_type": "input",
-          "es" : { "index":"oswh-pizero2", "doc_type":"sys-measure" }
+          "es" : { "index":"oswh-pizero2", "doc_type":"sys-measure" },
+          "displayFormat" : "%.2f"
         }
       ]
     },
@@ -104,7 +109,8 @@
           "gui_type": "temp",
           "state": "0.0",
           "io_type": "input",
-          "es" : { "index":"oswh-owm-sartrouville", "doc_type":"openweathermap" }
+          "es" : { "index":"oswh-owm-sartrouville", "doc_type":"openweathermap" },
+          "displayFormat" : "%.2f"
         }
       ]
     }
