@@ -35,7 +35,7 @@ def simpleHeater(esClient, measure, prefix):
             setState(esClient, prefix, "heater.comfort.startTime", comfortStartTime)
         if isinstance(comfortStartTime, str):
             comfortStartTime = datetime.strptime(comfortStartTime, DATE_ISO_FORMAT)
-        comfortEndTime = comfortStartTime + timedelta(minutes=comfortTimeToLive)
+        comfortEndTime = comfortStartTime + timedelta(hours=comfortTimeToLive)
         now = datetime.utcnow()
         # print("comfortStartTime=" + str(comfortStartTime) + ", now=" + str(now) + ", comfortEndTime=" + str(comfortEndTime))
         if now > comfortEndTime:

@@ -52,7 +52,7 @@
         },
         {
           "id": "pizero1.heater.target.standby",
-          "name": "Température Hors-gel Bureau",
+          "name": "Température Normale Bureau",
           "type": "InternalInt",
           "var_type": "float",
           "visible": "true",
@@ -64,13 +64,13 @@
         },
         {
           "id": "pizero1.heater.comfort.ttl",
-          "name": "Durée du mode confort",
+          "name": "Durée du mode confort (heures)",
           "type": "InternalInt",
           "var_type": "float",
           "visible": "true",
           "rw": "true",
           "gui_type": "var_int",
-          "state": "240",
+          "state": "2",
           "io_type": "inout",
           "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
