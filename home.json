@@ -61,7 +61,30 @@
           "state": "14.0",
           "io_type": "inout",
           "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
-        },        
+        },
+        {
+          "id": "pizero1.heater.comfort.ttl",
+          "name": "Durée du mode confort",
+          "type": "InternalInt",
+          "var_type": "float",
+          "visible": "true",
+          "rw": "true",
+          "gui_type": "var_int",
+          "state": "240",
+          "io_type": "inout",
+          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
+        },
+        {
+          "id": "pizero1.heater.comfort.remaingTime",
+          "name": "Temps restant en mode confort (minutes)",
+          "type": "InternalInt",
+          "var_type": "float",
+          "visible": "true",
+          "rw": "false",
+          "gui_type": "var_int",
+          "io_type": "inout",
+          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
+        },
         {
           "id": "pizero1.heater.mode.comfort",
           "name": "Mode Confort",

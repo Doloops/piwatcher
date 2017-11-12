@@ -57,6 +57,7 @@ def llReadFromES(esClient, stateId, index, doc_type, esMode = None, defaultValue
 
         if esResult is None and defaultValue is not None:
             llWriteStateToES(esClient = esClient, stateId = stateId, index = index, doc_type = doc_type, esMode = esMode, stateValue = defaultValue)
+            return defaultValue
     else:
         print ("ES Mode " + esMode + " invalid for stateId=" + stateId)
         return None
