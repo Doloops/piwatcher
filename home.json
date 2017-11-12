@@ -75,14 +75,16 @@
           "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
         {
-          "id": "pizero1.heater.heating",
+          "id": "pizero1.heater.command",
           "name": "Chauffage",
           "type": "WebOutputLight",
           "var_type": "bool",
           "visible": "true",
           "gui_type": "light",
           "state": "false",
-          "io_type": "output"
+          "io_type": "output",
+          "es" : { "index":"oswh-pizero1", "doc_type":"sys-measure" },
+          "mapping": { "heaterOn": true, "heaterOff": false }
         }
       ]
     },

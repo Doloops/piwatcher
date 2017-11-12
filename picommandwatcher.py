@@ -41,6 +41,7 @@ class PiCommandWatcher(pimodule.PiModule):
         if value is None and self.defaultValue is not None:
             value = self.defaultValue
         if value is not None:
+            print(", " + self.propertyName + "=" + value, end='')
             self.applyCommand(self.propertyName, value)
         
     def __update(self, measure):

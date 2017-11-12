@@ -2,23 +2,22 @@ import pimodule
 import fetchfromes
 
 
-def pizero1Heater(measure):
-    print("Incoming measure : " + str(measure))
-    indoorTemp = fetchfromes.extractFragment(measure, "pizero1.indoorTemp")
-    modeComfort = fetchfromes.extractFragment(measure, "pizero1.heater.mode.comfort")
-    targetComfort = fetchfromes.extractFragment(measure, "pizero1.heater.target.comfort")
-    targetStandby = fetchfromes.extractFragment(measure, "pizero1.heater.target.standby")
+def simpleHeater(measure):
+    # print("Incoming measure : " + str(measure))
+    indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
+    modeComfort = fetchfromes.extractFragment(measure, "heater.mode.comfort")
+    targetComfort = fetchfromes.extractFragment(measure, "heater.target.comfort")
+    targetStandby = fetchfromes.extractFragment(measure, "heater.target.standby")
     
-    print("Update : temp=" + str(indoorTemp) + ", mode=" + str(modeComfort) + ", targetComfort=" + str(targetComfort) + ", targetStandby=" + str(targetStandby))
+    # print("Update : temp=" + str(indoorTemp) + ", mode=" + str(modeComfort) + ", targetComfort=" + str(targetComfort) + ", targetStandby=" + str(targetStandby))
     
     heaterCommand = "heaterOff"
     if modeComfort and indoorTemp < targetComfort:
         heaterCommand = "heaterOn"
     elif indoorTemp < targetStandby:
         heaterCommand = "heaterOn"
-    print("=> heaterCommand=" + heaterCommand)
-    fetchfromes.updateFragment(measure, "pizero1.heater.command", heaterCommand)
-    
+    # print("=> heaterCommand=" + heaterCommand)
+    fetchfromes.updateFragment(measure, "heater.command", heaterCommand)
 
 class PiScript(pimodule.PiModule):
     script = None
@@ -31,9 +30,9 @@ class PiScript(pimodule.PiModule):
         
     def update(self, measure):
         measure = self.mayWrap(measure)
-        print("Before SCRIPT : " + str(measure))
+        # print("Before SCRIPT : " + str(measure))
         eval(self.script)
-        print("After SCRIPT : " + str(measure))
+        # print("After SCRIPT : " + str(measure))
         
 if __name__ == "__main__":
     true = True

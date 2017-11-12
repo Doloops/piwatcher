@@ -12,8 +12,7 @@
          "wrapMeasureIn":"pizero1"
     },
     "piscript": {
-        "wrapMeasureIn":"pizero1",
-        "script":"pizero1Heater(measure)"
+        "script":"simpleHeater(measure)"
     },
     "picommander" : {
         "property" : "heater.command",

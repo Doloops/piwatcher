@@ -26,21 +26,21 @@ def llWriteStateToES(esClient, stateId, index, doc_type, esMode = "get", stateVa
     if esMode != "get":
         print ("Invalid esMode = " + esMode + " for stateId=" + stateId)
         return
-    print ("Writing state " + stateId + "=" + str(stateValue))
+    # print ("Writing state " + stateId + "=" + str(stateValue))
     fragmentRoot = {}
     updateFragment(fragmentRoot, stateId, stateValue)
-    print ("Writing state " + stateId + " fragment : " + str(fragmentRoot))
+    # print ("Writing state " + stateId + " fragment : " + str(fragmentRoot))
     esClient.index(index=index, doc_type=doc_type, id=stateId, body=fragmentRoot)
 
 # Low-level fetch from ES
-def llReadFromES(esClient, stateId, index, doc_type, esMode = None, defaultValue = None):
-    print("Searching " + stateId + " in index=" + index + ", doc_type=" + doc_type + ", esMode=" + esMode)
+def llReadFromES(esClient, stateId, index, doc_type, esMode = None, defaultValue = None, mapping = None):
+    # print("Searching " + stateId + " in index=" + index + ", doc_type=" + doc_type + ", esMode=" + esMode)
     if esMode == "search":
         query = {"query": {"bool": {"must": {"match_all":{}}}}, "sort":[{"timestamp":{"order":"desc"}}]}
         esResult = esClient.search(index=index, doc_type=doc_type, body = query)
 #        print("esResult=" + str(esResult))
         if esResult["hits"]["total"] < 1:
-            print("No result !")
+            print("No result for stateId=" + stateId)
             return None
         esResult = esResult["hits"]["hits"][0]["_source"]
     elif esMode == "get":
@@ -52,7 +52,7 @@ def llReadFromES(esClient, stateId, index, doc_type, esMode = None, defaultValue
         if esResult is not None and esResult["found"] == True:
             esResult = esResult["_source"]
         else:
-            print ("No result found for " + stateId)
+            print ("No result for stateId=" + stateId)
             esResult = None
 
         if esResult is None and defaultValue is not None:
@@ -64,6 +64,11 @@ def llReadFromES(esClient, stateId, index, doc_type, esMode = None, defaultValue
     if esResult is not None:
         # stateValue = esResult[hostName][valueName]
         stateValue = extractFragment(esResult, stateId)
+        if stateValue is not None and mapping is not None:
+            # print ("stateValue=" + str(stateValue) + ", mapping=" + str(mapping))
+            if stateValue in mapping:
+                return mapping[stateValue]
+             
         return stateValue
     return None
 
@@ -89,9 +94,9 @@ class FetchFromES(pimodule.PiModule):
         measure = self.mayWrap(measure)
         for stateId in self.esStateIds:
             stateValue = llReadFromES(self.es, stateId, self.esIndex, self.esDocType, "get", None)
-            print ("Got stateId=" + stateId + " => " + str(stateValue))
+            # print ("Got stateId=" + stateId + " => " + str(stateValue))
             updateFragment(measure, stateId, stateValue)
-        print("After FETCH : " + str(measure))
+        # print("After FETCH : " + str(measure))
         
 if __name__=="__main__":
     # pwConfig = piwatcherconfig.PiWatcherConfig.getConfig()

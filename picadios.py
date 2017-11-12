@@ -120,14 +120,14 @@ asyncio.get_event_loop().run_until_complete(
    websockets.serve(serveWebSocket, '0.0.0.0', 5455))
 
 
-async def periodicStateUpdate(esClient, stateId, index, doc_type, interval = 30, displayFormat = None, esMode = "search", defaultValue = None):
+async def periodicStateUpdate(esClient, stateId, index, doc_type, interval = 30, displayFormat = None, esMode = "search", defaultValue = None, mapping = None):
     global wsClients
     global internalStates
 #    hostName=idParts[0]
 #    valueName=idParts[1]
     while True:
-        print("Searching " + stateId + " in index=" + index + ", doc_type=" + doc_type + ", esMode=" + esMode)
-        stateValue = fetchfromes.llReadFromES(esClient, stateId, index, doc_type, esMode, defaultValue)
+        # print("Searching " + stateId + " in index=" + index + ", doc_type=" + doc_type + ", esMode=" + esMode)
+        stateValue = fetchfromes.llReadFromES(esClient, stateId, index, doc_type, esMode, defaultValue, mapping)
         if stateValue is not None:
             if displayFormat is not None:
                 stateValueStr = displayFormat % stateValue
@@ -159,9 +159,12 @@ for room in jsonHome["home"]:
             defaultValue = None
             if "state" in item:
                 defaultValue = json.loads(item["state"])
+            mapping = None
+            if "mapping" in item:
+                mapping = item["mapping"]
             asyncio.get_event_loop().create_task(
                 periodicStateUpdate(esClient, stateId=item["id"], index=item["es"]["index"], doc_type=item["es"]["doc_type"], 
-                                    displayFormat=displayFormat, esMode=esMode, defaultValue=defaultValue))
+                                    displayFormat=displayFormat, esMode=esMode, defaultValue=defaultValue, mapping=mapping))
         elif item["type"] == "InternalBool":
             internalStates[item["id"]] = json.loads(item["state"])
             print("Configuring item " + item["id"] + "=" + str(internalStates[item["id"]]))
