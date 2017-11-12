@@ -48,12 +48,16 @@ def simpleHeater(esClient, measure, prefix):
         else:
             remainingTime = comfortEndTime - now
             setState(esClient, prefix, "heater.comfort.remaingTime", int(remainingTime.seconds / 60))
+    else:
+        if comfortStartTime is not None:
+            setState(esClient, prefix, "heater.comfort.startTime", None)
+            setState(esClient, prefix, "heater.comfort.remaingTime", 0)
 
     if modeComfort:
         if indoorTemp < targetComfort:
             heaterCommand = "heaterOn"
     elif indoorTemp < targetStandby:
-        heaterCommand = "heaterOn"
+            heaterCommand = "heaterOn"
     # print("=> heaterCommand=" + heaterCommand)
     fetchfromes.updateFragment(measure, "heater.command", heaterCommand)
 
