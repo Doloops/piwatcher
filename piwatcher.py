@@ -4,6 +4,8 @@ import cpuwatcher
 import tempwatcher
 import push2es
 import picommandwatcher
+import piscript
+import fetchfromes
 
 import sys
 import time
@@ -27,18 +29,14 @@ if pwConfig["sensors"]["bmp280"]["enabled"]:
     piModules.append(tempwatcher.TempWatcher())
 
 
+if "fetchfromes" in pwConfig:
+    piModules.append(fetchfromes.FetchFromES(pwConfig["fetchfromes"]))
+
+if "piscript" in pwConfig:
+    piModules.append(piscript.PiScript(pwConfig["piscript"]))
+
 if "picommander" in pwConfig:    
-    piModules.append(picommandwatcher.PiCommandWatcher(
-        hosts = pwConfig["picommander"]["hosts"], 
-        hostname = hostname,
-        esIndex = pwConfig["picommander"]["index"], 
-        esType = pwConfig["picommander"]["type"],
-        esId = pwConfig["picommander"]["id"],
-        esPropertyName = pwConfig["picommander"]["property"],
-        esPropertyDefaultValue = pwConfig["picommander"]["defaultValue"],        
-        channels = pwConfig["picommander"]["channels"],
-        commands = pwConfig["picommander"]["commands"]
-        ))
+    piModules.append(picommandwatcher.PiCommandWatcher(pwConfig["picommander"]))
 
 
 piModules.append(push2es.Push2ES(

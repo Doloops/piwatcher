@@ -1,8 +1,5 @@
 import pimodule
 import elasticsearch
-import time
-import sys
-from datetime import datetime
 
 def updateFragment(fragmentRoot, stateId, stateValue):
     idParts = stateId.split('.')
@@ -12,6 +9,17 @@ def updateFragment(fragmentRoot, stateId, stateValue):
             fragment[part] = {}
         fragment = fragment[part]
     fragment[idParts[len(idParts)-1]] = stateValue
+
+def extractFragment(fragmentRoot, stateId):
+    idParts = stateId.split('.')
+    fragment = fragmentRoot
+    for part in idParts:
+        # print("At part=" + part + ", fragment=" + str(fragment))
+        if part not in fragment:
+            print ("ERROR ! No component " + part + " in " + str(fragment))
+            return None
+        fragment = fragment[part]
+    return fragment
 
 # Low-level save to ES
 def llWriteStateToES(esClient, stateId, index, doc_type, esMode = "get", stateValue = None):
@@ -55,14 +63,7 @@ def llReadFromES(esClient, stateId, index, doc_type, esMode = None, defaultValue
 
     if esResult is not None:
         # stateValue = esResult[hostName][valueName]
-        fragment = esResult
-        idParts = stateId.split('.')
-        for part in idParts:
-            if part not in fragment:
-                print ("ERROR ! No component " + part + " in " + str(fragment))
-                return
-            fragment = fragment[part]
-        stateValue = fragment
+        stateValue = extractFragment(esResult, stateId)
         return stateValue
     return None
 
@@ -81,13 +82,16 @@ class FetchFromES(pimodule.PiModule):
         self.esIndex = moduleConfig["index"]
         self.esDocType = moduleConfig["doc_type"]
         self.esStateIds = moduleConfig["states"]
-#        self.statsInterval = statsInterval
+        if "wrapMeasureIn" in moduleConfig:
+            self.wrapMeasureIn = moduleConfig["wrapMeasureIn"]
         
     def update(self, measure):
+        measure = self.mayWrap(measure)
         for stateId in self.esStateIds:
             stateValue = llReadFromES(self.es, stateId, self.esIndex, self.esDocType, "get", None)
             print ("Got stateId=" + stateId + " => " + str(stateValue))
             updateFragment(measure, stateId, stateValue)
+        print("After FETCH : " + str(measure))
         
 if __name__=="__main__":
     # pwConfig = piwatcherconfig.PiWatcherConfig.getConfig()

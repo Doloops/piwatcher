@@ -1,6 +1,7 @@
 class PiModule:
 
     moduleName = "Unknown module"
+    wrapMeasureIn = None
 
     def __init__(self, moduleName):
         self.moduleName = moduleName
@@ -14,3 +15,9 @@ class PiModule:
     def getModuleName(self):
         return self.moduleName
 
+    def mayWrap(self, measure):
+        if self.wrapMeasureIn is not None:
+            wrapped = {}
+            wrapped[self.wrapMeasureIn] = measure
+            measure = wrapped
+        return measure

@@ -1,38 +1,28 @@
 import piwatcherconfig
 import pimodule
-import elasticsearch
 import time
 import sys
 import RPi.GPIO as GPIO
+import fetchfromes
 from datetime import datetime
 
 class PiCommandWatcher(pimodule.PiModule):
-    es = None
-    hostname = None
-    esIndex = None
-    esType = None
-    esId = None
-    esPropertyName = None
-    esPropertyDefaultValue = None
     channels = None
     commands = None
-    lastESUpdate = time.time()
-    statsInterval = 60
+    propertyName = None
+    defaultValue = None
     pwms = {}
 
-    def __init__(self, hosts, hostname, esIndex, esType, esId, esPropertyName, esPropertyDefaultValue, channels, commands):
+    def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"PiCommandWatcher")
         GPIO.setmode(GPIO.BOARD)
-        self.es = elasticsearch.Elasticsearch(hosts)
-        self.hostname = hostname
-        self.esIndex = esIndex
-        self.esType = esType
-        self.esId = esId
-        self.esPropertyName = esPropertyName
-        self.esPropertyDefaultValue = esPropertyDefaultValue;
-        print("esPropertyName=" + self.esPropertyName)
-        self.channels = channels
-        self.commands = commands
+        self.channels = moduleConfig["channels"]
+        self.commands = moduleConfig["commands"]
+        self.propertyName = moduleConfig["property"]
+        if "defaultValue" in moduleConfig:
+            self.defaultValue = moduleConfig["defaultValue"]
+        if "wrapMeasureIn" in moduleConfig:
+            self.wrapMeasureIn = moduleConfig["wrapMeasureIn"]
         for name in self.channels:
             channel = self.channels[name]
             if "pinout" in channel:
@@ -46,6 +36,14 @@ class PiCommandWatcher(pimodule.PiModule):
             self.applyCommand("__init__", "init")
 
     def update(self, measure):
+        measure = self.mayWrap(measure)
+        value = fetchfromes.extractFragment(measure, self.propertyName)
+        if value is None and self.defaultValue is not None:
+            value = self.defaultValue
+        if value is not None:
+            self.applyCommand(self.propertyName, value)
+        
+    def __update(self, measure):
         timestamp = datetime.utcnow()
         try:
             result = self.es.get(index = self.esIndex, doc_type = self.esType, id = self.esId)
@@ -135,17 +133,7 @@ class PiCommandWatcher(pimodule.PiModule):
 if __name__=="__main__":
     pwConfig = piwatcherconfig.PiWatcherConfig.getConfig()
     if "picommander" in pwConfig:    
-        picmd = PiCommandWatcher(
-            hosts = pwConfig["picommander"]["hosts"], 
-            hostname = pwConfig["hostname"],
-            esIndex = pwConfig["picommander"]["index"], 
-            esType = pwConfig["picommander"]["type"],
-            esId = pwConfig["picommander"]["id"],
-            esPropertyName = pwConfig["picommander"]["property"],
-            esPropertyDefaultValue = pwConfig["picommander"]["defaultValue"],        
-            channels = pwConfig["picommander"]["channels"],
-            commands = pwConfig["picommander"]["commands"]
-            )
+        picmd = PiCommandWatcher(config = pwConfig["picommander"])
     try:
         while True:
             print("Select command:")

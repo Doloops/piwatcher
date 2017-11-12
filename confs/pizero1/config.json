@@ -5,23 +5,29 @@
             "enabled": true
         }
     },
+    "fetchfromes": {
+        "hosts":[{"host" : "osmc", "retry_on_timeout": true}],
+         "index":"oswh-states", "doc_type":"state",
+         "states":["pizero1.heater.target.comfort", "pizero1.heater.target.standby", "pizero1.heater.mode.comfort"],
+         "wrapMeasureIn":"pizero1"
+    },
+    "piscript": {
+        "wrapMeasureIn":"pizero1",
+        "script":"pizero1Heater(measure)"
+    },
+    "picommander" : {
+        "property" : "heater.command",
+        "defaultValue" : "heaterOff",
+        "channels": {"mp":{"pinout":16},"mn":{"pinout":18}},
+        "commands": { 
+            "heaterOn": { "mp": false, "mn": false },
+            "heaterOff": { "mp": true, "mn": true }
+        }
+    },
     "elastic" : {
         "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
         "index": "oswh-pizero1",
         "type": "sys-measure"
-    },
-    "picommander" : {
-        "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
-        "index": "oswh-commands",
-        "type": "command",
-        "id": "pizero1-heater",
-        "property" : "state",
-        "defaultValue" : "standby",
-        "channels": {"mp":{"pinout":16},"mn":{"pinout":18}},
-        "commands": { 
-            "comfort": { "mp": false, "mn": false },
-            "standby": { "mp": true, "mn": true }
-        }
     },
     "stats" : {
         "updateInterval" : 5,

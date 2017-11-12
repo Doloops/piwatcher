@@ -40,7 +40,7 @@
         },
         {
           "id": "pizero1.heater.target.comfort",
-          "name": "Température Cible Bureau",
+          "name": "Température Confort Bureau",
           "type": "InternalInt",
           "var_type": "float",
           "visible": "true",
@@ -50,6 +50,18 @@
           "io_type": "inout",
           "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
+        {
+          "id": "pizero1.heater.target.standby",
+          "name": "Température Hors-gel Bureau",
+          "type": "InternalInt",
+          "var_type": "float",
+          "visible": "true",
+          "rw": "true",
+          "gui_type": "var_int",
+          "state": "14.0",
+          "io_type": "inout",
+          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
+        },        
         {
           "id": "pizero1.heater.mode.comfort",
           "name": "Mode Confort",
