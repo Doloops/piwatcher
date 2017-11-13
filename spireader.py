@@ -2,7 +2,12 @@
 import spidev
 import time
 import os
+from scipy.fftpack import fft, fftfreq
 from datetime import datetime
+from math import sqrt
+import numpy as np
+
+import json
  
 # Open SPI bus
 spi = spidev.SpiDev()
@@ -20,11 +25,17 @@ def ReadChannel(channel):
 measuringInterval = 0.000150 # 150µs to take a value
 hZ = 50
 wave = 1 / hZ
-maxVals = (3 * wave) / measuringInterval
+# maxVals = (100 * wave) / measuringInterval
+# maxVals = 1 / measuringInterval
+maxVals = 5000
+
+vcc = 5.0
+vac = 220
+r = 663
+nbRolls = 2000
 
 print ("Expected maxVals=" + str(maxVals))
 
-ts = 0
 while True:
     vals = []
 
@@ -36,13 +47,31 @@ while True:
         idx = idx + 1
     end = datetime.now()
     delta = end - start
-    print("Took " + str(len(vals)) + " in " + str(delta.microseconds) + " => " + str(delta.microseconds / len(vals)) + " µs per val")
+    print("Nb vals=" + str(len(vals)) + ", taken in " + str(delta.microseconds) + " => " + str(delta.microseconds / len(vals)) + " µs per val")
         
 #    if len(vals) > maxVals:
 #        vals = vals[len(vals) - maxVals:len(vals) - 1]
     gap = max(vals) - min(vals) 
-    print("Channel 0:" + str(val) + ",min=" + str(min(vals)) + ", max=" + str(max(vals)) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
-    ts= 0
+    print("Channel 0:" + ", min=" + str(min(vals)) + ", max=" + str(max(vals)) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
+
+#    with open("output.json", "wb") as f:
+#        f.write(json.dumps(vals).encode())
+    
+#    fourier = rfft(val)
+#    print("fourier : " + str(fourier))
+    valsnp = np.array(vals)
+    valsnp = valsnp - np.average(valsnp)
+    fourier = abs(fft(valsnp))
+    topIdx = np.argmax(fourier)
+    freqs = fftfreq(len(valsnp), (delta.microseconds / len(vals)) / 1000000)
+    print("topIdx=" + str(topIdx) + ", freq=" + str(freqs[topIdx])+", val=" + str(fourier[topIdx]))
+    
+    vSec = (gap * vcc) / 2
+    iSec = vSec / r
+    iPrim = iSec * nbRolls
+    wPrim = (iPrim * vac) / sqrt(2) 
+    print("=> iPrim=" + ("%.2f" % iPrim) + " A" + ", watt=" + ("%.0f" % wPrim) + "W")
     
     # 1 / 50 = 0.02 
     time.sleep(1)
+
