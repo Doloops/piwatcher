@@ -127,20 +127,23 @@ async def periodicStateUpdate(esClient, stateId, index, doc_type, interval = 30,
 #    valueName=idParts[1]
     while True:
         # print("Searching " + stateId + " in index=" + index + ", doc_type=" + doc_type + ", esMode=" + esMode)
-        stateValue = fetchfromes.llReadFromES(esClient, stateId, index, doc_type, esMode, defaultValue, mapping)
-        if stateValue is not None:
-            if displayFormat is not None:
-                stateValueStr = displayFormat % stateValue
-            else:
-                stateValueStr = json.dumps(stateValue)
-
-            print("Got " + stateId + "=" + stateValueStr + " (" + str(stateValue) + ")")
-            internalStates[stateId] = stateValue
-
-            eventMessage = {"msg":"event","data":{"event_raw":"io_changed id:" + stateId + " state:" + str(stateValue),
-                "type":"3","type_str":"io_changed","data":{"id":stateId,"state":stateValueStr}}}
-            for wsClient in wsClients:
-                await wsClient.send(json.dumps(eventMessage))
+        try:
+            stateValue = fetchfromes.llReadFromES(esClient, stateId, index, doc_type, esMode, defaultValue, mapping)
+            if stateValue is not None:
+                if displayFormat is not None:
+                    stateValueStr = displayFormat % stateValue
+                else:
+                    stateValueStr = json.dumps(stateValue)
+    
+                print("Got " + stateId + "=" + stateValueStr + " (" + str(stateValue) + ")")
+                internalStates[stateId] = stateValue
+    
+                eventMessage = {"msg":"event","data":{"event_raw":"io_changed id:" + stateId + " state:" + str(stateValue),
+                    "type":"3","type_str":"io_changed","data":{"id":stateId,"state":stateValueStr}}}
+                for wsClient in wsClients:
+                    await wsClient.send(json.dumps(eventMessage))
+        except Exception as err:
+            print(" ! Caught " + str(err))
         await asyncio.sleep(interval)
 
 jsonHome = getHome()
