@@ -129,7 +129,7 @@ class PiCurrentSensor(pimodule.PiModule):
                 gap, wPrim = self.readAmplifiedChannel(channel, measure[sensorId])
             else:
                 print("! Unsupported type : " + type + " for sensorId=" + sensorId)
-            print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.3f" % gap) + ")")            
+            print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.3f" % gap) + ")", end='')            
 
 if __name__ == "__main__":
     pics = PiCurrentSensor({})
