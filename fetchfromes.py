@@ -16,7 +16,7 @@ def extractFragment(fragmentRoot, stateId):
     for part in idParts:
         # print("At part=" + part + ", fragment=" + str(fragment))
         if part not in fragment:
-            print ("ERROR ! No component " + part + " in " + str(fragment))
+            # print ("ERROR ! No component " + part + " in " + str(fragment))
             return None
         fragment = fragment[part]
     return fragment

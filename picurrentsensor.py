@@ -18,6 +18,8 @@ class PiCurrentSensor(pimodule.PiModule):
     wave = 1 / hZ
     maxVals = 2500
     
+    verbose = False
+    
     # Function to read SPI data from MCP3008 chip
     # Channel must be an integer 0-7
     def readChannel(self, channel):
@@ -45,7 +47,8 @@ class PiCurrentSensor(pimodule.PiModule):
         fourier = abs(fft(valsnp))
         topIdx = np.argmax(fourier)
         freqs = fftfreq(len(valsnp), (delta.microseconds / len(vals)) / 1000000)
-        print("* Fourier : " + str(topIdx) + ", freq=" + str(freqs[topIdx])+", val=" + str(fourier[topIdx]))
+        if self.verbose:
+            print("* Fourier : " + str(topIdx) + ", freq=" + str(freqs[topIdx])+", val=" + str(fourier[topIdx]))
         measure["freq"] = freqs[topIdx]
         measure["amplitude"] = fourier[topIdx]
 
@@ -65,37 +68,43 @@ class PiCurrentSensor(pimodule.PiModule):
         self.readFourier(vals, delta, measure)
         vmin=min(vals)
         vmax=max(vals)
-        gap = max(vals) - min(vals) 
-        print("* Dir:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
+        gap = max(vals) - min(vals)
+        if self.verbose: 
+            print("* Dir:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
         vSec = (gap * self.vcc) / 2
         iSec = vSec / self.r0
         iPrim = iSec * self.nbRolls
-        wPrim = (iPrim * self.vac) / sqrt(2) 
-        print("* Dir:" + str(channel) + " => iPrim=" + ("%.2f" % iPrim) + " A" + ", watt=" + ("%.0f" % wPrim) + "W")
+        wPrim = (iPrim * self.vac) / sqrt(2)
+        if self.verbose: 
+            print("* Dir:" + str(channel) + " => iPrim=" + ("%.2f" % iPrim) + " A" + ", watt=" + ("%.0f" % wPrim) + "W")
         measure["vmin"] = vmin
         measure["vmax"] = vmax
         measure["gap"] = gap
         measure["iPrim"] = iPrim
         measure["wPrim"] = wPrim
+        return gap, wPrim
 
     def readAmplifiedChannel(self, channel, measure):
         vals, delta = self.readValues(channel)
         self.readFourier(vals, delta, measure)
         vmin=min(vals)
         vmax=max(vals)
-        gap = max(vals) - min(vals) 
-        print("* Amp:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
+        gap = max(vals) - min(vals)
+        if self.verbose: 
+            print("* Amp:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
         lm324nRatio = 48
         vSec = gap / lm324nRatio
         # print("CH1 : gap=" + str(gap) + ", vSec=" + str(vSec))
         iPrim = vSec * self.asm30_iPrim_vSec_Ratio
         wPrim = (iPrim * self.vac) / sqrt(2)
-        print("* Amp:" + str(channel) + " => iPrim=" + ("%.2f" % iPrim) + " A" + ", watt=" + ("%.0f" % wPrim) + "W")
+        if self.verbose:
+            print("* Amp:" + str(channel) + " => iPrim=" + ("%.2f" % iPrim) + " A" + ", watt=" + ("%.0f" % wPrim) + "W")
         measure["vmin"] = vmin
         measure["vmax"] = vmax
         measure["gap"] = gap
         measure["iPrim"] = iPrim
         measure["wPrim"] = wPrim
+        return gap, wPrim
 
     config = None
 
@@ -109,14 +118,18 @@ class PiCurrentSensor(pimodule.PiModule):
             name = sensor["name"]
             channel = sensor["channel"]
             sensorType = sensor["type"]
-            print("Id#" + sensorId + " : " + name + " (channel=" + str(channel) + ", type=" + sensorType + ")")
+            if self.verbose:
+                print("Id#" + sensorId + " : " + name + " (channel=" + str(channel) + ", type=" + sensorType + ")")
             measure[sensorId] = {}
+            gap = 0
+            wPrim = 0
             if sensorType == "direct":
-                self.readDirectChannel(channel, measure[sensorId])
+                gap, wPrim = self.readDirectChannel(channel, measure[sensorId])
             elif sensorType == "amp":
-                self.readAmplifiedChannel(channel, measure[sensorId])
+                gap, wPrim = self.readAmplifiedChannel(channel, measure[sensorId])
             else:
-                print("! Unsupported type : " + type + " for sensorId=" + sensorId)            
+                print("! Unsupported type : " + type + " for sensorId=" + sensorId)
+            print(", #" + sensorId + "=" + wPrim + "W (" + gap + ")")            
 
 if __name__ == "__main__":
     pics = PiCurrentSensor({})
