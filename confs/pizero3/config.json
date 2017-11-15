@@ -55,7 +55,7 @@
             }
     },
     "stats" : {
-        "updateInterval" : 30,
+        "updateInterval" : 60,
         "statsInterval" : 60
     }
 }
