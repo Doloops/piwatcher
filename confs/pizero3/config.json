@@ -6,9 +6,15 @@
         }
     },
     "elastic" : {
-        "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
+        "hosts":[{"host" : "osmc", "retry_on_timeout": true}],
         "index": "oswh-pizero3",
         "type": "sys-measure"
+    },
+    "picurrentsensor": {
+    	"sensors" : [{"id":"board.low", "name":"Tableau bas", "channel":0, "type":"direct"},
+    		{"id":"board.high", "name":"Tableau haut", "channel":1, "type": "amp"},
+    		{"id":"underfloor.heating", "name":"Dalles", "channel":2, "type": "amp"},
+    		{"id":"water.heater", "name":"Chauffe-eau", "channel":7, "type": "amp"}]
     },
     "picommander" : {
         "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
@@ -49,7 +55,7 @@
             }
     },
     "stats" : {
-        "updateInterval" : 5,
+        "updateInterval" : 30,
         "statsInterval" : 60
     }
 }
