@@ -6,7 +6,6 @@ import push2es
 import picommandwatcher
 import piscript
 import fetchfromes
-import picurrentsensor
 
 import sys
 import time
@@ -40,6 +39,7 @@ if "picommander" in pwConfig:
     piModules.append(picommandwatcher.PiCommandWatcher(pwConfig["picommander"]))
 
 if "picurrentsensor" in pwConfig:
+    import picurrentsensor
     piModules.append(picurrentsensor.PiCurrentSensor(pwConfig["picurrentsensor"]))
 
 piModules.append(push2es.Push2ES(
