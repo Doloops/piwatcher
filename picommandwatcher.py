@@ -134,7 +134,7 @@ class PiCommandWatcher(pimodule.PiModule):
 if __name__=="__main__":
     pwConfig = piwatcherconfig.PiWatcherConfig.getConfig()
     if "picommander" in pwConfig:    
-        picmd = PiCommandWatcher(config = pwConfig["picommander"])
+        picmd = PiCommandWatcher(moduleConfig = pwConfig["picommander"])
     try:
         while True:
             print("Select command:")

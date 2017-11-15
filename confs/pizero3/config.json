@@ -42,6 +42,7 @@
                       {"3g": false}, {"sleep": 0.1}, {"3y": false}, {"sleep": 0.1}
                 ],
             "init": [ {"red": 50}, {"sleep": 0.1}, {"command": "initLoop"}, {"command": "initLoop"}, {"red": true} ],
+            "forever": [ {"command" : "init"}, {"command":"forever"}],
             "ch1on": {"ch1mp":true, "ch1mn":true},
             "ch1off": {"ch1mp":false, "ch1mn":false},
             "ch1loop": [ {"command":"ch1on"}, {"sleep":2}, {"command":"ch1off"},{"sleep":2},{"command":"ch1loop"}]
