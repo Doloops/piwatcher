@@ -6,7 +6,7 @@
         }
     },
     "elastic" : {
-        "hosts":[{"host" : "osmc", "retry_on_timeout": true}],
+        "hosts":[{"host" : "osmc", "retry_on_timeout": true}, {"host" : "pizero3", "retry_on_timeout": true}],
         "index": "oswh-pizero3",
         "type": "sys-measure"
     },
