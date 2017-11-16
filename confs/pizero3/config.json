@@ -6,7 +6,7 @@
         }
     },
     "elastic" : {
-        "hosts":[{"host" : "osmc", "retry_on_timeout": true}, {"host" : "pizero3", "retry_on_timeout": true}],
+        "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}],
         "index": "oswh-pizero3",
         "type": "sys-measure"
     },
@@ -14,7 +14,7 @@
     	"sensors" : [{"id":"board.low", "name":"Tableau bas", "channel":0, "type":"direct"},
     		{"id":"board.high", "name":"Tableau haut", "channel":1, "type": "amp"},
     		{"id":"underfloor.heating", "name":"Dalles", "channel":7, "type": "amp"},
-    		{"id":"water.heater", "name":"Chauffe-eau", "channel":2, "type": "amp"}]
+    		{"id":"water.heater", "name":"Chauffe-eau", "channel":2, "type": "amp", "asmType":"ASM10"}]
     },
     "picommander" : {
         "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],

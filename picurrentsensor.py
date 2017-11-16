@@ -56,12 +56,13 @@ class PiCurrentSensor(pimodule.PiModule):
     # maxVals = (100 * wave) / measuringInterval
     # maxVals = 1 / measuringInterval
 
-    vcc = 4.95
+    vcc = 5
     vac = 220
-    r0 = 663
+    r0 = 45.8
     nbRolls = 2000
     
-    asm30_iPrim_vSec_Ratio = 538.46
+    asm10_iPrim_vSec_Ratio = 300
+    asm30_iPrim_vSec_Ratio = 500
     
     def readDirectChannel(self, channel, measure):
         vals, delta = self.readValues(channel)
@@ -84,7 +85,7 @@ class PiCurrentSensor(pimodule.PiModule):
         measure["wPrim"] = wPrim
         return gap, wPrim
 
-    def readAmplifiedChannel(self, channel, measure):
+    def readAmplifiedChannel(self, channel, measure, asmType = "ASM30"):
         vals, delta = self.readValues(channel)
         self.readFourier(vals, delta, measure)
         vmin=min(vals)
@@ -95,7 +96,15 @@ class PiCurrentSensor(pimodule.PiModule):
         lm324nRatio = 48
         vSec = gap / lm324nRatio
         # print("CH1 : gap=" + str(gap) + ", vSec=" + str(vSec))
-        iPrim = vSec * self.asm30_iPrim_vSec_Ratio
+        if asmType == "ASM30":
+            ratio = self.asm30_iPrim_vSec_Ratio
+        elif asmType == "ASM10":
+            ratio = self.asm10_iPrim_vSec_Ratio
+        else:
+            print("asmType=" + asmType + " not supported !")
+            ratio = 0
+        
+        iPrim = vSec * ratio
         wPrim = (iPrim * self.vac) / sqrt(2)
         if self.verbose:
             print("* Amp:" + str(channel) + " => iPrim=" + ("%.2f" % iPrim) + " A" + ", watt=" + ("%.0f" % wPrim) + "W")
@@ -126,7 +135,10 @@ class PiCurrentSensor(pimodule.PiModule):
             if sensorType == "direct":
                 gap, wPrim = self.readDirectChannel(channel, measure[sensorId])
             elif sensorType == "amp":
-                gap, wPrim = self.readAmplifiedChannel(channel, measure[sensorId])
+                asmType = "ASM30"
+                if "asmType" in sensor:
+                    asmType = sensor["asmType"]
+                gap, wPrim = self.readAmplifiedChannel(channel, measure[sensorId], asmType)
             else:
                 print("! Unsupported type : " + type + " for sensorId=" + sensorId)
             print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.3f" % gap) + ")", end='')            
@@ -135,26 +147,14 @@ if __name__ == "__main__":
     pics = PiCurrentSensor({})
     while True:
         print("********************" + str(datetime.now()))
+        measure = {}
         print("Direct 0 : Tableau *Bas*")
-        pics.readDirectChannel(0)
+        pics.readDirectChannel(0, measure)
         print("Amp 1: Tableau *Haut*")
-        pics.readAmplifiedChannel(1)
+        pics.readAmplifiedChannel(1, measure)
         print("Amp 2 : Dalles")
-        pics.readAmplifiedChannel(2)
+        pics.readAmplifiedChannel(2, measure)
         print("Amp 7 : Chauffe-eau")
-        pics.readAmplifiedChannel(7)
-
-#    if len(vals) > maxVals:
-#        vals = vals[len(vals) - maxVals:len(vals) - 1]
-    
-#    with open("output.json", "wb") as f:
-#        f.write(json.dumps(vals).encode())
-    
-#    fourier = rfft(val)
-#    print("fourier : " + str(fourier))
-    
-    
-    
-    # 1 / 50 = 0.02 
-    time.sleep(10)
-
+        pics.readAmplifiedChannel(7, measure, "ASM10")
+        print("==> " + json.dumps(measure))
+        time.sleep(10)
