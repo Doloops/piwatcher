@@ -1,4 +1,4 @@
- nimport spidev
+import spidev
 import time
 from scipy.fftpack import fft, fftfreq
 from datetime import datetime
