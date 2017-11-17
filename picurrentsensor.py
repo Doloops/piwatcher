@@ -1,4 +1,4 @@
-import spidev
+ nimport spidev
 import time
 from scipy.fftpack import fft, fftfreq
 from datetime import datetime
@@ -16,9 +16,11 @@ class PiCurrentSensor(pimodule.PiModule):
     measuringInterval = 0.000150 # 150µs to take a value
     hZ = 50
     wave = 1 / hZ
-    maxVals = 2500
+    nbWaves = 10
+    maxVals = nbWaves * wave / measuringInterval
     
     verbose = False
+    dumpVals = True
     
     # Function to read SPI data from MCP3008 chip
     # Channel must be an integer 0-7
@@ -38,7 +40,13 @@ class PiCurrentSensor(pimodule.PiModule):
             idx = idx + 1
         end = datetime.now()
         delta = end - start
-        # print("Nb vals=" + str(len(vals)) + ", taken in " + str(delta.microseconds) + " => " + str(delta.microseconds / len(vals)) + " µs per val")
+        if self.verbose:
+            print("* #vals=" + str(len(vals)) + ", taken in " + str(delta.microseconds) + "µs (" + ("%.2f" % (1000000/delta.microseconds)) + " Hz) => "
+                  + str(delta.microseconds / len(vals)) + " µs per val")
+        if self.dumpVals:
+            with open("/run/user/1000/output-" + str(channel) + ".json", "wb") as f:
+                f.write(json.dumps(vals).encode())
+
         return vals, delta
 
     def readFourier(self, vals, delta, measure):
@@ -51,6 +59,7 @@ class PiCurrentSensor(pimodule.PiModule):
             print("* Fourier : " + str(topIdx) + ", freq=" + str(freqs[topIdx])+", val=" + str(fourier[topIdx]))
         measure["freq"] = freqs[topIdx]
         measure["amplitude"] = fourier[topIdx]
+        return freqs[topIdx], fourier[topIdx]
 
 
     # maxVals = (100 * wave) / measuringInterval
@@ -67,7 +76,7 @@ class PiCurrentSensor(pimodule.PiModule):
     
     def readDirectChannel(self, channel, measure):
         vals, delta = self.readValues(channel)
-        self.readFourier(vals, delta, measure)
+        freq, amplitude = self.readFourier(vals, delta, measure)
         vmin=min(vals)
         vmax=max(vals)
         gap = max(vals) - min(vals)
@@ -84,11 +93,11 @@ class PiCurrentSensor(pimodule.PiModule):
         measure["gap"] = gap
         measure["iPrim"] = iPrim
         measure["wPrim"] = wPrim
-        return gap, wPrim
+        return gap, wPrim, freq, amplitude
 
     def readAmplifiedChannel(self, channel, measure, asmType = "ASM30"):
         vals, delta = self.readValues(channel)
-        self.readFourier(vals, delta, measure)
+        freq, amplitude = self.readFourier(vals, delta, measure)
         vmin=min(vals)
         vmax=max(vals)
         gap = max(vals) - min(vals)
@@ -114,7 +123,7 @@ class PiCurrentSensor(pimodule.PiModule):
         measure["gap"] = gap
         measure["iPrim"] = iPrim
         measure["wPrim"] = wPrim
-        return gap, wPrim
+        return gap, wPrim, freq, amplitude
 
     config = None
 
@@ -134,15 +143,15 @@ class PiCurrentSensor(pimodule.PiModule):
             gap = 0
             wPrim = 0
             if sensorType == "direct":
-                gap, wPrim = self.readDirectChannel(channel, measure[sensorId])
+                gap, wPrim, freq, amplitude = self.readDirectChannel(channel, measure[sensorId])
             elif sensorType == "amp":
                 asmType = "ASM30"
                 if "asmType" in sensor:
                     asmType = sensor["asmType"]
-                gap, wPrim = self.readAmplifiedChannel(channel, measure[sensorId], asmType)
+                gap, wPrim, freq, amplitude = self.readAmplifiedChannel(channel, measure[sensorId], asmType)
             else:
                 print("! Unsupported type : " + type + " for sensorId=" + sensorId)
-            print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.3f" % gap) + ")", end='')            
+            print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.2f" % freq) + "Hz, " + ("%.2f" % amplitude) + ", gap=" + ("%.3f" % gap) + ")", end='')
 
 if __name__ == "__main__":
     pics = PiCurrentSensor({})
@@ -151,11 +160,19 @@ if __name__ == "__main__":
         measure = {}
         print("Direct 0 : Tableau *Bas*")
         pics.readDirectChannel(0, measure)
+
         print("Amp 1: Tableau *Haut*")
         pics.readAmplifiedChannel(1, measure)
-        print("Amp 2 : Dalles")
-        pics.readAmplifiedChannel(2, measure)
-        print("Amp 7 : Chauffe-eau")
-        pics.readAmplifiedChannel(7, measure, "ASM10")
+
+        print("Amp 7 : Dalles")
+        pics.readAmplifiedChannel(7, measure)
+
+        print("Amp 2 : Chauffe-eau")
+        pics.readAmplifiedChannel(2, measure, "ASM10")
+
+        time.sleep(10)
+        continue
+
         print("==> " + json.dumps(measure))
+
         time.sleep(10)
