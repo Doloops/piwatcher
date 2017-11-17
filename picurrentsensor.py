@@ -60,6 +60,7 @@ class PiCurrentSensor(pimodule.PiModule):
     vac = 220
     r0 = 45.8
     nbRolls = 2000
+    lm324nRatio = 48
     
     asm10_iPrim_vSec_Ratio = 300
     asm30_iPrim_vSec_Ratio = 500
@@ -93,8 +94,7 @@ class PiCurrentSensor(pimodule.PiModule):
         gap = max(vals) - min(vals)
         if self.verbose: 
             print("* Amp:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
-        lm324nRatio = 48
-        vSec = (gap * self.vcc) / lm324nRatio
+        vSec = (gap * self.vcc) / self.lm324nRatio
         if self.verbose:
             print("* gap=" + str(gap) + ", vSec=" + str(vSec))
         if asmType == "ASM30":
