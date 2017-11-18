@@ -26,7 +26,7 @@ class CpuWatcher(pimodule.PiModule):
             line = temp_file.read()
             temp = float(line)
             # Raspberry PI reports temp with 3 digits after the ., but BananaPI reports temps on 2 digits only.
-            if temp < 1000:
+            if temp > 1000:
                 temp = temp / 1000
             return temp
 
