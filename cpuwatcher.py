@@ -25,7 +25,9 @@ class CpuWatcher(pimodule.PiModule):
         with open("/sys/devices/virtual/thermal/thermal_zone0/temp") as temp_file:
             line = temp_file.read()
             temp = float(line)
-            temp = temp / 1000
+            # Raspberry PI reports temp with 3 digits after the ., but BananaPI reports temps on 2 digits only.
+            if temp < 1000:
+                temp = temp / 1000
             return temp
 
     def getCPULoad(self):
