@@ -1,0 +1,17 @@
+{
+    "hostname" : "pizero1",
+    "sensors" : {
+        "bmp280" : {
+            "enabled": false
+        }
+    },
+    "elastic" : {
+        "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}, {"host":"localhost"}],
+        "index": "oswh-pizero1",
+        "type": "sys-measure"
+    },
+    "stats" : {
+        "updateInterval" : 5,
+        "statsInterval" : 60
+    }
+}
