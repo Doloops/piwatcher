@@ -1,5 +1,5 @@
 {
-    "hostname" : "pizero1",
+    "hostname" : "banane",
     "sensors" : {
         "bmp280" : {
             "enabled": false
@@ -7,7 +7,7 @@
     },
     "elastic" : {
         "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}, {"host":"localhost"}],
-        "index": "oswh-pizero1",
+        "index": "oswh-banane",
         "type": "sys-measure"
     },
     "stats" : {
