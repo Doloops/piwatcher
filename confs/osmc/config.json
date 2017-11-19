@@ -11,9 +11,10 @@
 		}
     },
     "elastic" : {
-	    "hosts":[{"host" : "osmc", "retry_on_timeout": true}, {"host" : "pizero3", "retry_on_timeout": true}],
+	    "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}],
 	    "index": "oswh-osmc",
-	    "type": "sys-measure"
+	    "type": "sys-measure",
+	    "redis":{"host":"pizero3"}
     },
     "stats" : {
 	"updateInterval" : 2,
