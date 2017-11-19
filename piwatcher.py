@@ -22,7 +22,7 @@ if ("disk" in pwConfig) and pwConfig["disk"]["enabled"]:
     import diskwatcher
     piModules.append(diskwatcher.DiskWatcher(diskLedPinout=pwConfig["disk"]["ledPinout"], diskDeviceName=pwConfig["disk"]["deviceName"]))
 
-if pwConfig["sensors"]["bmp280"]["enabled"]:
+if "sensors" in pwConfig and pwConfig["sensors"]["bmp280"]["enabled"]:
     import tempwatcher
     piModules.append(tempwatcher.TempWatcher())
 
@@ -43,11 +43,9 @@ if "picurrentsensor" in pwConfig:
     piModules.append(picurrentsensor.PiCurrentSensor(pwConfig["picurrentsensor"]))
 
 piModules.append(push2es.Push2ES(
-    hosts = pwConfig["elastic"]["hosts"], 
     hostname = hostname,
-    esIndex = pwConfig["elastic"]["index"], 
-    esType =  pwConfig["elastic"]["type"],
-    statsInterval = pwConfig["stats"]["statsInterval"]))
+    statsInterval = pwConfig["stats"]["statsInterval"],
+    moduleConfig = pwConfig["elastic"]))
     
 for module in piModules:
     print("* using module " + module.getModuleName())
