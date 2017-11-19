@@ -12,7 +12,7 @@
 	    "redis":{"host":"pizero3"}
     },
     "stats" : {
-	    "updateInterval" : 10,
+	    "updateInterval" : 5,
 	    "statsInterval" : 60
     }
 }
