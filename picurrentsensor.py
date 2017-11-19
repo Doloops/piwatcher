@@ -16,9 +16,11 @@ class PiCurrentSensor(pimodule.PiModule):
     measuringInterval = 0.000150 # 150µs to take a value
     hZ = 50
     wave = 1 / hZ
-    maxVals = 2500
+    nbWaves = 10
+    maxVals = nbWaves * wave / measuringInterval
     
     verbose = False
+    dumpVals = True
     
     # Function to read SPI data from MCP3008 chip
     # Channel must be an integer 0-7
@@ -38,7 +40,13 @@ class PiCurrentSensor(pimodule.PiModule):
             idx = idx + 1
         end = datetime.now()
         delta = end - start
-        # print("Nb vals=" + str(len(vals)) + ", taken in " + str(delta.microseconds) + " => " + str(delta.microseconds / len(vals)) + " µs per val")
+        if self.verbose:
+            print("* #vals=" + str(len(vals)) + ", taken in " + str(delta.microseconds) + "µs (" + ("%.2f" % (1000000/delta.microseconds)) + " Hz) => "
+                  + str(delta.microseconds / len(vals)) + " µs per val")
+        if self.dumpVals:
+            with open("/run/user/1000/output-" + str(channel) + ".json", "wb") as f:
+                f.write(json.dumps(vals).encode())
+
         return vals, delta
 
     def readFourier(self, vals, delta, measure):
@@ -51,21 +59,24 @@ class PiCurrentSensor(pimodule.PiModule):
             print("* Fourier : " + str(topIdx) + ", freq=" + str(freqs[topIdx])+", val=" + str(fourier[topIdx]))
         measure["freq"] = freqs[topIdx]
         measure["amplitude"] = fourier[topIdx]
+        return freqs[topIdx], fourier[topIdx]
 
 
     # maxVals = (100 * wave) / measuringInterval
     # maxVals = 1 / measuringInterval
 
-    vcc = 4.95
+    vcc = 5
     vac = 220
-    r0 = 663
+    r0 = 45.8
     nbRolls = 2000
+    lm324nRatio = 48
     
-    asm30_iPrim_vSec_Ratio = 538.46
+    asm10_iPrim_vSec_Ratio = 300
+    asm30_iPrim_vSec_Ratio = 500
     
     def readDirectChannel(self, channel, measure):
         vals, delta = self.readValues(channel)
-        self.readFourier(vals, delta, measure)
+        freq, amplitude = self.readFourier(vals, delta, measure)
         vmin=min(vals)
         vmax=max(vals)
         gap = max(vals) - min(vals)
@@ -82,20 +93,28 @@ class PiCurrentSensor(pimodule.PiModule):
         measure["gap"] = gap
         measure["iPrim"] = iPrim
         measure["wPrim"] = wPrim
-        return gap, wPrim
+        return gap, wPrim, freq, amplitude
 
-    def readAmplifiedChannel(self, channel, measure):
+    def readAmplifiedChannel(self, channel, measure, asmType = "ASM30"):
         vals, delta = self.readValues(channel)
-        self.readFourier(vals, delta, measure)
+        freq, amplitude = self.readFourier(vals, delta, measure)
         vmin=min(vals)
         vmax=max(vals)
         gap = max(vals) - min(vals)
         if self.verbose: 
             print("* Amp:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
-        lm324nRatio = 48
-        vSec = gap / lm324nRatio
-        # print("CH1 : gap=" + str(gap) + ", vSec=" + str(vSec))
-        iPrim = vSec * self.asm30_iPrim_vSec_Ratio
+        vSec = (gap * self.vcc) / self.lm324nRatio
+        if self.verbose:
+            print("* gap=" + str(gap) + ", vSec=" + str(vSec))
+        if asmType == "ASM30":
+            ratio = self.asm30_iPrim_vSec_Ratio
+        elif asmType == "ASM10":
+            ratio = self.asm10_iPrim_vSec_Ratio
+        else:
+            print("asmType=" + asmType + " not supported !")
+            ratio = 0
+        
+        iPrim = vSec * ratio
         wPrim = (iPrim * self.vac) / sqrt(2)
         if self.verbose:
             print("* Amp:" + str(channel) + " => iPrim=" + ("%.2f" % iPrim) + " A" + ", watt=" + ("%.0f" % wPrim) + "W")
@@ -104,7 +123,7 @@ class PiCurrentSensor(pimodule.PiModule):
         measure["gap"] = gap
         measure["iPrim"] = iPrim
         measure["wPrim"] = wPrim
-        return gap, wPrim
+        return gap, wPrim, freq, amplitude
 
     config = None
 
@@ -124,37 +143,36 @@ class PiCurrentSensor(pimodule.PiModule):
             gap = 0
             wPrim = 0
             if sensorType == "direct":
-                gap, wPrim = self.readDirectChannel(channel, measure[sensorId])
+                gap, wPrim, freq, amplitude = self.readDirectChannel(channel, measure[sensorId])
             elif sensorType == "amp":
-                gap, wPrim = self.readAmplifiedChannel(channel, measure[sensorId])
+                asmType = "ASM30"
+                if "asmType" in sensor:
+                    asmType = sensor["asmType"]
+                gap, wPrim, freq, amplitude = self.readAmplifiedChannel(channel, measure[sensorId], asmType)
             else:
                 print("! Unsupported type : " + type + " for sensorId=" + sensorId)
-            print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.3f" % gap) + ")", end='')            
+            print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.2f" % freq) + "Hz, " + ("%.2f" % amplitude) + ", gap=" + ("%.3f" % gap) + ")", end='')
 
 if __name__ == "__main__":
     pics = PiCurrentSensor({})
     while True:
         print("********************" + str(datetime.now()))
+        measure = {}
         print("Direct 0 : Tableau *Bas*")
-        pics.readDirectChannel(0)
+        pics.readDirectChannel(0, measure)
+
         print("Amp 1: Tableau *Haut*")
-        pics.readAmplifiedChannel(1)
-        print("Amp 2 : Dalles")
-        pics.readAmplifiedChannel(2)
-        print("Amp 7 : Chauffe-eau")
-        pics.readAmplifiedChannel(7)
+        pics.readAmplifiedChannel(1, measure)
 
-#    if len(vals) > maxVals:
-#        vals = vals[len(vals) - maxVals:len(vals) - 1]
-    
-#    with open("output.json", "wb") as f:
-#        f.write(json.dumps(vals).encode())
-    
-#    fourier = rfft(val)
-#    print("fourier : " + str(fourier))
-    
-    
-    
-    # 1 / 50 = 0.02 
-    time.sleep(10)
+        print("Amp 7 : Dalles")
+        pics.readAmplifiedChannel(7, measure)
 
+        print("Amp 2 : Chauffe-eau")
+        pics.readAmplifiedChannel(2, measure, "ASM10")
+
+        time.sleep(10)
+        continue
+
+        print("==> " + json.dumps(measure))
+
+        time.sleep(10)

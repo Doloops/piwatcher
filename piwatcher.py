@@ -1,10 +1,6 @@
 import piwatcherconfig
-import diskwatcher
 import cpuwatcher
-import tempwatcher
 import push2es
-import picommandwatcher
-import piscript
 import fetchfromes
 
 import sys
@@ -23,9 +19,11 @@ statsInterval = pwConfig["stats"]["statsInterval"]
 
 diskWatcher = None
 if ("disk" in pwConfig) and pwConfig["disk"]["enabled"]:
+    import diskwatcher
     piModules.append(diskwatcher.DiskWatcher(diskLedPinout=pwConfig["disk"]["ledPinout"], diskDeviceName=pwConfig["disk"]["deviceName"]))
 
 if pwConfig["sensors"]["bmp280"]["enabled"]:
+    import tempwatcher
     piModules.append(tempwatcher.TempWatcher())
 
 
@@ -33,9 +31,11 @@ if "fetchfromes" in pwConfig:
     piModules.append(fetchfromes.FetchFromES(pwConfig["fetchfromes"]))
 
 if "piscript" in pwConfig:
+    import piscript
     piModules.append(piscript.PiScript(pwConfig["piscript"]))
 
 if "picommander" in pwConfig:    
+    import picommandwatcher
     piModules.append(picommandwatcher.PiCommandWatcher(pwConfig["picommander"]))
 
 if "picurrentsensor" in pwConfig:

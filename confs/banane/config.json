@@ -1,0 +1,17 @@
+{
+    "hostname" : "banane",
+    "sensors" : {
+        "bmp280" : {
+            "enabled": false
+        }
+    },
+    "elastic" : {
+        "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}, {"host":"localhost"}],
+        "index": "oswh-banane",
+        "type": "sys-measure"
+    },
+    "stats" : {
+        "updateInterval" : 5,
+        "statsInterval" : 60
+    }
+}
