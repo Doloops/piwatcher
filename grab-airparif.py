@@ -8,7 +8,7 @@ import http
 airparifUrlHost = "www.airparif.asso.fr";
 airparifUrlPath = "/appli/api/indice?date=jour"
 
-es = elasticsearch.Elasticsearch()
+es = elasticsearch.Elasticsearch(hosts=[{"host":"pizero3"},{"host":"192.168.1.63"},{"host":"osmc"}])
 
 def getPollutionResult():
     print("Calling URL : " + airparifUrlHost + airparifUrlPath)
