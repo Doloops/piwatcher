@@ -1,0 +1,20 @@
+Python 3.5.3 (default, Sep 14 2017, 22:58:41) 
+[GCC 6.3.0 20170406] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import scipy.integrate as integrate
+KeyboardInterrupt
+>>> from matplotlib import 
+KeyboardInterrupt
+>>> from matplotlib import pyplot as plt
+>>> f4=open("output-big0.json")
+KeyboardInterrupt
+>>> import json
+>>> plt.plot(json.loads(open("/tmp/pi3/run/user/1000/output-1.json").read()))
+[<matplotlib.lines.Line2D object at 0x7efcf0e101d0>]
+>>> plt.show()
+>>> 
+
+
+
+
+
