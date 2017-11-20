@@ -7,10 +7,10 @@ class PiModule:
         self.moduleName = moduleName
 
     def udpate(self, measure):
-        raise NotImplementedError("Method update() for module " + moduleName + " not implemented !")
+        raise NotImplementedError("Method update() for module " + self.moduleName + " not implemented !")
         
     def shutdown(self):
-        raise NotImplementedError("Method shutdown() for module " + moduleName + " not implemented !")
+        raise NotImplementedError("Method shutdown() for module " + self.moduleName + " not implemented !")
         
     def getModuleName(self):
         return self.moduleName
