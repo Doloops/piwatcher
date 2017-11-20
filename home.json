@@ -15,7 +15,7 @@
           "gui_type": "temp",
           "state": "0.0",
           "io_type": "input",
-          "es" : { "index":"oswh-osmc", "doc_type":"sys-measure" },
+          "es_" : { "index":"oswh-osmc", "doc_type":"sys-measure" },
           "displayFormat" : "%.2f"
         }
       ]
@@ -35,7 +35,7 @@
           "gui_type": "temp",
           "state": "0.0",
           "io_type": "input",
-          "es" : { "index":"oswh-pizero1", "doc_type":"sys-measure" },
+          "es_" : { "index":"oswh-pizero1", "doc_type":"sys-measure" },
           "displayFormat" : "%.2f"
         },
         {
@@ -48,7 +48,7 @@
           "gui_type": "var_int",
           "state": "18.0",
           "io_type": "inout",
-          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
+          "es_" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
         {
           "id": "pizero1.heater.target.standby",
@@ -60,7 +60,7 @@
           "gui_type": "var_int",
           "state": "14.0",
           "io_type": "inout",
-          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
+          "es_" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
         {
           "id": "pizero1.heater.comfort.ttl",
@@ -72,7 +72,7 @@
           "gui_type": "var_int",
           "state": "2",
           "io_type": "inout",
-          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
+          "es_" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
         {
           "id": "pizero1.heater.comfort.remaingTime",
@@ -83,7 +83,7 @@
           "rw": "false",
           "gui_type": "var_int",
           "io_type": "inout",
-          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
+          "es_" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
         {
           "id": "pizero1.heater.mode.comfort",
@@ -95,7 +95,7 @@
           "gui_type": "var_bool",
           "state": "false",
           "io_type": "inout",
-          "es" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
+          "es_" : { "index":"oswh-states", "doc_type":"state", "es_mode":"get" }
         },
         {
           "id": "pizero1.heater.command",
@@ -106,7 +106,7 @@
           "gui_type": "light",
           "state": "false",
           "io_type": "output",
-          "es" : { "index":"oswh-pizero1", "doc_type":"sys-measure" },
+          "es_" : { "index":"oswh-pizero1", "doc_type":"sys-measure" },
           "mapping": { "heaterOn": true, "heaterOff": false }
         }
       ]
@@ -126,7 +126,7 @@
           "gui_type": "temp",
           "state": "0.0",
           "io_type": "input",
-          "es" : { "index":"oswh-pizero2", "doc_type":"sys-measure" },
+          "es_" : { "index":"oswh-pizero2", "doc_type":"sys-measure" },
           "displayFormat" : "%.2f"
         }
       ]
