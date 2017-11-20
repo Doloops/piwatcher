@@ -6,7 +6,7 @@
         }
     },
     "piscript": {
-        "hosts":[{"host" : "osmc", "retry_on_timeout": true}, {"host" : "pizero3", "retry_on_timeout": true}],
+        "hosts":[{"host" : "pizero3"}],
         "script":"simpleHeater(self.esClient, measure,'pizero1')"
     },
     "picommander" : {
