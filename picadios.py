@@ -4,27 +4,31 @@ import asyncio
 import websockets
 import elasticsearch
 import fetchfromes
-
+import redis
+import threading
 import logging
-from elasticsearch.exceptions import NotFoundError
 logger = logging.getLogger('websockets.server')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 import json
 
-
 wsClients = []
-esClient = elasticsearch.Elasticsearch([{"host":"osmc"},{"host":"pizero3"},{"host":"192.168.1.63"}])
+esClient = elasticsearch.Elasticsearch([{"host":"osmc"}, {"host":"pizero3"}, {"host":"192.168.1.63"}])
+
+redisClient = redis.StrictRedis(host='pizero3', port=6379, db=0, decode_responses=True)
+useRedis = True
 
 # Internal state
 internalStates = {}
 itemsConfiguration = {}
 
+
 def getHome():
     with open ("home.json") as homeFile:
         jsonHome = json.loads(homeFile.read())
         return jsonHome
+
 
 def getUpdatedHome():
     global internalStates
@@ -43,14 +47,18 @@ def getUpdatedHome():
                 item["state"] = itemValue
     return jsonHome
 
+
 def mayUpdateItem(stateId, stateValue):
     global itemsConfiguration
     global esClient
     if stateId in itemsConfiguration:
         item = itemsConfiguration[stateId]
         if "es" in item and "es_mode" in item["es"] and item["es"]["es_mode"] == "get":
+            if useRedis:
+                redisClient.publish(item["id"], json.dumps(stateValue))
             fetchfromes.llWriteStateToES(esClient, stateId=item["id"], index=item["es"]["index"], doc_type=item["es"]["doc_type"],
-                           esMode="get", stateValue = stateValue)
+                           esMode="get", stateValue=stateValue)
+
 
 async def setState(stateId, stateValue):
     global internalStates
@@ -75,12 +83,13 @@ async def setState(stateId, stateValue):
         mayUpdateItem(stateId, value)
         valueStr = json.dumps(value);
         print("Updated " + stateId + "=" + valueStr)
-        eventMessage = {"msg":"event","data":{"event_raw":"io_changed id:" + stateId + " state:" + valueStr,
-            "type":"3","type_str":"io_changed","data":{"id":stateId,"state":valueStr}}}
+        eventMessage = {"msg":"event", "data":{"event_raw":"io_changed id:" + stateId + " state:" + valueStr,
+            "type":"3", "type_str":"io_changed", "data":{"id":stateId, "state":valueStr}}}
         for wsClient in wsClients:
             await wsClient.send(json.dumps(eventMessage))
     else:
         print("State not in internalStates : " + stateId)
+
 
 async def serveWebSocket(websocket, path):
     global wsClients
@@ -99,7 +108,7 @@ async def serveWebSocket(websocket, path):
             print ("Action : [" + action + "]")
             if action == "login":
                 print("Sending Login OK")
-                response = {"msg":"login","data":{"success":"true"}}
+                response = {"msg":"login", "data":{"success":"true"}}
                 await websocket.send(json.dumps(response))
             elif action == "get_home":
                 print("Sending Home !")
@@ -114,13 +123,14 @@ async def serveWebSocket(websocket, path):
     finally:
         wsClients.remove(websocket)
 
+
 print ("Running now !")
 
 asyncio.get_event_loop().run_until_complete(
    websockets.serve(serveWebSocket, '0.0.0.0', 5455))
 
 
-async def periodicStateUpdate(esClient, stateId, index, doc_type, interval = 30, displayFormat = None, esMode = "search", defaultValue = None, mapping = None):
+async def periodicStateUpdate(esClient, stateId, index, doc_type, interval=30, displayFormat=None, esMode="search", defaultValue=None, mapping=None):
     global wsClients
     global internalStates
 #    hostName=idParts[0]
@@ -135,24 +145,61 @@ async def periodicStateUpdate(esClient, stateId, index, doc_type, interval = 30,
                 else:
                     stateValueStr = json.dumps(stateValue)
     
-                print("Got " + stateId + "=" + stateValueStr + " (" + str(stateValue) + ")")
+                print("ES Fetch : " + stateId + "=" + stateValueStr + " (" + str(stateValue) + ")")
                 internalStates[stateId] = stateValue
     
-                eventMessage = {"msg":"event","data":{"event_raw":"io_changed id:" + stateId + " state:" + str(stateValue),
-                    "type":"3","type_str":"io_changed","data":{"id":stateId,"state":stateValueStr}}}
+                eventMessage = {"msg":"event", "data":{"event_raw":"io_changed id:" + stateId + " state:" + str(stateValue),
+                    "type":"3", "type_str":"io_changed", "data":{"id":stateId, "state":stateValueStr}}}
                 for wsClient in wsClients:
                     await wsClient.send(json.dumps(eventMessage))
         except Exception as err:
             print(" ! Caught " + str(err))
         await asyncio.sleep(interval)
 
+async def periodicStateUpdateRedis(redisClient, stateId, itemType, displayFormat, mapping, defaultValue):
+    global wsClients
+    global internalStates
+
+    if defaultValue is not None:
+        internalStates[stateId] = defaultValue
+
+    p = redisClient.pubsub()
+    p.subscribe(stateId)
+    while True:
+        message = p.get_message()
+        if message and message["type"] == "message":
+            stateValue = message["data"].strip('"')
+            print ("Redis Update : " + stateId + " = " + stateValue + " (type=" + str(type(stateValue)) + ")")
+            #  + " [" + str(type(message["data"]))+ "]")
+            if itemType == "float":
+                stateValue = float(stateValue)
+            elif itemType == "bool":
+                if mapping is not None and stateValue in mapping:
+                    stateValue = mapping[stateValue]
+                else:
+                    stateValue = bool(stateValue)
+            else:
+                print("Not supported ! " + itemType)
+            if displayFormat is not None:
+                stateValueStr = displayFormat % stateValue
+            else:
+                stateValueStr = json.dumps(stateValue)
+            internalStates[stateId] = stateValue
+
+            eventMessage = {"msg":"event", "data":{"event_raw":"io_changed id:" + stateId + " state:" + str(stateValue),
+                "type":"3", "type_str":"io_changed", "data":{"id":stateId, "state":stateValueStr}}}
+            for wsClient in wsClients:
+                await wsClient.send(json.dumps(eventMessage))
+        await asyncio.sleep(0.1)
+    
 jsonHome = getHome()
 for room in jsonHome["home"]:
     print("Room : " + room["name"])
     for item in room["items"]:
         itemsConfiguration[item["id"]] = item
         if "es" in item:
-            print("Configuring item " + item["id"])
+            stateId = item["id"]
+            print("Configuring item " + stateId)
             displayFormat = None
             if "displayFormat" in item:
                 displayFormat = item["displayFormat"]
@@ -165,9 +212,17 @@ for room in jsonHome["home"]:
             mapping = None
             if "mapping" in item:
                 mapping = item["mapping"]
-            asyncio.get_event_loop().create_task(
-                periodicStateUpdate(esClient, stateId=item["id"], index=item["es"]["index"], doc_type=item["es"]["doc_type"], 
-                                    displayFormat=displayFormat, esMode=esMode, defaultValue=defaultValue, mapping=mapping))
+            itemType = None
+            if "var_type" in item:
+                itemType = item["var_type"]
+        
+            if useRedis and stateId != "main.temp":
+                asyncio.get_event_loop().create_task(periodicStateUpdateRedis(redisClient, stateId=stateId, itemType=itemType, 
+                                                                               displayFormat=displayFormat, mapping=mapping, defaultValue=defaultValue))
+            else:
+                asyncio.get_event_loop().create_task(
+                    periodicStateUpdate(esClient, stateId=item["id"], index=item["es"]["index"], doc_type=item["es"]["doc_type"],
+                                        displayFormat=displayFormat, esMode=esMode, defaultValue=defaultValue, mapping=mapping))
         elif item["type"] == "InternalBool":
             internalStates[item["id"]] = json.loads(item["state"])
             print("Configuring item " + item["id"] + "=" + str(internalStates[item["id"]]))
@@ -179,10 +234,8 @@ for room in jsonHome["home"]:
             if not isinstance(internalStates[item["id"]], int):
                 print("Error ! item is not an integer !!!")
 
-
 print("Run forever !")
 asyncio.get_event_loop().run_forever()
 
 print ("Finished !")
-
 
