@@ -23,12 +23,10 @@ useRedis = True
 internalStates = {}
 itemsConfiguration = {}
 
-
 def getHome():
     with open ("home.json") as homeFile:
         jsonHome = json.loads(homeFile.read())
         return jsonHome
-
 
 def getUpdatedHome():
     global internalStates
@@ -95,6 +93,82 @@ async def setState(stateId, stateValue):
         print("State not in internalStates : " + stateId)
 
 
+async def periodicStateUpdate(esClient, stateId, index, doc_type, interval=30, displayFormat=None, esMode="search", defaultValue=None, mapping=None):
+    global wsClients
+    global internalStates
+    while True:
+        print("Searching " + stateId + " in index=" + index + ", doc_type=" + doc_type + ", esMode=" + esMode)
+        try:
+            stateValue = fetchfromes.llReadFromES(esClient, stateId, index, doc_type, esMode, defaultValue, mapping)
+            if stateValue is not None:
+                if displayFormat is not None:
+                    stateValueStr = displayFormat % stateValue
+                else:
+                    stateValueStr = json.dumps(stateValue)
+    
+                print("ES Fetch : " + stateId + "=" + stateValueStr + " (" + str(stateValue) + ")")
+                internalStates[stateId] = stateValue
+    
+                eventMessage = {"msg":"event", "data":{"event_raw":"io_changed id:" + stateId + " state:" + str(stateValue),
+                    "type":"3", "type_str":"io_changed", "data":{"id":stateId, "state":stateValueStr}}}
+                for wsClient in wsClients:
+                    await wsClient.send(json.dumps(eventMessage))
+        except Exception as err:
+            print(" ! Caught " + str(err))
+        await asyncio.sleep(interval)
+
+
+def parseRedisValue(stateValue, stateId, itemType, displayFormat, mapping):
+    tnow = time.strftime("%Y%m%d-%H%M%S")
+    print (tnow + " Redis Update : " + stateId + "=" + stateValue)
+    #  + " (type=" + str(type(stateValue)) + ") mapping=" + str(mapping) + ", itemType=" + str(itemType))
+    if itemType == "float":
+        stateValue = float(stateValue)
+        if displayFormat is not None:
+            stateValueStr = displayFormat % stateValue
+        else:
+            stateValueStr = json.dumps(stateValue)
+    elif itemType == "bool":
+        if mapping is not None and stateValue in mapping:
+            stateValue = mapping[stateValue]
+        else:
+            stateValue = json.loads(stateValue)
+        stateValueStr = json.dumps(stateValue)
+    else:
+        print("Not supported ! " + itemType)
+    return stateValue, stateValueStr
+
+
+async def periodicStateUpdateRedis(redisClient, stateId, itemType, displayFormat, mapping, defaultValue):
+    global wsClients
+    global internalStates
+
+    stateValue = redisClient.get(stateId)
+    if stateValue is not None:
+        stateValue, stateValueStr = parseRedisValue(stateValue, stateId, itemType, displayFormat, mapping)
+        print("Set initial value " + stateId + "=" + str(stateValue))
+        internalStates[stateId] = stateValue
+    elif defaultValue is not None:
+        print("Set default value " + stateId + "=" + str(defaultValue))
+        internalStates[stateId] = defaultValue
+
+    pubsub = redisClient.pubsub()
+    pubsub.subscribe(stateId)
+    while True:
+        message = pubsub.get_message()
+        if message and message["type"] == "message":
+            stateValue = message["data"].strip('"')
+            stateValue, stateValueStr = parseRedisValue(stateValue, stateId, itemType, displayFormat, mapping)
+            internalStates[stateId] = stateValue
+                
+            eventMessage = {"msg":"event", "data":{"event_raw":"io_changed id:" + stateId + " state:" + str(stateValue),
+                "type":"3", "type_str":"io_changed", "data":{"id":stateId, "state":stateValueStr}}}
+            # print ("Redis to WS message=" + json.dumps(eventMessage))
+            for wsClient in wsClients:
+                await wsClient.send(json.dumps(eventMessage))
+        await asyncio.sleep(0.1)
+
+
 async def serveWebSocket(websocket, path):
     global wsClients
     print ("Run at path : " + path)
@@ -127,87 +201,9 @@ async def serveWebSocket(websocket, path):
     finally:
         wsClients.remove(websocket)
 
-
 print ("Running now !")
 
-asyncio.get_event_loop().run_until_complete(
-   websockets.serve(serveWebSocket, '0.0.0.0', 5455))
-
-
-async def periodicStateUpdate(esClient, stateId, index, doc_type, interval=30, displayFormat=None, esMode="search", defaultValue=None, mapping=None):
-    global wsClients
-    global internalStates
-#    hostName=idParts[0]
-#    valueName=idParts[1]
-    while True:
-        print("Searching " + stateId + " in index=" + index + ", doc_type=" + doc_type + ", esMode=" + esMode)
-        try:
-            stateValue = fetchfromes.llReadFromES(esClient, stateId, index, doc_type, esMode, defaultValue, mapping)
-            if stateValue is not None:
-                if displayFormat is not None:
-                    stateValueStr = displayFormat % stateValue
-                else:
-                    stateValueStr = json.dumps(stateValue)
-    
-                print("ES Fetch : " + stateId + "=" + stateValueStr + " (" + str(stateValue) + ")")
-                internalStates[stateId] = stateValue
-    
-                eventMessage = {"msg":"event", "data":{"event_raw":"io_changed id:" + stateId + " state:" + str(stateValue),
-                    "type":"3", "type_str":"io_changed", "data":{"id":stateId, "state":stateValueStr}}}
-                for wsClient in wsClients:
-                    await wsClient.send(json.dumps(eventMessage))
-        except Exception as err:
-            print(" ! Caught " + str(err))
-        await asyncio.sleep(interval)
-
-def parseRedisValue(stateValue, stateId, itemType, displayFormat, mapping):
-    tnow = time.strftime("%Y%m%d-%H%M%S")
-    print (tnow + " Redis Update : " + stateId + "=" + stateValue)
-    #  + " (type=" + str(type(stateValue)) + ") mapping=" + str(mapping) + ", itemType=" + str(itemType))
-    if itemType == "float":
-        stateValue = float(stateValue)
-        if displayFormat is not None:
-            stateValueStr = displayFormat % stateValue
-        else:
-            stateValueStr = json.dumps(stateValue)
-    elif itemType == "bool":
-        if mapping is not None and stateValue in mapping:
-            stateValue = mapping[stateValue]
-        else:
-            stateValue = json.loads(stateValue)
-        stateValueStr = json.dumps(stateValue)
-    else:
-        print("Not supported ! " + itemType)
-    return stateValue, stateValueStr
-
-async def periodicStateUpdateRedis(redisClient, stateId, itemType, displayFormat, mapping, defaultValue):
-    global wsClients
-    global internalStates
-
-    stateValue = redisClient.get(stateId)
-    if stateValue is not None:
-        stateValue, stateValueStr = parseRedisValue(stateValue, stateId, itemType, displayFormat, mapping)
-        print("Set initial value " + stateId + "=" + str(stateValue))
-        internalStates[stateId] = stateValue
-    elif defaultValue is not None:
-        print("Set default value " + stateId + "=" + str(defaultValue))
-        internalStates[stateId] = defaultValue
-
-    pubsub = redisClient.pubsub()
-    pubsub.subscribe(stateId)
-    while True:
-        message = pubsub.get_message()
-        if message and message["type"] == "message":
-            stateValue = message["data"].strip('"')
-            stateValue, stateValueStr = parseRedisValue(stateValue, stateId, itemType, displayFormat, mapping)
-            internalStates[stateId] = stateValue
-                
-            eventMessage = {"msg":"event", "data":{"event_raw":"io_changed id:" + stateId + " state:" + str(stateValue),
-                "type":"3", "type_str":"io_changed", "data":{"id":stateId, "state":stateValueStr}}}
-            # print ("Redis to WS message=" + json.dumps(eventMessage))
-            for wsClient in wsClients:
-                await wsClient.send(json.dumps(eventMessage))
-        await asyncio.sleep(0.1)
+asyncio.get_event_loop().run_until_complete(websockets.serve(serveWebSocket, '0.0.0.0', 5455))
     
 jsonHome = getHome()
 for room in jsonHome["home"]:
@@ -234,7 +230,7 @@ for room in jsonHome["home"]:
                 itemType = item["var_type"]
         
             if useRedis and stateId != "main.temp":
-                asyncio.get_event_loop().create_task(periodicStateUpdateRedis(redisClient, stateId=stateId, itemType=itemType, 
+                asyncio.get_event_loop().create_task(periodicStateUpdateRedis(redisClient, stateId=stateId, itemType=itemType,
                                                                                displayFormat=displayFormat, mapping=mapping, defaultValue=defaultValue))
             elif stateId == "main.temp": 
                 asyncio.get_event_loop().create_task(
