@@ -3,6 +3,7 @@ import time
 from scipy.fftpack import fft, fftfreq
 from datetime import datetime
 from math import sqrt
+from statistics import mean
 import numpy as np
 
 import json
@@ -74,12 +75,21 @@ class PiCurrentSensor(pimodule.PiModule):
     asm10_iPrim_vSec_Ratio = 300
     asm30_iPrim_vSec_Ratio = 500
     
+    def computeGap(self, vals):
+        vmin=min(vals)
+        vmax=max(vals)
+        # gap = max(vals) - min(vals)
+        sortedVals = sorted(vals)
+        xtremSize = int(len(vals) / 50)
+        minVals = mean(sortedVals[0:xtremSize])
+        maxVals = mean(sortedVals[len(sortedVals) - xtremSize, len(sortedVals)])
+        gap = maxVals - minVals
+        return gap, vmin, vmax
+    
     def readDirectChannel(self, channel, measure):
         vals, delta = self.readValues(channel)
         freq, amplitude = self.readFourier(vals, delta, measure)
-        vmin=min(vals)
-        vmax=max(vals)
-        gap = max(vals) - min(vals)
+        gap, vmin, vmax = self.computeGap(vals)
         if self.verbose: 
             print("* Dir:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
         vSec = (gap * self.vcc) / 2
@@ -98,9 +108,7 @@ class PiCurrentSensor(pimodule.PiModule):
     def readAmplifiedChannel(self, channel, measure, asmType = "ASM30"):
         vals, delta = self.readValues(channel)
         freq, amplitude = self.readFourier(vals, delta, measure)
-        vmin=min(vals)
-        vmax=max(vals)
-        gap = max(vals) - min(vals)
+        gap, vmin, vmax = self.computeGap(vals)
         if self.verbose: 
             print("* Amp:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
         vSec = (gap * self.vcc) / self.lm324nRatio
