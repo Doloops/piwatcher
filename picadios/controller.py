@@ -20,8 +20,13 @@ class Controller(StateUpdateNotifyHandler):
             print("State not in internalStates : " + stateId)
             return
         if isinstance(value, bool):
-            value = not value
-            self.sweetHome.setState(stateId, value)
+            if stateValue.lower() == "false":
+                value = False
+            elif stateValue.lower() == "true":
+                value = True
+            else:
+                print("State not a valid bool " + value)
+                return                
         elif isinstance(value, int) or isinstance(value, float):
             if stateValue == "inc":
                 value = value + 1
