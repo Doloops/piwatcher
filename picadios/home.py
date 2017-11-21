@@ -1,5 +1,4 @@
 import json
-from code import interact
 
 class Home():
     # Initial config as JSON object
