@@ -7,7 +7,7 @@
     },
     "piscript": {
         "hosts":[{"host" : "pizero3"}],
-        "script":"simpleHeater(self.esClient, measure,'pizero1')"
+        "script":"self.simpleHeater(measure,'pizero1')"
     },
     "picommander" : {
         "property" : "heater.command",
