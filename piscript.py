@@ -1,83 +1,141 @@
 import pimodule
 import fetchfromes
-import elasticsearch
+import redis
+import json
+import threading
+
 from datetime import datetime, timedelta
 
 DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
-def getState(esClient, prefix, stateId, defaultValue = None):
-    index = "oswh-states"
-    doc_type = "state"
-    return fetchfromes.llReadFromES(esClient, prefix + "." + stateId, index, doc_type, esMode = "get", defaultValue=defaultValue)
-
-def setState(esClient, prefix, stateId, stateValue):
-    index = "oswh-states"
-    doc_type = "state"
-    fetchfromes.llWriteStateToES(esClient, prefix + "." + stateId, index, doc_type, stateValue = stateValue)
-
-def simpleHeater(esClient, measure, prefix):
-    # print("Incoming measure : " + str(measure))
-    indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
-    modeComfort = getState(esClient, prefix, "heater.mode.comfort")
-    targetComfort = getState(esClient, prefix, "heater.target.comfort")
-    targetStandby = getState(esClient, prefix, "heater.target.standby")
-    comfortTimeToLive = getState(esClient, prefix, "heater.comfort.ttl", 240)
-    comfortStartTime = getState(esClient, prefix, "heater.comfort.startTime")
-    if False:
-        print("Update : temp=" + str(indoorTemp) + ", modeComfort=" + str(modeComfort) + ", targetComfort=" + str(targetComfort)
-               + ", targetStandby=" + str(targetStandby) + ", comfortTimeToLive=" + str(comfortTimeToLive) + ", comfortStartTime=" + str(comfortStartTime))
-
-    heaterCommand = "heaterOff"
-    if modeComfort:
-        if comfortStartTime is None:
-            comfortStartTime = datetime.utcnow()
-            # fetchfromes.llWriteStateToES(esClient, prefix + "." + "heater.comfort.startTime", "oswh-states", "state", stateValue = comfortStartTime)
-            setState(esClient, prefix, "heater.comfort.startTime", comfortStartTime)
-        if isinstance(comfortStartTime, str):
-            comfortStartTime = datetime.strptime(comfortStartTime, DATE_ISO_FORMAT)
-        comfortEndTime = comfortStartTime + timedelta(hours=comfortTimeToLive)
-        now = datetime.utcnow()
-        # print("comfortStartTime=" + str(comfortStartTime) + ", now=" + str(now) + ", comfortEndTime=" + str(comfortEndTime))
-        if now > comfortEndTime:
-            print(", End of Comfort !", end='')
-            modeComfort = False
-            comfortStartTime = None
-            setState(esClient, prefix, "heater.mode.comfort", modeComfort)
-            setState(esClient, prefix, "heater.comfort.startTime", comfortStartTime)
-            setState(esClient, prefix, "heater.comfort.remaingTime", 0)
-        else:
-            remainingTime = comfortEndTime - now
-            setState(esClient, prefix, "heater.comfort.remaingTime", int(remainingTime.seconds / 60))
-    else:
-        if comfortStartTime is not None:
-            setState(esClient, prefix, "heater.comfort.startTime", None)
-            setState(esClient, prefix, "heater.comfort.remaingTime", 0)
-
-    if modeComfort:
-        if indoorTemp < targetComfort:
-            heaterCommand = "heaterOn"
-    elif indoorTemp < targetStandby:
-            heaterCommand = "heaterOn"
-    # print("=> heaterCommand=" + heaterCommand)
-    fetchfromes.updateFragment(measure, "heater.command", heaterCommand)
-
 class PiScript(pimodule.PiModule):
-    script = None
     
+    verbose = False
+    states = {}
+    subscribedUpdates = {}
+    
+    def backgroundStateUpdate(self, key):
+        pubsub = self.redisClient.pubsub()
+        pubsub.subscribe(key)
+        for message in pubsub.listen():
+            if message["type"] == "message":
+                if self.verbose:
+                    print ("data : " + message["data"] + " [" + str(type(message["data"]))+ "]")
+                stateValue = message["data"].strip('"')
+                stateValue = self.parseValue(stateValue)
+                if True:
+                    print ("U{" + key + "=" + str(stateValue) + "}")
+                self.states[key] = stateValue
+                if self.lastMeasure is not None:
+                    self.update(self.lastMeasure)
+                    self.piwatcher.updateModule("PiCommandWatcher", self.lastMeasure)
+
+    def getState(self, prefix, stateId, defaultValue = None, subscribe = True):
+        key = prefix + "." + stateId
+        if key in self.states:
+            return self.states[key]
+        if subscribe and key not in self.subscribedUpdates:
+            thread = threading.Thread(target = self.backgroundStateUpdate, args=[key])
+            self.subscribedUpdates[key] = thread
+            thread.setDaemon(True)
+            thread.start()
+        value = self.redisClient.get(key)
+        value = self.parseValue(value, defaultValue)
+        self.states[key] = value
+        return value
+
+    def parseValue(self, value, defaultValue = None):
+        if value is None:
+            return defaultValue
+        elif value.lower() == "true":
+            return True
+        elif value.lower() == "false":
+            return False
+        elif value.lower() == "null":
+            return None
+        try:
+            return float(value)
+        except:
+            return value
+    
+    def setState(self, prefix, stateId, stateValue):
+        key = prefix + "." + stateId
+        self.states[key] = stateValue
+        if type(stateValue) is datetime:
+            stateValueStr = stateValue.isoformat()
+        else:
+            stateValueStr = json.dumps(stateValue)
+        self.redisClient.set(key, stateValueStr)
+        self.redisClient.publish(key, stateValueStr)
+    
+    def simpleHeater(self, measure, prefix):
+        # print("Incoming measure : " + str(measure))
+        indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
+        modeComfort = self.getState(prefix, "heater.mode.comfort")
+        targetComfort = self.getState(prefix, "heater.target.comfort")
+        targetStandby = self.getState(prefix, "heater.target.standby")
+        comfortTimeToLive = self.getState(prefix, "heater.comfort.ttl", 2)
+        comfortStartTime = self.getState(prefix, "heater.comfort.startTime", subscribe=False)
+        if self.verbose:
+            print("Update : temp=" + str(indoorTemp) + ", modeComfort=" + str(modeComfort) + ", targetComfort=" + str(targetComfort)
+                   + ", targetStandby=" + str(targetStandby) + ", comfortTimeToLive=" + str(comfortTimeToLive) + ", comfortStartTime=" + str(comfortStartTime))
+    
+        heaterCommand = "heaterOff"
+        if modeComfort:
+            if comfortStartTime is None:
+                comfortStartTime = datetime.utcnow()
+                self.setState(prefix, "heater.comfort.startTime", comfortStartTime)
+            if isinstance(comfortStartTime, str):
+                comfortStartTime = datetime.strptime(comfortStartTime, DATE_ISO_FORMAT)
+            comfortEndTime = comfortStartTime + timedelta(hours=comfortTimeToLive)
+            now = datetime.utcnow()
+            if self.verbose:
+                print("comfortStartTime=" + str(comfortStartTime) + ", now=" + str(now) + ", comfortEndTime=" + str(comfortEndTime))
+            if now > comfortEndTime:
+                print(", End of Comfort !", end='')
+                modeComfort = False
+                comfortStartTime = None
+                self.setState(prefix, "heater.mode.comfort", modeComfort)
+                self.setState(prefix, "heater.comfort.startTime", comfortStartTime)
+                self.setState(prefix, "heater.comfort.remaingTime", 0)
+            else:
+                remainingTime = comfortEndTime - now
+                self.setState(prefix, "heater.comfort.remaingTime", int(remainingTime.seconds / 60))
+        else:
+            if comfortStartTime is not None:
+                self.setState(prefix, "heater.comfort.startTime", None)
+                self.setState(prefix, "heater.comfort.remaingTime", 0)
+    
+        if modeComfort:
+            if indoorTemp < targetComfort:
+                heaterCommand = "heaterOn"
+        elif indoorTemp < targetStandby:
+                heaterCommand = "heaterOn"
+        # print("=> heaterCommand=" + heaterCommand)
+        fetchfromes.updateFragment(measure, "heater.command", heaterCommand)
+
+    script = None
+    redisClient = None
+    lastMeasure = None
+
     def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self, "PiScript")
         self.script = moduleConfig["script"]
         if "wrapMeasureIn" in moduleConfig:
             self.wrapMeasureIn = moduleConfig["wrapMeasureIn"]
         if "hosts" in moduleConfig:
-            self.esClient = elasticsearch.Elasticsearch(moduleConfig["hosts"])
-        
+            self.redisClient = redis.StrictRedis(host=moduleConfig["hosts"][0]["host"], port=6379, db=0, decode_responses=True)
+            # self.esClient = elasticsearch.Elasticsearch(moduleConfig["hosts"])
+
     def update(self, measure):
+        self.lastMeasure = measure
         measure = self.mayWrap(measure)
-        # print("Before SCRIPT : " + str(measure))
+        if self.verbose:
+            print("Before SCRIPT : " + str(measure))
         eval(self.script)
-        # print("After SCRIPT : " + str(measure))
-        
+        if self.verbose:
+            print("After SCRIPT : " + str(measure))
+
 if __name__ == "__main__":
     true = True
     false = False
