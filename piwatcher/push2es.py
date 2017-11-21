@@ -41,6 +41,7 @@ class Push2ES(pimodule.PiModule):
                 channel = prefix + key
                 # print("Publish " + channel + " = " + str(body[key]))
                 try:
+                    self.redisClient.set(channel, json.dumps(body[key]))
                     self.redisClient.publish(channel, json.dumps(body[key]))
                 except:
                     print("Could not push to Redis: ", sys.exc_info()[0])    
