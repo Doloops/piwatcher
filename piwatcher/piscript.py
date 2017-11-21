@@ -111,6 +111,7 @@ class PiScript(pimodule.PiModule):
                 heaterCommand = "heaterOn"
         elif indoorTemp < targetStandby:
                 heaterCommand = "heaterOn"
+        self.setState(prefix, "heater.command", heaterCommand)
         # print("=> heaterCommand=" + heaterCommand)
         fetchfromes.updateFragment(measure, "heater.command", heaterCommand)
 
