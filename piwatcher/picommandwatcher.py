@@ -1,9 +1,9 @@
-import piwatcherconfig
-import pimodule
+from piwatcher import piwatcherconfig
+from piwatcher import pimodule
 import time
 import sys
 import RPi.GPIO as GPIO
-import fetchfromes
+from piwatcher import fetchfromes
 from datetime import datetime
 
 class PiCommandWatcher(pimodule.PiModule):

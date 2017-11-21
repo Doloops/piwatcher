@@ -1,4 +1,4 @@
-import pimodule
+from piwatcher import pimodule
 import re
 import subprocess
 import time

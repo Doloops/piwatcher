@@ -2,8 +2,8 @@
 Utility class to monitor temperatures
 '''
 
-import pimodule
-import bmp280
+from piwatcher import pimodule
+from piwatcher import bmp280
 
 class TempWatcher(pimodule.PiModule):
     tempSensorBmp280 = None

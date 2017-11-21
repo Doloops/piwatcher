@@ -6,7 +6,7 @@ from math import sqrt
 import numpy as np
 
 import json
-import pimodule 
+from piwatcher import pimodule 
 
 class PiCurrentSensor(pimodule.PiModule):
     # Open SPI bus

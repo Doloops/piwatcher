@@ -1,5 +1,5 @@
-import pimodule
-import fetchfromes
+from piwatcher import pimodule
+from piwatcher import fetchfromes
 import redis
 import json
 import threading

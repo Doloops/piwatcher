@@ -1,7 +1,7 @@
 '''
 Utility class to monitor disk activity
 '''
-import pimodule
+from piwatcher import pimodule
 import re
 import time
 import subprocess

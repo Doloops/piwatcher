@@ -1,4 +1,4 @@
-import pimodule
+from piwatcher import pimodule
 import elasticsearch
 
 def updateFragment(fragmentRoot, stateId, stateValue):
