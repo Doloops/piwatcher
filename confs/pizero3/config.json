@@ -9,7 +9,7 @@
         "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}],
         "index": "oswh-pizero3",
         "type": "sys-measure",
-	    "redis":{"host":"pizero3"}        
+	    "redis":{"host":"pizero3"}
     },
     "picurrentsensor": {
     	"sensors" : [{"id":"board.low", "name":"Tableau bas", "channel":0, "type":"direct"},
