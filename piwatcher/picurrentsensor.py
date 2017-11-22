@@ -80,7 +80,7 @@ class PiCurrentSensor(pimodule.PiModule):
         vmax=max(vals)
         if True:
             gap = max(vals) - min(vals)
-            return gap
+            return gap, vmin, vmax
         else:
             sortedVals = sorted(vals)
             xtremSize = int(len(vals) / 50)
