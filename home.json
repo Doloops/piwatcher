@@ -158,7 +158,7 @@
       "items": [
         {
           "id": "pizero3.board.high.wPrim",
-          "name": "Conso Equipements",
+          "name": "Tableau Haut",
           "type": "WebInputTemp",
           "var_type": "float",
           "visible": "true",
@@ -171,7 +171,7 @@
         },
         {
           "id": "pizero3.board.low.wPrim",
-          "name": "Conso Chauffages",
+          "name": "Tableau Bas",
           "type": "WebInputTemp",
           "var_type": "float",
           "visible": "true",
@@ -196,8 +196,34 @@
           "displayFormat" : "%.2f"
         },
         {
+          "id": "pizero3.living.heating.wPrim",
+          "name": "Salon Chauffage",
+          "type": "WebInputTemp",
+          "var_type": "float",
+          "visible": "true",
+          "unit": "",
+          "gui_type": "analog_in",
+          "unit": "W",
+          "state": "0.0",
+          "io_type": "input",
+          "displayFormat" : "%.2f"
+        },
+        {
           "id": "pizero3.water.heater.wPrim",
           "name": "Conso Chauffe-eau",
+          "type": "WebInputTemp",
+          "var_type": "float",
+          "visible": "true",
+          "unit": "",
+          "gui_type": "analog_in",
+          "unit": "W",
+          "state": "0.0",
+          "io_type": "input",
+          "displayFormat" : "%.2f"
+        },
+        {
+          "id": "pizero3.living.tv.wPrim",
+          "name": "Salon TV",
           "type": "WebInputTemp",
           "var_type": "float",
           "visible": "true",
