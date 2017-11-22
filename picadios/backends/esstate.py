@@ -2,6 +2,9 @@ from picadios.backends.basestate import BaseState
 from piwatcher import fetchfromes
 import json
 import asyncio
+import logging
+
+logger = logging.getLogger("picadios.esstate")
 
 class ESState(BaseState):
 
@@ -20,25 +23,35 @@ class ESState(BaseState):
 		self.esDocType = item["es"]["doc_type"]
 		self.controller.registerBackendState(self)
 
+	def getStateWithDisplayValue(self):
+		stateValue = fetchfromes.llReadFromES(self.esClient, self.stateId, self.esIndex, self.esDocType, self.esMode, 
+											self.defaultValue, self.mapping)
+		if stateValue is not None:
+			if self.displayFormat is not None:
+				stateValueStr = self.displayFormat % stateValue
+			else:
+				stateValueStr = json.dumps(stateValue)
+			logger.debug("ES Fetch : " + self.stateId + "=" + stateValueStr + " (" + str(stateValue) + ")")
+		return stateValue, stateValueStr
+
+	def getState(self):
+		stateValue, stateValueStr = self.getStateWithDisplayValue()
+		return stateValue
+
 	async def asyncUpdate(self):
 		# esClient, stateId, index, doc_type, interval=30, displayFormat=None, esMode="search", defaultValue=None, mapping=None)
 		while True:
-			print("Searching " + self.stateId + " in index=" + self.esIndex + ", doc_type=" + self.esDocType + ", esMode=" + self.esMode)
+			logger.debug("Searching " + self.stateId + " in index=" + self.esIndex + ", doc_type=" + self.esDocType + ", esMode=" + self.esMode)
 			try:
-				stateValue = fetchfromes.llReadFromES(self.esClient, self.stateId, self.esIndex, self.esDocType, self.esMode, 
-													self.defaultValue, self.mapping)
-				if stateValue is not None:
-					if self.displayFormat is not None:
-						stateValueStr = self.displayFormat % stateValue
-					else:
-						stateValueStr = json.dumps(stateValue)
-					print("ES Fetch : " + self.stateId + "=" + stateValueStr + " (" + str(stateValue) + ")")
 					# sweetHome.setState(self.stateId, stateValue)
+				stateValue, stateValueStr = self.getStateWithDisplayValue()
+				if stateValue is not None:
 					await self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)
 			except Exception as err:
-				print(" ! Caught " + str(err))
+				logger.warn(" ! Caught " + str(err))
 			await asyncio.sleep(self.interval)
 	
 	def modifyState(self, stateValue):
 		fetchfromes.llWriteStateToES(self.esClient, stateId=self.getStateId(), index=self.esIndex, doc_type=self.esDocType, 
 									esMode="get", stateValue=stateValue)
+

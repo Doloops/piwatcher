@@ -1,7 +1,9 @@
 from picadios.backends.basestate import BaseState
-import time
 import json
 import asyncio
+import logging
+
+logger = logging.getLogger("picadios.redisstate")
 
 class RedisState(BaseState):
 
@@ -18,8 +20,7 @@ class RedisState(BaseState):
 		self.controller.registerBackendState(self)
 
 	def parseRedisValue(self, stateValue):
-		tnow = time.strftime("%Y%m%d-%H%M%S")
-		print (tnow + " Redis Update : " + self.stateId + "=" + stateValue)
+		logger.debug("Redis Update : " + self.stateId + "=" + stateValue)
 		if self.itemType == "float":
 			stateValue = float(stateValue)
 			if self.displayFormat is not None:
@@ -33,17 +34,24 @@ class RedisState(BaseState):
 				stateValue = json.loads(stateValue)
 			stateValueStr = json.dumps(stateValue)
 		else:
-			print("Not supported ! " + self.itemType)
+			logger.error("Not supported ! " + self.itemType)
 		return stateValue, stateValueStr
+
+	def getState(self):
+		stateValue = self.redisClient.get(self.stateId)
+		if stateValue is not None:
+			stateValue, stateValueStr = self.parseRedisValue(stateValue)
+			logger.debug("Got value " + self.stateId + "=" + str(stateValue) + " (" + stateValueStr + ")")
+		return stateValue
 
 	async def asyncUpdate(self):
 		stateValue = self.redisClient.get(self.stateId)
 		if stateValue is not None:
 			stateValue, stateValueStr = self.parseRedisValue(stateValue)
-			print("Set initial value " + self.stateId + "=" + str(stateValue))
+			logger.debug("Set initial value " + self.stateId + "=" + str(stateValue))
 			await self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)
 		elif self.defaultValue is not None:
-			print("Set default value " + self.stateId + "=" + str(self.defaultValue))
+			logger.info("Set default value " + self.stateId + "=" + str(self.defaultValue))
 			await self.controller.notifyStateUpdate(self.stateId, self.defaultValue, json.dumps(self.defaultValue))
 		
 		pubsub = self.redisClient.pubsub()
@@ -57,6 +65,6 @@ class RedisState(BaseState):
 			await asyncio.sleep(0.1)
 
 	def modifyState(self, stateValue):
-		print("Update Redis with " + self.getStateId() + "=" + json.dumps(stateValue))
+		logger.debug("Update Redis with " + self.getStateId() + "=" + json.dumps(stateValue))
 		self.redisClient.set(self.getStateId(), json.dumps(stateValue))
 		self.redisClient.publish(self.getStateId(), json.dumps(stateValue))

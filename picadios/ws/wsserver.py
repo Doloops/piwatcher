@@ -2,14 +2,15 @@ import json
 import asyncio
 import picadios.controller
 import websockets
+import logging
+
+logger = logging.getLogger("picadios.wsserver")
 
 class WSServer(picadios.controller.StateUpdateNotifyHandler):
     wsClients = []
-    sweetHome = None
     controller = None
     
-    def __init__(self, sweetHome, controller):
-        self.sweetHome = sweetHome
+    def __init__(self, controller):
         self.controller = controller
         self.controller.registerStateUpdateNotifyHandler(handler=self)
     
@@ -18,9 +19,8 @@ class WSServer(picadios.controller.StateUpdateNotifyHandler):
     
     async def serveWebSocket(self, websocket, path):
         global wsClients
-        print ("Run at path : " + path)
+        logger.info("Run at path : " + path)
         try:
-            print ("websocket : " + str(websocket))
             self.wsClients.append(websocket)
             while True:
                 message = await websocket.recv()
@@ -28,24 +28,23 @@ class WSServer(picadios.controller.StateUpdateNotifyHandler):
                     # time.sleep(1)
                     await asyncio.sleep(0.5)
                     continue
-                print ("Message : " + str(message))
+                logger.debug("Message : " + str(message))
                 jsonMessage = json.loads(message)
                 action = jsonMessage["msg"];
-                print ("Action : [" + action + "]")
+                logger.debug("Action : [" + action + "]")
                 if action == "login":
-                    print("Sending Login OK")
+                    logger.debug("Sending Login OK")
                     response = {"msg":"login", "data":{"success":"true"}}
                     await websocket.send(json.dumps(response))
                 elif action == "get_home":
-                    print("Sending Home !")
-                    jsonHome = self.sweetHome.getUpdatedHome()
+                    logger.debug("Sending Home !")
+                    jsonHome = self.controller.getUpdatedHome()
                     response = {"msg":"get_home", "data":jsonHome}
                     await websocket.send(json.dumps(response))
                 elif action == "set_state":
                     stateId = jsonMessage["data"]["id"]
                     stateValue = jsonMessage["data"]["value"]
                     self.controller.modifyState(stateId, stateValue)
-                    
         finally:
             self.wsClients.remove(websocket)
 

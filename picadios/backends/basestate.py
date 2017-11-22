@@ -22,3 +22,12 @@ class BaseState:
 
     def getStateId(self):
         return self.stateId
+
+    def modifyState(self, stateValue):
+        pass
+    
+    async def asyncUpdate(self):
+        pass
+    
+    def getState(self):
+        pass
