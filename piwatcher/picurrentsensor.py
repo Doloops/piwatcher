@@ -78,13 +78,16 @@ class PiCurrentSensor(pimodule.PiModule):
     def computeGap(self, vals):
         vmin=min(vals)
         vmax=max(vals)
-        # gap = max(vals) - min(vals)
-        sortedVals = sorted(vals)
-        xtremSize = int(len(vals) / 50)
-        minVals = mean(sortedVals[0:xtremSize])
-        maxVals = mean(sortedVals[len(sortedVals) - xtremSize:len(sortedVals)])
-        gap = maxVals - minVals
-        return gap, vmin, vmax
+        if True:
+            gap = max(vals) - min(vals)
+            return gap
+        else:
+            sortedVals = sorted(vals)
+            xtremSize = int(len(vals) / 50)
+            minVals = mean(sortedVals[0:xtremSize])
+            maxVals = mean(sortedVals[len(sortedVals) - xtremSize:len(sortedVals)])
+            gap = maxVals - minVals
+            return gap, vmin, vmax
     
     def readDirectChannel(self, channel, measure):
         vals, delta = self.readValues(channel)

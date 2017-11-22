@@ -1,9 +1,11 @@
-Python 3.5.3 (default, Sep 14 2017, 22:58:41) 
-[GCC 6.3.0 20170406] on linux
-Type "help", "copyright", "credits" or "license" for more information.
->>> import scipy.integrate as integrate
-KeyboardInterrupt
->>> from matplotlib import 
+
+from matplotlib import pyplot as plt 
+import json
+plt.plot(json.loads(open("/tmp/pi3/run/user/1000/output-4.json").read()))
+plt.show()
+
+
+import scipy.integrate as integrate
 KeyboardInterrupt
 >>> from matplotlib import pyplot as plt
 >>> f4=open("output-big0.json")
