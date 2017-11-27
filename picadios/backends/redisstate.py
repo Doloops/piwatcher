@@ -18,6 +18,11 @@ class RedisState(BaseState):
 		BaseState.__init__(self, controller, item)
 		self.redisClient = redisClient
 		self.controller.registerBackendState(self)
+		# Now initialize value
+		stateValue = self.redisClient.get(self.stateId)
+		if stateValue is None and self.defaultValue is not None:
+			logger.info("Setting default value " + self.stateId + "=" + str(self.defaultValue))
+			self.modifyState(self.defaultValue)
 
 	def parseRedisValue(self, stateValue):
 		logger.debug("Redis Update : " + self.stateId + "=" + stateValue)
@@ -45,14 +50,14 @@ class RedisState(BaseState):
 		return stateValue
 
 	async def asyncUpdate(self):
-		stateValue = self.redisClient.get(self.stateId)
-		if stateValue is not None:
-			stateValue, stateValueStr = self.parseRedisValue(stateValue)
-			logger.debug("Set initial value " + self.stateId + "=" + str(stateValue))
-			await self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)
-		elif self.defaultValue is not None:
-			logger.info("Set default value " + self.stateId + "=" + str(self.defaultValue))
-			await self.controller.notifyStateUpdate(self.stateId, self.defaultValue, json.dumps(self.defaultValue))
+#		stateValue = self.redisClient.get(self.stateId)
+#		if stateValue is not None:
+#			stateValue, stateValueStr = self.parseRedisValue(stateValue)
+#			logger.debug("Set initial value " + self.stateId + "=" + str(stateValue))
+#			await self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)
+#		elif self.defaultValue is not None:
+#			logger.info("Set default value " + self.stateId + "=" + str(self.defaultValue))
+#			await self.controller.notifyStateUpdate(self.stateId, self.defaultValue, json.dumps(self.defaultValue))
 		
 		pubsub = self.redisClient.pubsub()
 		pubsub.subscribe(self.stateId)
