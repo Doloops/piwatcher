@@ -63,6 +63,8 @@ class PiScript(pimodule.PiModule):
         self.states[key] = stateValue
         if type(stateValue) is datetime:
             stateValueStr = stateValue.isoformat()
+        elif type(stateValue) is str:
+            stateValueStr = stateValue
         else:
             stateValueStr = json.dumps(stateValue)
         self.redisClient.set(key, stateValueStr)
