@@ -5,6 +5,19 @@
 	        "enabled": true
 	    }
     },
+    "piscript": {
+        "hosts":[{"host" : "pizero3"}],
+        "script":"self.simpleHeater(measure,'pizero2')"
+    },
+    "picommander" : {
+        "property" : "heater.command",
+        "defaultValue" : "heaterOff",
+        "channels": {"ch1":{"pinout":16},"ch2":{"pinout":18}},
+        "commands": { 
+            "heaterOn": { "ch1": false },
+            "heaterOff": { "ch1": true }
+        }
+    },    
     "elastic" : {
 	    "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}],
 	    "index": "oswh-pizero2",
