@@ -25,7 +25,7 @@ class RedisState(BaseState):
 			self.modifyState(self.defaultValue)
 
 	def parseRedisValue(self, stateValue):
-		logger.debug("Redis Update : " + self.stateId + "=" + stateValue)
+		logger.debug("parseRedisValue() RAW : " + self.stateId + "=" + stateValue)
 		if self.itemType == "float":
 			stateValue = float(stateValue)
 			if self.displayFormat is not None:
@@ -40,31 +40,26 @@ class RedisState(BaseState):
 			stateValueStr = json.dumps(stateValue)
 		else:
 			logger.error("Not supported ! " + self.itemType)
+		logger.debug("parseRedisValue() " + self.stateId + "=" + str(stateValue) + ", str=" + stateValueStr)
 		return stateValue, stateValueStr
 
 	def getState(self):
 		stateValue = self.redisClient.get(self.stateId)
 		if stateValue is not None:
+			stateValue = stateValue.strip('"')
+			logger.debug("getState() RAW : " + self.stateId + "=" + stateValue)
 			stateValue, stateValueStr = self.parseRedisValue(stateValue)
-			logger.debug("Got value " + self.stateId + "=" + str(stateValue) + " (" + stateValueStr + ")")
+			logger.debug("getState() : Got value " + self.stateId + "=" + str(stateValue) + " str=" + stateValueStr)
 		return stateValue
 
 	async def asyncUpdate(self):
-#		stateValue = self.redisClient.get(self.stateId)
-#		if stateValue is not None:
-#			stateValue, stateValueStr = self.parseRedisValue(stateValue)
-#			logger.debug("Set initial value " + self.stateId + "=" + str(stateValue))
-#			await self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)
-#		elif self.defaultValue is not None:
-#			logger.info("Set default value " + self.stateId + "=" + str(self.defaultValue))
-#			await self.controller.notifyStateUpdate(self.stateId, self.defaultValue, json.dumps(self.defaultValue))
-		
 		pubsub = self.redisClient.pubsub()
 		pubsub.subscribe(self.stateId)
 		while True:
 			message = pubsub.get_message()
 			if message and message["type"] == "message":
 				stateValue = message["data"].strip('"')
+				logger.debug("asyncUpdate() " + self.stateId + "=" + stateValue)
 				stateValue, stateValueStr = self.parseRedisValue(stateValue)
 				await self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)
 			await asyncio.sleep(0.1)
