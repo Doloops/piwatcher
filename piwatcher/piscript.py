@@ -3,6 +3,7 @@ from piwatcher import fetchfromes
 import redis
 import json
 import threading
+import time
 
 from datetime import datetime, timedelta
 from socket import socket
@@ -30,7 +31,6 @@ class PiScript(pimodule.PiModule):
 #            self.redisClient = redis.StrictRedis(host=moduleConfig["hosts"][0]["host"], port=6379, db=0, decode_responses=True)
 # self.esClient = elasticsearch.Elasticsearch(moduleConfig["hosts"])
 
-
     def getRedisClient(self):
         if self.redisClient is not None:
             return self.redisClient
@@ -40,16 +40,13 @@ class PiScript(pimodule.PiModule):
             self.redisClient = redis.StrictRedis(host=redisHost, port=6379, db=0, decode_responses=True)
         return self.redisClient
 
-    def clearRedisClient(self):
-        if self.redisClient is not None:
-            print("Dropping redis client : " + str(self.redisClient))
-            self.redisClient = None
-    
     def backgroundStateUpdate(self, key):
         while True:
+            pubsub = None
             try:
-                pubsub = self.getRedisClient().pubsub()
-                pubsub.subscribe(key)
+                if pubsub is None:
+                    pubsub = self.getRedisClient().pubsub()
+                    pubsub.subscribe(key)
                 for message in pubsub.listen():
                     if message["type"] == "message":
                         if self.verbose:
@@ -62,8 +59,10 @@ class PiScript(pimodule.PiModule):
                         if self.lastMeasure is not None:
                             self.update(self.lastMeasure)
                             self.piwatcher.updateModule("PiCommandWatcher", self.lastMeasure)
-            except:
-                self.clearRedisClient()
+            except Exception as e:
+                print("Caught exception " + str(e))
+                pubsub = None
+                time.sleep(2)
 
     def getState(self, prefix, stateId, defaultValue = None, subscribe = True):
         key = prefix + "." + stateId
