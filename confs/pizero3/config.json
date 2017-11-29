@@ -6,7 +6,7 @@
         }
     },
     "elastic" : {
-        "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}],
+        "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}, {"host" : "banane"}],
         "index": "oswh-pizero3",
         "type": "sys-measure",
 	    "redis":{"host":"pizero3"}
