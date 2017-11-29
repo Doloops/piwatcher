@@ -53,16 +53,23 @@ class RedisState(BaseState):
 		return stateValue
 
 	async def asyncUpdate(self):
-		pubsub = self.redisClient.pubsub()
-		pubsub.subscribe(self.stateId)
+		pubsub = None
 		while True:
-			message = pubsub.get_message()
-			if message and message["type"] == "message":
-				stateValue = message["data"].strip('"')
-				logger.debug("asyncUpdate() " + self.stateId + "=" + stateValue)
-				stateValue, stateValueStr = self.parseRedisValue(stateValue)
-				await self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)
-			await asyncio.sleep(0.1)
+			try:
+				if pubsub is None:
+					pubsub = self.redisClient.pubsub()
+					pubsub.subscribe(self.stateId)
+				message = pubsub.get_message()
+				if message and message["type"] == "message":
+					stateValue = message["data"].strip('"')
+					logger.debug("asyncUpdate() " + self.stateId + "=" + stateValue)
+					stateValue, stateValueStr = self.parseRedisValue(stateValue)
+					await self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)
+				await asyncio.sleep(0.1)
+			except Exception as e:
+				logger.error("Caught exception " + str(e))
+				pubsub = None
+				await asyncio.sleep(1)
 
 	def modifyState(self, stateValue):
 		logger.debug("Update Redis with " + self.getStateId() + "=" + json.dumps(stateValue))
