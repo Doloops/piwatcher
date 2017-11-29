@@ -15,7 +15,7 @@
         "channels": {"mp":{"pinout":16},"mn":{"pinout":18}},
         "commands": { 
             "heaterOn": { "mp": false, "mn": false },
-            "heaterOff": { "mp": true, "mn": true }
+            "heaterOff": { "mp": false, "mn": true }
         }
     },
     "elastic" : {
