@@ -6,7 +6,7 @@
         }
     },
     "piscript": {
-        "hosts":[{"host" : "pizero3"}],
+        "hosts":[{"host" : "pizero3"}, {"host" : "banane"}],
         "script":"self.simpleHeater(measure,'pizero1')"
     },
     "picommander" : {
