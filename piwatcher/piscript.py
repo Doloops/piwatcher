@@ -35,11 +35,15 @@ class PiScript(pimodule.PiModule):
         if self.redisClient is not None:
             return self.redisClient
         if "hosts" in self.moduleConfig:
-            self.redisClient = redis.StrictRedis(host=self.moduleConfig["hosts"][0]["host"], port=6379, db=0, decode_responses=True)
+            redisHost = self.moduleConfig["hosts"][0]["host"]
+            print("Connecting to redis host :" + redisHost)
+            self.redisClient = redis.StrictRedis(host=redisHost, port=6379, db=0, decode_responses=True)
         return self.redisClient
 
     def clearRedisClient(self):
-        self.redisClient = None
+        if self.redisClient is not None:
+            print("Dropping redis client : " + str(self.redisClient))
+            self.redisClient = None
     
     def backgroundStateUpdate(self, key):
         while True:
