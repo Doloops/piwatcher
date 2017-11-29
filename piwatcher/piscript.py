@@ -5,6 +5,7 @@ import json
 import threading
 
 from datetime import datetime, timedelta
+from socket import socket
 
 DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
@@ -13,22 +14,52 @@ class PiScript(pimodule.PiModule):
     verbose = False
     states = {}
     subscribedUpdates = {}
+    moduleConfig = None
+
+    script = None
+    redisClient = None
+    lastMeasure = None
+
+    def __init__(self, moduleConfig):
+        pimodule.PiModule.__init__(self, "PiScript")
+        self.script = moduleConfig["script"]
+        self.moduleConfig = moduleConfig
+        if "wrapMeasureIn" in moduleConfig:
+            self.wrapMeasureIn = moduleConfig["wrapMeasureIn"]
+#        if "hosts" in moduleConfig:
+#            self.redisClient = redis.StrictRedis(host=moduleConfig["hosts"][0]["host"], port=6379, db=0, decode_responses=True)
+# self.esClient = elasticsearch.Elasticsearch(moduleConfig["hosts"])
+
+
+    def getRedisClient(self):
+        if self.redisClient is not None:
+            return self.redisClient
+        if "hosts" in self.moduleConfig:
+            self.redisClient = redis.StrictRedis(host=self.moduleConfig["hosts"][0]["host"], port=6379, db=0, decode_responses=True)
+        return self.redisClient
+
+    def clearRedisClient(self):
+        self.redisClient = None
     
     def backgroundStateUpdate(self, key):
-        pubsub = self.redisClient.pubsub()
-        pubsub.subscribe(key)
-        for message in pubsub.listen():
-            if message["type"] == "message":
-                if self.verbose:
-                    print ("data : " + message["data"] + " [" + str(type(message["data"]))+ "]")
-                stateValue = message["data"].strip('"')
-                stateValue = self.parseValue(stateValue)
-                if True:
-                    print ("U{" + key + "=" + str(stateValue) + "}")
-                self.states[key] = stateValue
-                if self.lastMeasure is not None:
-                    self.update(self.lastMeasure)
-                    self.piwatcher.updateModule("PiCommandWatcher", self.lastMeasure)
+        while True:
+            try:
+                pubsub = self.getRedisClient().pubsub()
+                pubsub.subscribe(key)
+                for message in pubsub.listen():
+                    if message["type"] == "message":
+                        if self.verbose:
+                            print ("data : " + message["data"] + " [" + str(type(message["data"]))+ "]")
+                        stateValue = message["data"].strip('"')
+                        stateValue = self.parseValue(stateValue)
+                        if self.verbose:
+                            print ("U{" + key + "=" + str(stateValue) + "}")
+                        self.states[key] = stateValue
+                        if self.lastMeasure is not None:
+                            self.update(self.lastMeasure)
+                            self.piwatcher.updateModule("PiCommandWatcher", self.lastMeasure)
+            except:
+                self.clearRedisClient()
 
     def getState(self, prefix, stateId, defaultValue = None, subscribe = True):
         key = prefix + "." + stateId
@@ -39,7 +70,7 @@ class PiScript(pimodule.PiModule):
             self.subscribedUpdates[key] = thread
             thread.setDaemon(True)
             thread.start()
-        value = self.redisClient.get(key)
+        value = self.getRedisClient().get(key)
         value = self.parseValue(value, defaultValue)
         self.states[key] = value
         return value
@@ -67,8 +98,8 @@ class PiScript(pimodule.PiModule):
             stateValueStr = stateValue
         else:
             stateValueStr = json.dumps(stateValue)
-        self.redisClient.set(key, stateValueStr)
-        self.redisClient.publish(key, stateValueStr)
+        self.getRedisClient().set(key, stateValueStr)
+        self.getRedisClient().publish(key, stateValueStr)
     
     def simpleHeater(self, measure, prefix):
         # print("Incoming measure : " + str(measure))
@@ -116,19 +147,6 @@ class PiScript(pimodule.PiModule):
         self.setState(prefix, "heater.command", heaterCommand)
         # print("=> heaterCommand=" + heaterCommand)
         fetchfromes.updateFragment(measure, "heater.command", heaterCommand)
-
-    script = None
-    redisClient = None
-    lastMeasure = None
-
-    def __init__(self, moduleConfig):
-        pimodule.PiModule.__init__(self, "PiScript")
-        self.script = moduleConfig["script"]
-        if "wrapMeasureIn" in moduleConfig:
-            self.wrapMeasureIn = moduleConfig["wrapMeasureIn"]
-        if "hosts" in moduleConfig:
-            self.redisClient = redis.StrictRedis(host=moduleConfig["hosts"][0]["host"], port=6379, db=0, decode_responses=True)
-            # self.esClient = elasticsearch.Elasticsearch(moduleConfig["hosts"])
 
     def update(self, measure):
         self.lastMeasure = measure
