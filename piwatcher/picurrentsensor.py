@@ -17,7 +17,7 @@ class PiCurrentSensor(pimodule.PiModule):
     measuringInterval = 0.000150 # 150µs to take a value
     hZ = 50
     wave = 1 / hZ
-    nbWaves = 10
+    nbWaves = 20
     maxVals = nbWaves * wave / measuringInterval
     
     verbose = False
@@ -88,11 +88,19 @@ class PiCurrentSensor(pimodule.PiModule):
             maxVals = mean(sortedVals[len(sortedVals) - xtremSize:len(sortedVals)])
             gap = maxVals - minVals
             return gap, vmin, vmax
-    
+
     def readDirectChannel(self, channel, measure):
         vals, delta = self.readValues(channel)
         freq, amplitude = self.readFourier(vals, delta, measure)
         gap, vmin, vmax = self.computeGap(vals)
+        avg_vals = mean(vals)
+        valsp = list(map(lambda x : abs(x - avg_vals), vals))
+        vmean = mean(valsp)
+        if vmean != 0:
+            gap_vmean = gap / vmean
+        else:
+            gap_vmean = 0
+
         if self.verbose: 
             print("* Dir:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
         vSec = (gap * self.vcc) / 2
@@ -106,12 +114,19 @@ class PiCurrentSensor(pimodule.PiModule):
         measure["gap"] = gap
         measure["iPrim"] = iPrim
         measure["wPrim"] = wPrim
-        return gap, wPrim, freq, amplitude
+        measure["vmean"] = vmean
+        measure["gap_vmean"] = gap_vmean
+        return gap, wPrim, freq, amplitude, vmean
 
     def readAmplifiedChannel(self, channel, measure, asmType = "ASM30"):
         vals, delta = self.readValues(channel)
         freq, amplitude = self.readFourier(vals, delta, measure)
         gap, vmin, vmax = self.computeGap(vals)
+        vmean = mean(vals)
+        if vmean != 0:
+            gap_vmean = gap / vmean
+        else:
+            gap_vmean = 0
         if self.verbose: 
             print("* Amp:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
         vSec = (gap * self.vcc) / self.lm324nRatio
@@ -134,7 +149,9 @@ class PiCurrentSensor(pimodule.PiModule):
         measure["gap"] = gap
         measure["iPrim"] = iPrim
         measure["wPrim"] = wPrim
-        return gap, wPrim, freq, amplitude
+        measure["vmean"] = vmean
+        measure["gap_vmean"] = gap_vmean
+        return gap, wPrim, freq, amplitude, vmean
 
     config = None
 
@@ -154,15 +171,19 @@ class PiCurrentSensor(pimodule.PiModule):
             gap = 0
             wPrim = 0
             if sensorType == "direct":
-                gap, wPrim, freq, amplitude = self.readDirectChannel(channel, measure[sensorId])
+                gap, wPrim, freq, amplitude, vmean = self.readDirectChannel(channel, measure[sensorId])
             elif sensorType == "amp":
                 asmType = "ASM30"
                 if "asmType" in sensor:
                     asmType = sensor["asmType"]
-                gap, wPrim, freq, amplitude = self.readAmplifiedChannel(channel, measure[sensorId], asmType)
+                gap, wPrim, freq, amplitude, vmean = self.readAmplifiedChannel(channel, measure[sensorId], asmType)
             else:
                 print("! Unsupported type : " + type + " for sensorId=" + sensorId)
-            print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.2f" % freq) + "Hz, " + ("%.2f" % amplitude) + ", gap=" + ("%.3f" % gap) + ")", end='')
+            if wPrim == 0:
+                print (", #" + sensorId + "=OFF", end='')
+            else:
+                print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.2f" % freq) + "Hz, " + ("%.2f" % amplitude) + ", gap=" + ("%.3f" % gap)
+                      + ", vmean=" + ("%.3f" % vmean) + "", end='')
 
 if __name__ == "__main__":
     pics = PiCurrentSensor({})
