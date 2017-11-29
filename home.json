@@ -124,7 +124,7 @@
         },
         {
           "id": "pizero2.heater.target.comfort",
-          "name": "Température Confort Bureau",
+          "name": "Température Confort Mezzanine",
           "type": "InternalInt",
           "var_type": "float",
           "visible": "true",
@@ -135,7 +135,7 @@
         },
         {
           "id": "pizero2.heater.target.standby",
-          "name": "Température Normale Bureau",
+          "name": "Température Normale Mezzanine",
           "type": "InternalInt",
           "var_type": "float",
           "visible": "true",
