@@ -14,8 +14,8 @@
         "defaultValue" : "heaterOff",
         "channels": {"ch1":{"pinout":16},"ch2":{"pinout":18}},
         "commands": { 
-            "heaterOn": { "ch1": false },
-            "heaterOff": { "ch1": true }
+            "heaterOn": { "ch1": false, "ch2": false },
+            "heaterOff": { "ch1": true, "ch2": false }
         }
     },    
     "elastic" : {
