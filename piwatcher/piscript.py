@@ -6,7 +6,6 @@ import threading
 import time
 
 from datetime import datetime, timedelta
-from socket import socket
 
 DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
@@ -27,9 +26,6 @@ class PiScript(pimodule.PiModule):
         self.moduleConfig = moduleConfig
         if "wrapMeasureIn" in moduleConfig:
             self.wrapMeasureIn = moduleConfig["wrapMeasureIn"]
-#        if "hosts" in moduleConfig:
-#            self.redisClient = redis.StrictRedis(host=moduleConfig["hosts"][0]["host"], port=6379, db=0, decode_responses=True)
-# self.esClient = elasticsearch.Elasticsearch(moduleConfig["hosts"])
 
     def getRedisClient(self):
         if self.redisClient is not None:
@@ -47,9 +43,8 @@ class PiScript(pimodule.PiModule):
                 if pubsub is None:
                     pubsub = self.getRedisClient().pubsub()
                     pubsub.subscribe(key)
-                # for message in pubsub.listen():
-                message = pubsub.get_message(timeout=1)
-                if message["type"] == "message":
+                message = pubsub.get_message(timeout=60)
+                if message is not None and message["type"] == "message":
                     if self.verbose:
                         print ("data : " + message["data"] + " [" + str(type(message["data"]))+ "]")
                     stateValue = message["data"].strip('"')
