@@ -13,6 +13,7 @@ class RedisState(BaseState):
 	mapping = None
 	itemType = None
 	redisClient = None
+	useBackgroundThread = False
 
 	def __init__(self, controller, item, redisClient):
 		BaseState.__init__(self, controller, item)
@@ -23,6 +24,18 @@ class RedisState(BaseState):
 		if stateValue is None and self.defaultValue is not None:
 			logger.info("Setting default value " + self.stateId + "=" + str(self.defaultValue))
 			self.modifyState(self.defaultValue)
+		if self.useBackgroundThread:
+			pubsub = self.redisClient.pubsub()
+			pubsub.subscribe(**{self.stateId: self.messageHandler} )
+			pubsub.run_in_thread(sleep_time = 1, daemon = True)
+	
+	def messageHandler(self, message):
+		logger.debug("Got message " + str(message))
+		if message and message["type"] == "message":
+			stateValue = message["data"].strip('"')
+			logger.debug("asyncUpdate() " + self.stateId + "=" + stateValue)
+			stateValue, stateValueStr = self.parseRedisValue(stateValue)
+			self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)		
 
 	def parseRedisValue(self, stateValue):
 		logger.debug("parseRedisValue() RAW : " + self.stateId + "=" + stateValue)
@@ -53,20 +66,22 @@ class RedisState(BaseState):
 		return stateValue
 
 	async def asyncUpdate(self):
+		if self.useBackgroundThread:
+			return
 		pubsub = None
 		while True:
 			try:
 				if pubsub is None:
 					pubsub = self.redisClient.pubsub()
 					pubsub.subscribe(self.stateId)
-				message = pubsub.get_message(timeout=1.0)
-				logger.debug("For " + self.stateId + ", received message :" + str(message))
+				message = pubsub.get_message()
+				# logger.debug("For " + self.stateId + ", received message :" + str(message))
 				if message and message["type"] == "message":
 					stateValue = message["data"].strip('"')
 					logger.debug("asyncUpdate() " + self.stateId + "=" + stateValue)
 					stateValue, stateValueStr = self.parseRedisValue(stateValue)
 					await self.controller.notifyStateUpdate(self.stateId, stateValue, stateValueStr)
-				await asyncio.sleep(0.1)
+				await asyncio.sleep(1)
 			except Exception as e:
 				logger.error("Caught exception " + str(e))
 				pubsub = None
