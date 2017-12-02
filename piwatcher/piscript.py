@@ -41,8 +41,8 @@ class PiScript(pimodule.PiModule):
         return self.redisClient
 
     def backgroundStateUpdate(self, key):
+        pubsub = None
         while True:
-            pubsub = None
             try:
                 if pubsub is None:
                     pubsub = self.getRedisClient().pubsub()
