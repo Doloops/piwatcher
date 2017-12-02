@@ -59,7 +59,8 @@ class RedisState(BaseState):
 				if pubsub is None:
 					pubsub = self.redisClient.pubsub()
 					pubsub.subscribe(self.stateId)
-				message = pubsub.get_message()
+				message = pubsub.get_message(timeout=1.0)
+				logger.debug("For " + self.stateId + ", received message :" + str(message))
 				if message and message["type"] == "message":
 					stateValue = message["data"].strip('"')
 					logger.debug("asyncUpdate() " + self.stateId + "=" + stateValue)
