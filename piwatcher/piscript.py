@@ -47,18 +47,19 @@ class PiScript(pimodule.PiModule):
                 if pubsub is None:
                     pubsub = self.getRedisClient().pubsub()
                     pubsub.subscribe(key)
-                for message in pubsub.listen():
-                    if message["type"] == "message":
-                        if self.verbose:
-                            print ("data : " + message["data"] + " [" + str(type(message["data"]))+ "]")
-                        stateValue = message["data"].strip('"')
-                        stateValue = self.parseValue(stateValue)
-                        if self.verbose:
-                            print ("U{" + key + "=" + str(stateValue) + "}")
-                        self.states[key] = stateValue
-                        if self.lastMeasure is not None:
-                            self.update(self.lastMeasure)
-                            self.piwatcher.updateModule("PiCommandWatcher", self.lastMeasure)
+                # for message in pubsub.listen():
+                message = pubsub.get_message(timeout=1)
+                if message["type"] == "message":
+                    if self.verbose:
+                        print ("data : " + message["data"] + " [" + str(type(message["data"]))+ "]")
+                    stateValue = message["data"].strip('"')
+                    stateValue = self.parseValue(stateValue)
+                    if self.verbose:
+                        print ("U{" + key + "=" + str(stateValue) + "}")
+                    self.states[key] = stateValue
+                    if self.lastMeasure is not None:
+                        self.update(self.lastMeasure)
+                        self.piwatcher.updateModule("PiCommandWatcher", self.lastMeasure)
             except Exception as e:
                 print("Caught exception " + str(e))
                 pubsub = None
