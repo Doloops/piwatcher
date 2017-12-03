@@ -11,7 +11,7 @@ DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 class PiScript(pimodule.PiModule):
     
-    verbose = True
+    verbose = False
     states = {}
     subscribedUpdates = {}
     moduleConfig = None
@@ -61,7 +61,10 @@ class PiScript(pimodule.PiModule):
                 time.sleep(2)
 
     def getState(self, prefix, stateId, defaultValue = None, subscribe = True):
-        key = prefix + "." + stateId
+        if prefix is not None: 
+            key = prefix + "." + stateId
+        else:
+            key = stateId
         if key in self.states:
             return self.states[key]
         if subscribe and key not in self.subscribedUpdates:
@@ -103,7 +106,7 @@ class PiScript(pimodule.PiModule):
     def simpleHeater(self, measure, prefix, indoorTempName = None):
         # print("Incoming measure : " + str(measure))
         if indoorTempName is not None:
-            indoorTemp = self.getState(prefix, indoorTempName)
+            indoorTemp = self.getState(None, indoorTempName)
         else:
             indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
         modeComfort = self.getState(prefix, "heater.mode.comfort")
