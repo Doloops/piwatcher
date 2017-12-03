@@ -11,7 +11,7 @@ DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 class PiScript(pimodule.PiModule):
     
-    verbose = False
+    verbose = True
     states = {}
     subscribedUpdates = {}
     moduleConfig = None
@@ -100,9 +100,12 @@ class PiScript(pimodule.PiModule):
         self.getRedisClient().set(key, stateValueStr)
         self.getRedisClient().publish(key, stateValueStr)
     
-    def simpleHeater(self, measure, prefix):
+    def simpleHeater(self, measure, prefix, indoorTempName = None):
         # print("Incoming measure : " + str(measure))
-        indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
+        if indoorTempName is not None:
+            indoorTemp = self.getState(prefix, indoorTempName)
+        else:
+            indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
         modeComfort = self.getState(prefix, "heater.mode.comfort")
         targetComfort = self.getState(prefix, "heater.target.comfort")
         targetStandby = self.getState(prefix, "heater.target.standby")

@@ -11,6 +11,10 @@
         "type": "sys-measure",
 	    "redis":{"host":"pizero3"}
     },
+    "piscript": {
+        "hosts":[{"host" : "pizero3"}],
+        "script":"self.simpleHeater(measure,'pizero3', indoorTempName='osmc.indoorTemp')"
+    },    
     "picurrentsensor": {
     	"sensors" : [{"id":"board.low", "name":"Tableau bas", "channel":0, "type":"direct"},
     		{"id":"board.high", "name":"Tableau haut", "channel":1, "type": "amp"},
@@ -52,9 +56,8 @@
                 ],
             "init": [ {"red": 50}, {"sleep": 0.1}, {"command": "initLoop"}, {"command": "initLoop"}, {"red": true} ],
             "forever": [ {"command" : "init"}, {"command":"forever"}],
-            "ch1on": {"ch1mp":true, "ch1mn":true},
-            "ch1off": {"ch1mp":false, "ch1mn":false},
-            "ch1loop": [ {"command":"ch1on"}, {"sleep":2}, {"command":"ch1off"},{"sleep":2},{"command":"ch1loop"}]
+            "heaterOn": {"ch1mp":false, "ch1mn":false},
+            "heaterOff": {"ch1mp":false, "ch1mn":true},
             }
     },
     "stats" : {
