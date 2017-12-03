@@ -24,12 +24,8 @@
     		{"id":"living.heating", "name":"Chauffage Living", "channel":3, "type": "amp"}]
     },
     "picommander" : {
-        "hosts":[{"host" : "osmc", "retry_on_timeout": true},{"host":"lenovo-fba"}],
-        "index": "oswh-commands",
-        "type": "command",
-        "id": "pizero3-heater",
-        "property" : "state",
-        "defaultValue" : "1off",
+        "property" : "heater.command",
+        "defaultValue" : "heaterOff",
         "channels": {
             "1g":{"pinout":16, "freq": 2}, "1y":{"pinout":18, "freq": 2},
             "2g":{"pinout":22, "freq": 2}, "2y":{"pinout":32, "freq": 2},
