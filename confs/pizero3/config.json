@@ -57,7 +57,7 @@
             "init": [ {"red": 50}, {"sleep": 0.1}, {"command": "initLoop"}, {"command": "initLoop"}, {"red": true} ],
             "forever": [ {"command" : "init"}, {"command":"forever"}],
             "heaterOn": {"ch1mp":false, "ch1mn":false},
-            "heaterOff": {"ch1mp":false, "ch1mn":true},
+            "heaterOff": {"ch1mp":false, "ch1mn":true}
             }
     },
     "stats" : {
