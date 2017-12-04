@@ -17,7 +17,7 @@ class PiCurrentSensor(pimodule.PiModule):
     measuringInterval = 0.000150 # 150µs to take a value
     hZ = 50
     wave = 1 / hZ
-    nbWaves = 20
+    nbWaves = 10
     maxVals = nbWaves * wave / measuringInterval
     
     verbose = False
