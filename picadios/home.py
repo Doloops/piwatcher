@@ -1,4 +1,5 @@
 import json
+from os.path import expanduser
 
 class Home():
     # Initial config as JSON object
@@ -8,7 +9,7 @@ class Home():
     itemsConfiguration = {}
     
     def __init__(self):
-        with open ("home.json") as homeFile:
+        with open(expanduser("~") + "/.picadios/home.json") as homeFile:
             self.jsonHome = json.loads(homeFile.read())
         for room in self.jsonHome["home"]:
             for item in room["items"]:

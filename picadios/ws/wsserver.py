@@ -9,17 +9,28 @@ logger = logging.getLogger("picadios.wsserver")
 class WSServer(picadios.controller.StateUpdateNotifyHandler):
     wsClients = []
     controller = None
+    wsConfig = None
     
-    def __init__(self, controller):
+    def __init__(self, controller, wsConfig):
         self.controller = controller
+        self.wsConfig = wsConfig
         self.controller.registerStateUpdateNotifyHandler(handler=self)
     
     def startup(self):
-        asyncio.get_event_loop().run_until_complete(websockets.serve(self.serveWebSocket, '0.0.0.0', 5455))
+        asyncio.get_event_loop().run_until_complete(websockets.serve(self.serveWebSocket, self.wsConfig["host"], self.wsConfig["port"]))
+    
+    def doLogin(self, cn_user, cn_pass):
+        for user in self.wsConfig["users"]:
+            if user["user"] == cn_user and user["pass"] == cn_pass:
+                logger.info("Authenticated as : " + user["user"])
+                return True
+        logger.error("Could not authenticate : " + cn_user)
+        return False
     
     async def serveWebSocket(self, websocket, path):
         global wsClients
         logger.info("Run at path : " + path)
+        authenticated = False
         try:
             self.wsClients.append(websocket)
             while True:
@@ -31,12 +42,18 @@ class WSServer(picadios.controller.StateUpdateNotifyHandler):
                 logger.debug("Message : " + str(message))
                 jsonMessage = json.loads(message)
                 action = jsonMessage["msg"];
-                logger.debug("Action : [" + action + "]")
                 if action == "login":
-                    logger.debug("Sending Login OK")
-                    response = {"msg":"login", "data":{"success":"true"}}
+                    logger.info("Received auth info : " + str(jsonMessage))
+                    cn_user = jsonMessage["data"]["cn_user"]
+                    cn_pass = jsonMessage["data"]["cn_pass"]
+                    authenticated = self.doLogin(cn_user, cn_pass)
+                    logger.debug("Sending Login Result : " + str(authenticated))
+                    response = {"msg":"login", "data":{"success":json.dumps(authenticated)}}                    
                     await websocket.send(json.dumps(response))
-                elif action == "get_home":
+                if not authenticated:
+                    logger.error("Not authenticated ! dropping connection !")
+                    return
+                if action == "get_home":
                     logger.debug("Sending Home !")
                     jsonHome = self.controller.getUpdatedHome()
                     response = {"msg":"get_home", "data":jsonHome}

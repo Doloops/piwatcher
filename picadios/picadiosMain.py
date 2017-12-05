@@ -7,6 +7,8 @@ import picadios.ws.wsserver
 import picadios.backends.esstate
 import picadios.backends.redisstate
 import redis
+import json
+from os.path import expanduser
 
 logging.basicConfig(format='%(asctime)s:%(name)s:%(funcName)s:%(levelname)s:%(message)s', level=logging.INFO)
 logging.getLogger("elasticsearch").setLevel(logging.WARN)
@@ -23,7 +25,8 @@ class PicadiosMain:
         redisClient = redis.StrictRedis(host='pizero3', port=6379, db=0, decode_responses=True)
         useRedis = True
         
-        sweetHome = picadios.home.Home() 
+        sweetHome = picadios.home.Home()
+        
         controller = picadios.controller.Controller(sweetHome)
         
         for item in sweetHome.getItems():
@@ -40,8 +43,12 @@ class PicadiosMain:
             logger.debug("Created backend=" + str(backend))
         
         logger.info("Preparing Webserver !")
+
+        with open(expanduser("~") + "/.picadios/ws.json") as wsConfig:
+            wsConfig = json.loads(wsConfig.read())
+
         
-        wsserver = picadios.ws.wsserver.WSServer(controller=controller)
+        wsserver = picadios.ws.wsserver.WSServer(controller=controller, wsConfig = wsConfig)
         wsserver.startup()
     
     def start(self):
