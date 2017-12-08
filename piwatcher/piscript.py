@@ -100,8 +100,11 @@ class PiScript(pimodule.PiModule):
             stateValueStr = stateValue
         else:
             stateValueStr = json.dumps(stateValue)
-        self.getRedisClient().set(key, stateValueStr)
-        self.getRedisClient().publish(key, stateValueStr)
+        try:
+            self.getRedisClient().set(key, stateValueStr)
+            self.getRedisClient().publish(key, stateValueStr)
+        except Exception as e:
+            print("Caught exception while setting " + key + " : " + str(e))
     
     def simpleHeater(self, measure, prefix, indoorTempName = None):
         # print("Incoming measure : " + str(measure))
