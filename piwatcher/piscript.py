@@ -11,7 +11,7 @@ DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 class PiScript(pimodule.PiModule):
     
-    verbose = False
+    verbose = True
     states = {}
     subscribedUpdates = {}
     moduleConfig = None
@@ -33,7 +33,8 @@ class PiScript(pimodule.PiModule):
         if "hosts" in self.moduleConfig:
             redisHost = self.moduleConfig["hosts"][0]["host"]
             print("Connecting to redis host :" + redisHost)
-            self.redisClient = redis.StrictRedis(host=redisHost, port=6379, db=0, decode_responses=True, socket_timeout=5, socket_connect_timeout=5)
+            self.redisClient = redis.StrictRedis(host=redisHost, port=6379, db=0, decode_responses=True, 
+                                                 socket_timeout=5, socket_connect_timeout=5)
         return self.redisClient
 
     def backgroundStateUpdate(self, key):

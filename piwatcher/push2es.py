@@ -25,7 +25,8 @@ class Push2ES(pimodule.PiModule):
         
         if "redis" in moduleConfig:
             import redis
-            self.redisClient = redis.StrictRedis(host=moduleConfig["redis"]["host"], port=6379, db=0, decode_responses=True)
+            self.redisClient = redis.StrictRedis(host=moduleConfig["redis"]["host"], port=6379, db=0, decode_responses=True,
+                                                 socket_timeout=5, socket_connect_timeout=5)
 
     def publishToRedis(self, prefix="", body = None):
         if prefix != "" and not prefix.endswith("."):
