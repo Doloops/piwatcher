@@ -51,8 +51,8 @@ class Push2ES(pimodule.PiModule):
         if self.redisClient is not None:
             try:
                 self.publishToRedis(body = esbody)
-            except:
-                print("Could not push to Redis: ", sys.exc_info()[0])    
+            except Exception as e:
+                print("Could not push to Redis : " + str(e), sys.exc_info()[0])    
     
         tnow = time.strftime("%Y%m%d-%H%M%S")
         now = time.time()
