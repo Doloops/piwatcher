@@ -41,18 +41,18 @@ class Push2ES(pimodule.PiModule):
             else:
                 channel = prefix + key
                 # print("Publish " + channel + " = " + str(body[key]))
-                try:
-                    self.redisClient.set(channel, json.dumps(body[key]))
-                    self.redisClient.publish(channel, json.dumps(body[key]))
-                except:
-                    print("Could not push to Redis: ", sys.exc_info()[0])    
+                self.redisClient.set(channel, json.dumps(body[key]))
+                self.redisClient.publish(channel, json.dumps(body[key]))
 
     def update(self, measure):
         esbody = {"timestamp": datetime.utcnow()}
         esbody[self.hostname] = measure
         
         if self.redisClient is not None:
-            self.publishToRedis(body = esbody)
+            try:
+                self.publishToRedis(body = esbody)
+            except:
+                print("Could not push to Redis: ", sys.exc_info()[0])    
     
         tnow = time.strftime("%Y%m%d-%H%M%S")
         now = time.time()
