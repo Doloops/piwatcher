@@ -11,7 +11,7 @@ DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 class PiScript(pimodule.PiModule):
     
-    verbose = True
+    verbose = False
     states = {}
     subscribedUpdates = {}
     moduleConfig = None
