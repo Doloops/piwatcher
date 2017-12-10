@@ -21,7 +21,7 @@ class TempWatcher(pimodule.PiModule):
     def update(self, measure):
         indoorTemp, indoorPressure = self.tempSensorBmp280.read()
         # Guard against absurd values
-        if indoorPressure < 980.0:
+        if indoorPressure < 920.0:
             raise ValueError("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
         measure["indoorTemp"] = indoorTemp
         measure["indoorPressure"] = indoorPressure
