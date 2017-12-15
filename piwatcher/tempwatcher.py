@@ -10,7 +10,7 @@ class TempWatcher(pimodule.PiModule):
     prefix = None
     address = 0x77
     
-    def __init__(self, prefix, address):
+    def __init__(self, prefix = None, address = None):
         pimodule.PiModule.__init__(self,"Temp")
         if address is not None and address == "0x76":
             self.address = 0x76
