@@ -260,7 +260,7 @@
       "items": [
         {
           "id": "pizero2.victor.indoorTemp",
-          "name": "Température Mezzanine",
+          "name": "Température Victor",
           "type": "WebInputTemp",
           "var_type": "float",
           "visible": "true",
