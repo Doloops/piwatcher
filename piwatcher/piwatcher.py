@@ -24,6 +24,10 @@ class PiWatcher:
         if "sensors" in self.pwConfig and self.pwConfig["sensors"]["bmp280"]["enabled"]:
             from piwatcher import tempwatcher
             self.piModules.append(tempwatcher.TempWatcher())
+            # This is dirty and must be retought entirely
+            if "secondSensor" in self.pwConfig["sensors"]["bmp280"]:
+                secondSensorConfig = self.pwConfig["sensors"]["bmp280"]["secondSensor"]
+                self.piModules.append(tempwatcher.TempWatcher(prefix = secondSensorConfig["prefix"], address=secondSensorConfig["address"]))
         
         if "fetchfromes" in self.pwConfig:
             from piwatcher import fetchfromes

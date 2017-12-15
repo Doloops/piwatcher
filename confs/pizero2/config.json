@@ -2,7 +2,11 @@
     "hostname" : "pizero2",
     "sensors" : {
 	    "bmp280" : {
-	        "enabled": true
+	        "enabled": true,
+	        "secondSensor": {
+	        	"prefix" : "victor",
+	        	"address": "0x76"
+	        }
 	    }
     },
     "piscript": {
