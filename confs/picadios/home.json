@@ -254,6 +254,24 @@
       ]
     },
     {
+      "type": "chambre",
+      "name": "Victor",
+      "hits": "0",
+      "items": [
+        {
+          "id": "pizero2.victor.indoorTemp",
+          "name": "Température Mezzanine",
+          "type": "WebInputTemp",
+          "var_type": "float",
+          "visible": "true",
+          "unit": "",
+          "gui_type": "temp",
+          "state": "0.0",
+          "io_type": "input",
+          "displayFormat" : "%.2f"
+        }]
+    },
+    {
       "type": "exterieur",
       "name": "Extérieur",
       "hits": "0",
