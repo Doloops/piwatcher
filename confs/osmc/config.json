@@ -1,5 +1,5 @@
 {
-	"updateInterval" : 2,
+	"updateInterval" : 10,
 	"modules": [
 	{ "name": "cpu"},
     {
@@ -18,6 +18,6 @@
 	    "index": "oswh-osmc",
 	    "type": "sys-measure",
 	    "redis":{"host":"pizero3"},
-		"statsInterval" : 2
+	    "statsInterval" : 60
     }]
 }
