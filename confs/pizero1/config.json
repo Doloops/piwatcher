@@ -1,9 +1,8 @@
 {
     "updateInterval" : 30,
     "modules" : [
-    {
-       "name": "bmp280"
-    },
+	{ "name": "cpu"},    
+    { "name": "bmp280"},
     {
         "name": "piscript",
 		"hosts":[{"host" : "pizero3"}],
