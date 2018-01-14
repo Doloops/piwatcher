@@ -1,35 +1,36 @@
 {
-    "hostname" : "pizero2",
-    "sensors" : {
-	    "bmp280" : {
-	        "enabled": true,
-	        "secondSensor": {
-	        	"prefix" : "victor",
-	        	"address": "0x76"
+    "updateInterval" : 30,
+    "modules": [
+    	{ "name": "cpu"},
+    	{ "name" : "bmp280"},
+    	{ 
+    		"name" : "bmp280",
+        	"prefix" : "victor",
+        	"address": "0x76"
+    	},
+   		{
+   			"name": "piscript",
+	        "hosts":[{"host" : "pizero3"}, {"host" : "osmc"}],
+	        "script":"self.simpleHeater(measure,'pizero2')"
+    	},
+    	{
+    		"name": "picommander",
+        	"property" : "heater.command",
+        	"defaultValue" : "heaterOff",
+        	"channels": {"ch1mp":{"pinout":36},"ch1mn":{"pinout":38}, "ch2mp":{"pinout":22}, "ch2mn":{"pinout":32}},
+        	"commands": { 
+	            "heaterOn": { "ch1mp": false, "ch1mn": false },
+	            "heaterOff": { "ch1mp": true, "ch1mn": false }
 	        }
+    	},    
+    	{
+    		"name": "elastic",
+		    "hostname" : "pizero2",
+		    "statsInterval" : 60,
+		    "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}],
+		    "index": "oswh-pizero2",
+		    "type": "sys-measure",
+		    "redis":{"host":"pizero3"}
 	    }
-    },
-    "piscript": {
-        "hosts":[{"host" : "pizero3"}, {"host" : "banane"}],
-        "script":"self.simpleHeater(measure,'pizero2')"
-    },
-    "picommander" : {
-        "property" : "heater.command",
-        "defaultValue" : "heaterOff",
-        "channels": {"ch1mp":{"pinout":36},"ch1mn":{"pinout":38}, "ch2mp":{"pinout":22}, "ch2mn":{"pinout":32}},
-        "commands": { 
-            "heaterOn": { "ch1mp": false, "ch1mn": false },
-            "heaterOff": { "ch1mp": true, "ch1mn": false }
-        }
-    },    
-    "elastic" : {
-	    "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}],
-	    "index": "oswh-pizero2",
-	    "type": "sys-measure",
-	    "redis":{"host":"pizero3"}
-    },
-    "stats" : {
-	    "updateInterval" : 30,
-	    "statsInterval" : 60
-    }
+	]
 }
