@@ -7,7 +7,8 @@ import time
 class PiWatcher:
     pwConfig = piwatcherconfig.getPiWatcherConfig()
 
-    aliases = {"cpu":"cpuwatcher", "disk":"diskwatcher", "elastic":"push2es", "bmp280":"tempwatcher"}
+    aliases = {"cpu":"cpuwatcher", "disk":"diskwatcher", "elastic":"push2es", "bmp280":"tempwatcher", 
+               "piscript": "piscript", "picommander":"picommandwatcher"}
     
     piModules = []
     updateInterval = None
