@@ -183,7 +183,7 @@ class PiCurrentSensor(pimodule.PiModule):
                 print (", #" + sensorId + "=OFF", end='')
             else:
                 print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.2f" % freq) + "Hz, " + ("%.2f" % amplitude) + ", gap=" + ("%.3f" % gap)
-                      + ", vmean=" + ("%.3f" % vmean) + "", end='')
+                      + ", vmean=" + ("%.3f" % vmean) + ")", end='')
 
 if __name__ == "__main__":
     pics = PiCurrentSensor({})
