@@ -13,7 +13,7 @@
     {
     	"name": "elastic",
 	    "hostname" : "osmc",
-	    "hosts":[{"host" : "pizero3"}, {"host" : "banane"}],
+	    "hosts":[{"host" : "pizero3"}],
 	    "index": "oswh-osmc",
 	    "type": "sys-measure",
 	    "redis":{"host":"pizero3"},
