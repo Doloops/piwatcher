@@ -53,7 +53,7 @@
 	    	"name": "elastic",
 		    "hostname" : "pizero3",
 	        "statsInterval" : 60,
-	        "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}, {"host" : "banane"}],
+	        "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}],
 	        "index": "oswh-pizero3",
 	        "type": "sys-measure",
 		    "redis":{"host":"pizero3"}
