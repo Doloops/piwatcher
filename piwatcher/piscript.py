@@ -56,6 +56,7 @@ class PiScript(pimodule.PiModule):
                     if self.lastMeasure is not None:
                         self.update(self.lastMeasure)
                         self.piwatcher.updateModule("PiCommandWatcher", self.lastMeasure)
+                        print(" => Updated")
             except Exception as e:
                 print("Caught exception " + str(e))
                 pubsub = None
