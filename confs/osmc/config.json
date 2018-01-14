@@ -1,6 +1,7 @@
 {
-	"updateInterval" : 10,
+	"updateInterval" : 2,
 	"modules": [
+	{ "name": "cpu"},
     {
     	"name":"disk",
 		"enabled": true,
@@ -17,6 +18,6 @@
 	    "index": "oswh-osmc",
 	    "type": "sys-measure",
 	    "redis":{"host":"pizero3"},
-		"statsInterval" : 60
+		"statsInterval" : 2
     }]
 }
