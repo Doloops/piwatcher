@@ -5,7 +5,6 @@ from piwatcher import pimodule
 import re
 import time
 import subprocess
-import RPi.GPIO as GPIO
 
 class DiskWatcher(pimodule.PiModule):
     hdparmPattern = re.compile("\n.*\n drive state is:  (.*)\n")
@@ -15,17 +14,24 @@ class DiskWatcher(pimodule.PiModule):
     lastTotalIO = 0
     previousDiskState = "unknown"
     previousDiskStateTime = time.time()
+
+    hasGPIO = False
     ledPwm = None
 
-    def __init__(self, diskLedPinout=None, diskDeviceName=None):
-        pimodule.PiModule.__init__(self,"Disk")    
-        self.diskLedPinout=diskLedPinout
-        self.diskDeviceName=diskDeviceName
-        GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
-        GPIO.setup(self.diskLedPinout, GPIO.OUT) ## Setup GPIO Pin 7 to OUT
-        GPIO.output(self.diskLedPinout, False) ## Turn on GPIO pin 7
-        self.ledPwm = GPIO.PWM(self.diskLedPinout, 0.5)
-        self.ledPwm.start(25)
+    def __init__(self, config):
+        pimodule.PiModule.__init__(self,"Disk")
+        self.diskDeviceName = config["deviceName"]
+
+        if "ledPinout" in config:    
+            self.diskLedPinout = config["ledPinout"]
+
+            import RPi.GPIO as GPIO
+            hasGPIO = True
+            GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
+            GPIO.setup(self.diskLedPinout, GPIO.OUT) ## Setup GPIO Pin 7 to OUT
+            GPIO.output(self.diskLedPinout, False) ## Turn on GPIO pin 7
+            self.ledPwm = GPIO.PWM(self.diskLedPinout, 0.5)
+            self.ledPwm.start(25)
 
     def checkDiskActivity(self):
         try:
@@ -57,6 +63,8 @@ class DiskWatcher(pimodule.PiModule):
         raise ValueError("Unknown disk state exception : [" + state + "]");
 
     def setLedFromDiskState(self, diskState):
+        if self.ledPwm is None:
+            return
         if diskState == "active":
             self.ledPwm.ChangeFrequency(4)
             self.ledPwm.ChangeDutyCycle(50)
@@ -80,12 +88,11 @@ class DiskWatcher(pimodule.PiModule):
         previousDiskStateTime = self.updateDiskStateTime(diskState)
         measure["diskState"] = diskState
         measure["cumulateDiskStateTime"] = now - previousDiskStateTime
-        diskStateMessage = ", diskState=" + diskState + " for " + str(int(measure["cumulateDiskStateTime"])) + "s"
+        diskStateMessage = ", " + self.diskDeviceName + "=" + diskState + " for " + str(int(measure["cumulateDiskStateTime"])) + "s"
         print(diskStateMessage, end='')
 
     def shutdown(self):
         print("Shutdown " + self.getModuleName())
         self.ledPwm.stop()
-        GPIO.cleanup()
-
-
+        if self.hasGPIO:
+            GPIO.cleanup()

@@ -1,23 +1,22 @@
 {
-    "hostname" : "osmc",
-    "disk": {
+	"updateInterval" : 10,
+	"modules": [
+    {
+    	"name":"disk",
 		"enabled": true,
 		"ledPinout": 11,
 		"deviceName": "sda"
     },
-    "sensors" : {
-		"bmp280" : {
-		    "enabled": true
-		}
+    {
+    	"name": "bmp280"
     },
-    "elastic" : {
+    {
+    	"name": "elastic",
+	    "hostname" : "osmc",
 	    "hosts":[{"host" : "pizero3"}, {"host" : "banane"}],
 	    "index": "oswh-osmc",
 	    "type": "sys-measure",
-	    "redis":{"host":"pizero3"}
-    },
-    "stats" : {
-	"updateInterval" : 10,
-	"statsInterval" : 60
-    }
+	    "redis":{"host":"pizero3"},
+		"statsInterval" : 60
+    }]
 }

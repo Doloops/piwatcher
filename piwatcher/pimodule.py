@@ -1,11 +1,13 @@
 class PiModule:
 
+    moduleClass = "Unknown module"
     moduleName = "Unknown module"
     wrapMeasureIn = None
     piwatcher = None
 
     def __init__(self, moduleName):
         self.moduleName = moduleName
+        self.moduleClass = self.__class__
 
     def setPiWatcher(self, piwatcher):
         self.piwatcher = piwatcher
@@ -18,6 +20,9 @@ class PiModule:
         
     def getModuleName(self):
         return self.moduleName
+
+    def getModuleClassName(self):
+        return self.moduleClass.__module__ + "." + self.moduleClass.__name__
     
     def getName(self):
         return self.getModuleName()

@@ -10,12 +10,12 @@ class TempWatcher(pimodule.PiModule):
     prefix = None
     address = 0x77
     
-    def __init__(self, prefix = None, address = None):
+    def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"Temp")
-        if address is not None and address == "0x76":
+        if "address" in moduleConfig and moduleConfig["address"] == "0x76":
             self.address = 0x76
-        if prefix is not None:
-            self.prefix = prefix
+        if "prefix" in moduleConfig:
+            self.prefix = moduleConfig["prefix"]
         self.tempSensorBmp280 = bmp280.BMP280(address=self.address)
         chip_id, chip_version = self.tempSensorBmp280.read_id()
 

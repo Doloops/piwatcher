@@ -6,7 +6,7 @@ import time
 class CpuWatcher(pimodule.PiModule):
     cpuTempPattern = re.compile("temp=(.*)'C")
 
-    def __init__(self):
+    def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"CPU")
 
     # Deprecated, long method

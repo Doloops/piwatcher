@@ -1,18 +1,63 @@
 from piwatcher import piwatcherconfig
+from piwatcher import pimodule
 
 import sys
 import time
 
 class PiWatcher:
     pwConfig = piwatcherconfig.getPiWatcherConfig()
+
+    aliases = {"cpu":"cpuwatcher", "disk":"diskwatcher", "elastic":"push2es", "bmp280":"tempwatcher"}
     
     piModules = []
+    updateInterval = None
 
     def __init__(self):    
+        self.updateInterval = self.pwConfig["updateInterval"]
+        for moduleConfig in self.pwConfig["modules"]:
+            if moduleConfig["name"] is None:
+                raise ValueError("No moduleConfig name found for " + str(moduleConfig))
+            self.__initModule(moduleConfig)
+
+        for module in self.piModules:
+            print("* Using module " + module.getModuleName() + ", class=" + module.getModuleClassName())
+            module.setPiWatcher(self)
+
+    def __initModule(self, moduleConfig):
+        moduleName = self.aliases[moduleConfig["name"]]
+        print("Importing : " + moduleName)
+#        exec ("from piwatcher import " + moduleName)
+        moduleInstance = self.__instantiateModule("piwatcher." + moduleName, moduleConfig)
+        moduleInstance.setPiWatcher(self)
+        self.piModules.append(moduleInstance)
+
+    def __instantiateModule(self, moduleName, moduleConfig):
+        exec ("import " + moduleName)
+        current_module = sys.modules[moduleName]
+        for key in dir(current_module):
+            attr = getattr(current_module, key)
+            if isinstance( attr, type ):
+                # print("This is a class " + moduleName + "." + key + " : " + str(attr))
+                if issubclass(attr, pimodule.PiModule):
+                    print("This is a module class : " + str(attr))
+                    moduleInstance = attr(moduleConfig)
+                    print("=> New module instance : " + str(moduleInstance))
+                    return moduleInstance
+        raise ValueError("Could not instantiate " + moduleName)
+
+    def __print_classes(self, name = __name__):
+        current_module = sys.modules[name]
+        print("current_module=" + str(current_module))
+        for key in dir(current_module):
+            print("key " + str(key))
+            if isinstance( getattr(current_module, key), type ):
+                print(key)
+
+    def __legacy_init__(self):
         # Static definitions
         from piwatcher import cpuwatcher
         self.piModules.append(cpuwatcher.CpuWatcher())
-        
+
         hostname = self.pwConfig["hostname"]
         self.updateInterval = self.pwConfig["stats"]["updateInterval"]
         self.statsInterval = self.pwConfig["stats"]["statsInterval"]
@@ -62,8 +107,8 @@ class PiWatcher:
                 tnow = time.strftime("%Y%m%d-%H%M%S")
                 print (tnow, end='')
                 
-                measure={"statsInterval": self.statsInterval}
-                
+                # measure={"statsInterval": self.statsInterval}
+                measure = {}
                 
                 for module in self.piModules:
                     try:

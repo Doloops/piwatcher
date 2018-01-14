@@ -15,13 +15,13 @@ class Push2ES(pimodule.PiModule):
     statsInterval = 60
     redisClient = None
 
-    def __init__(self, hostname, moduleConfig, statsInterval=60):
+    def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"Push2ES")
         self.es = elasticsearch.Elasticsearch(moduleConfig["hosts"] )
-        self.hostname = hostname
+        self.hostname = moduleConfig["hostname"]
         self.esIndex = moduleConfig["index"]
         self.esType = moduleConfig["type"]
-        self.statsInterval = statsInterval
+        self.statsInterval = moduleConfig["statsInterval"]
         
         if "redis" in moduleConfig:
             import redis

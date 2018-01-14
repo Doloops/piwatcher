@@ -1,14 +1,23 @@
 {
-    "hostname": "lenovo-fba",
-    "elastic" : {
-        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"}],
-        "index": "oswh-lenovo-fba",
-        "type": "sys-measure",
-        "redis":{"host":"pizero3"}
-    },
-    "stats" : {
-        "updateInterval" : 1,
-        "statsInterval" : 600
-    }    
+    "updateInterval" : 2,
+	"modules" : [
+		{ "name": "cpu"},
+	   	{ "name":"disk",
+		  "enabled": true,
+		  "deviceName": "sda"
+	    },
+	   	{ "name":"disk",
+	   	  "enabled": true,
+		  "deviceName": "sdb"
+	    },
+	    { "name" : "elastic",
+	        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"}],
+	        "index": "oswh-lenovo-fba",
+	        "type": "sys-measure",
+		    "hostname": "lenovo-fba",
+	        "redis":{"host":"pizero3"},
+	        "statsInterval" : 30
+		}	
+    ]
 }
 
