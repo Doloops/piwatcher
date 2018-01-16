@@ -16,18 +16,26 @@ class TempWatcher(pimodule.PiModule):
             self.address = 0x76
         if "prefix" in moduleConfig:
             self.prefix = moduleConfig["prefix"]
+        self.initBmp280()
+            
+    def initBmp280(self):
         self.tempSensorBmp280 = bmp280.BMP280(address=self.address)
         chip_id, chip_version = self.tempSensorBmp280.read_id()
 
         if chip_id == 88:
-	        self.tempSensorBmp280.reg_check()
+            self.tempSensorBmp280.reg_check()
         else:
             raise ValueError ("Unsupported chip : " + chip_id + ", " + chip_version)
 
     def update(self, measure):
+        if self.tempSensorBmp280 is None:
+            self.initBmp280()
         indoorTemp, indoorPressure = self.tempSensorBmp280.read()
         # Guard against absurd values
         if indoorPressure < 920.0:
+            print ("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
+            self.tempSensorBmp280.bus.close()
+            self.tempSensorBmp280 = None
             raise ValueError("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
         if self.prefix is not None:
             if self.prefix not in measure:
