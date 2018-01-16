@@ -1,6 +1,7 @@
 {
     "updateInterval" : 10,
     "modules" : [
+    	{ "name": "cpu" },
 	    {
 	    	"name": "piscript",
 	        "hosts":[{"host" : "pizero3"}],
