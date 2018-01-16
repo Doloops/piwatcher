@@ -3,6 +3,7 @@ from piwatcher import pimodule
 
 import sys
 import time
+import math
 
 class PiWatcher:
     pwConfig = piwatcherconfig.getPiWatcherConfig()
@@ -123,7 +124,7 @@ class PiWatcher:
                 loopend = time.time()
                 print(" {" + ("%.3f"%((loopend-loopstart)*1000)) + "}", end='')
                 print(".")
-                time.sleep(self.updateInterval)
+                time.sleep(math.fabs(self.updateInterval - loopend))
         
         finally:
             for module in self.piModules:
