@@ -122,9 +122,10 @@ class PiWatcher:
                         break
         
                 loopend = time.time()
-                print(" {" + ("%.3f"%((loopend-loopstart)*1000)) + "}", end='')
+                looptime = loopend - loopstart
+                print(" {" + ("%.3f"%((looptime)*1000)) + "}", end='')
                 print(".")
-                time.sleep(math.fabs(self.updateInterval - loopend))
+                time.sleep(math.fabs(self.updateInterval - looptime))
         
         finally:
             for module in self.piModules:
