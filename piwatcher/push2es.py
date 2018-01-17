@@ -13,6 +13,7 @@ class Push2ES(pimodule.PiModule):
     esType = None
     lastESUpdate = time.time()
     statsInterval = 60
+    statsIntervalMargin = 8
     redisClient = None
 
     def __init__(self, moduleConfig):
@@ -56,7 +57,7 @@ class Push2ES(pimodule.PiModule):
     
         tnow = time.strftime("%Y%m%d-%H%M%S")
         now = time.time()
-        if ( now - self.lastESUpdate >= self.statsInterval ):
+        if ( now - self.lastESUpdate >= self.statsInterval - self.statsIntervalMargin ):
             try:
                 tsBefore = time.time()
                 self.es.index(index=self.esIndex, doc_type=self.esType, id=tnow, body=esbody)
