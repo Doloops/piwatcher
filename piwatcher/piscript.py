@@ -6,7 +6,6 @@ import threading
 import time
 
 from datetime import datetime, timedelta
-from gi.overrides.keysyms import target
 
 DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
