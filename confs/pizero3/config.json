@@ -11,6 +11,7 @@
 	    {
 	    	"name":"heater1Command",
 	    	"module" : "picommander",
+	    	"property" : "heater.command",
 	        "defaultValue" : "heaterOff",
 	        "channels": {
 	            "ch1mp":{"pinout":11}, "ch1mn":{"pinout":13}
@@ -22,7 +23,7 @@
 	    },
 	    {
 	    	"name": "picommander",
-	        "property" : "heater.command",
+	        "property" : "leds.command",
 	        "defaultValue" : "heaterOff",
 	        "channels": {
 	            "1g":{"pinout":16, "freq": 2}, "1y":{"pinout":18, "freq": 2},
