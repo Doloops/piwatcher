@@ -108,22 +108,14 @@ class PiScript(pimodule.PiModule):
         except Exception as e:
             print("Caught exception while setting " + key + " : " + str(e))
     
-    def simpleHeater(self, measure, prefix, indoorTempName = None):
-        # print("Incoming measure : " + str(measure))
-        if indoorTempName is not None:
-            indoorTemp = self.getState(None, indoorTempName)
-        else:
-            indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
+    def updateModeComfort(self, prefix):
         modeComfort = self.getState(prefix, "heater.mode.comfort")
-        targetComfort = self.getState(prefix, "heater.target.comfort")
-        targetStandby = self.getState(prefix, "heater.target.standby")
-        comfortTimeToLive = self.getState(prefix, "heater.comfort.ttl", 2)
         comfortStartTime = self.getState(prefix, "heater.comfort.startTime", subscribe=False)
+        comfortTimeToLive = self.getState(prefix, "heater.comfort.ttl", 2)
         if self.verbose:
-            print("Update : temp=" + str(indoorTemp) + ", modeComfort=" + str(modeComfort) + ", targetComfort=" + str(targetComfort)
-                   + ", targetStandby=" + str(targetStandby) + ", comfortTimeToLive=" + str(comfortTimeToLive) + ", comfortStartTime=" + str(comfortStartTime))
-    
-        heaterCommand = "heaterOff"
+            print("Update : modeComfort=" + str(modeComfort) + ", comfortTimeToLive=" + str(comfortTimeToLive) 
+                  + ", comfortStartTime=" + str(comfortStartTime))
+
         if modeComfort:
             if comfortStartTime is None:
                 comfortStartTime = datetime.utcnow()
@@ -148,14 +140,33 @@ class PiScript(pimodule.PiModule):
             if comfortStartTime is not None:
                 self.setState(prefix, "heater.comfort.startTime", None)
                 self.setState(prefix, "heater.comfort.remaingTime", 0)
+        return modeComfort
+
     
+    def simpleHeater(self, measure, prefix, indoorTempName = None):
+        # print("Incoming measure : " + str(measure))
+        if indoorTempName is not None:
+            indoorTemp = self.getState(None, indoorTempName)
+        else:
+            indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
+        targetComfort = self.getState(prefix, "heater.target.comfort")
+        targetStandby = self.getState(prefix, "heater.target.standby")
+        if self.verbose:
+            print("Update : temp=" + str(indoorTemp) + ", targetComfort=" + str(targetComfort)
+                   + ", targetStandby=" + str(targetStandby))
+
+        modeComfort = self.updateModeComfort(prefix)
+        targetTemp = targetStandby
         if modeComfort:
-            if indoorTemp < targetComfort:
-                heaterCommand = "heaterOn"
-        elif indoorTemp < targetStandby:
-                heaterCommand = "heaterOn"
+            targetTemp = targetComfort
+
+        if indoorTemp < targetTemp:
+            heaterCommand = "heaterOn"
+        else:
+            heaterCommand = "heaterOff"
+        self.setState(prefix, "heater.targetTemp", targetTemp)
         self.setState(prefix, "heater.command", heaterCommand)
-        # print("=> heaterCommand=" + heaterCommand)
+        fetchfromes.updateFragment(measure, "heater.targetTemp", targetTemp)
         fetchfromes.updateFragment(measure, "heater.command", heaterCommand)
 
     def update(self, measure):
