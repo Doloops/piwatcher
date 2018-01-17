@@ -24,7 +24,7 @@
 	    {
 	    	"name": "picommander",
 	        "property" : "leds.command",
-	        "defaultValue" : "heaterOff",
+	        "defaultValue" : "redBlink",
 	        "channels": {
 	            "1g":{"pinout":16, "freq": 2}, "1y":{"pinout":18, "freq": 2},
 	            "2g":{"pinout":22, "freq": 2}, "2y":{"pinout":32, "freq": 2},
@@ -49,7 +49,8 @@
 	                      {"3g": false}, {"sleep": 0.1}, {"3y": false}, {"sleep": 0.1}
 	                ],
 	            "init": [ {"red": 50}, {"sleep": 0.1}, {"command": "initLoop"}, {"command": "initLoop"}, {"red": true} ],
-	            "forever": [ {"command" : "init"}, {"command":"forever"}]
+	            "forever": [ {"command" : "init"}, {"command":"forever"}],
+	            "redBlink" : [ {"red": false}, {"sleep": 0.1}, {"red": true}]
 	        }
 	    },
 	    {
