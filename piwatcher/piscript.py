@@ -170,8 +170,12 @@ class PiScript(pimodule.PiModule):
             heaterCommand = "heaterOff"
         self.setState(prefix, "heater.targetTemp", targetTemp)
         self.setState(prefix, "heater.command", heaterCommand)
-        fetchfromes.updateFragment(measure, "heater.targetTemp", targetTemp)
-        fetchfromes.updateFragment(measure, "heater.command", heaterCommand)
+
+        measurePrefix = "";
+        if "prefix" in self.moduleConfig:
+            measurePrefix = self.moduleConfig["prefix"] + "."
+        fetchfromes.updateFragment(measure, measurePrefix + "heater.targetTemp", targetTemp)
+        fetchfromes.updateFragment(measure, measurePrefix + "heater.command", heaterCommand)
 
     def update(self, measure):
         self.lastMeasure = measure
