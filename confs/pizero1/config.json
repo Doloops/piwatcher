@@ -6,10 +6,12 @@
     {
         "name": "piscript",
 		"hosts":[{"host" : "pizero3"}],
-        "script":"self.simpleHeater(measure,'pizero1')"
+        "script":"self.simpleHeater(measure,'pizero1')",
+        "updateModule": "heater1Command" 
     },
     {
-    	"name": "picommander",
+    	"name": "heater1Command",
+    	"module" : "picommander",
 		"property" : "heater.command",
         "defaultValue" : "heaterOff",
         "channels": {"mp":{"pinout":16},"mn":{"pinout":18}},

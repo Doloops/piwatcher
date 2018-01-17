@@ -12,17 +12,20 @@ DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 class PiScript(pimodule.PiModule):
     
     verbose = False
-    states = {}
-    subscribedUpdates = {}
+
+    # States
+
     moduleConfig = None
 
-    script = None
+    # Configuration
+
+    states = {}
+    subscribedUpdates = {}
     redisClient = None
     lastMeasure = None
 
     def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self, "PiScript")
-        self.script = moduleConfig["script"]
         self.moduleConfig = moduleConfig
         if "wrapMeasureIn" in moduleConfig:
             self.wrapMeasureIn = moduleConfig["wrapMeasureIn"]
@@ -55,7 +58,8 @@ class PiScript(pimodule.PiModule):
                     self.states[key] = stateValue
                     if self.lastMeasure is not None:
                         self.update(self.lastMeasure)
-                        self.piwatcher.updateModule("PiCommandWatcher", self.lastMeasure)
+                        if "updateModule" in self.moduleConfig:
+                            self.piwatcher.updateModule(self.moduleConfig["updateModule"], self.lastMeasure)
                         print(" => Updated")
             except Exception as e:
                 print("Caught exception " + str(e))
@@ -174,7 +178,7 @@ class PiScript(pimodule.PiModule):
         measure = self.mayWrap(measure)
         if self.verbose:
             print("Before SCRIPT : " + str(measure))
-        eval(self.script)
+        eval(self.moduleConfig["script"])
         if self.verbose:
             print("After SCRIPT : " + str(measure))
 
