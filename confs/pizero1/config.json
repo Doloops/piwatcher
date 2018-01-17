@@ -7,7 +7,7 @@
         "name": "piscript",
 		"hosts":[{"host" : "pizero3"}],
         "script":"self.simpleHeater(measure,'pizero1')",
-        "updateModule": "heater1Command" 
+        "updateModule": "heater1Command"
     },
     {
     	"name": "heater1Command",

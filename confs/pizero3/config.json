@@ -5,8 +5,21 @@
 	    {
 	    	"name": "piscript",
 	        "hosts":[{"host" : "pizero3"}],
-	        "script":"self.simpleHeater(measure,'pizero3', indoorTempName='osmc.indoorTemp')"
-	    },    
+	        "script":"self.simpleHeater(measure,'pizero3', indoorTempName='osmc.indoorTemp')",
+	        "updateModule": "heater1Command"
+	    },
+	    {
+	    	"name":"heater1Command",
+	    	"module" : "picommander",
+	        "defaultValue" : "heaterOff",
+	        "channels": {
+	            "ch1mp":{"pinout":11}, "ch1mn":{"pinout":13}
+	        },
+	        "commands": { 
+	            "heaterOn": {"ch1mp":false, "ch1mn":false},
+	            "heaterOff": {"ch1mp":false, "ch1mn":true}
+	        }
+	    },
 	    {
 	    	"name": "picommander",
 	        "property" : "heater.command",
@@ -15,8 +28,7 @@
 	            "1g":{"pinout":16, "freq": 2}, "1y":{"pinout":18, "freq": 2},
 	            "2g":{"pinout":22, "freq": 2}, "2y":{"pinout":32, "freq": 2},
 	            "3g":{"pinout":36, "freq": 2}, "3y":{"pinout":38, "freq": 2},
-	            "red":{"pinout":40, "freq": 2},
-	            "ch1mp":{"pinout":11}, "ch1mn":{"pinout":13}
+	            "red":{"pinout":40, "freq": 2}
 	        },
 	        "commands": { 
 	            "1off": { "1g": false, "1y": false },
@@ -36,9 +48,7 @@
 	                      {"3g": false}, {"sleep": 0.1}, {"3y": false}, {"sleep": 0.1}
 	                ],
 	            "init": [ {"red": 50}, {"sleep": 0.1}, {"command": "initLoop"}, {"command": "initLoop"}, {"red": true} ],
-	            "forever": [ {"command" : "init"}, {"command":"forever"}],
-	            "heaterOn": {"ch1mp":false, "ch1mn":false},
-	            "heaterOff": {"ch1mp":false, "ch1mn":true}
+	            "forever": [ {"command" : "init"}, {"command":"forever"}]
 	        }
 	    },
 	    {
