@@ -6,7 +6,17 @@
 	    	"name": "piscript",
 	        "hosts":[{"host" : "pizero3"}],
 	        "script":"self.simpleHeater(measure,'pizero3', indoorTempName='osmc.indoorTemp')",
-	        "updateModule": "heater1Command"
+	        "updateModule": "heater1Command",
+			"hourlyTemps":
+	        [
+	        	{"from":0,"to":5,"temp":16},
+	        	{"from":5,"to":9,"temp":19},
+	        	{"from":9,"to":16,"temp":14},
+	        	{"from":16,"to":17,"temp":16},
+	        	{"from":17,"to":18,"temp":17},
+	        	{"from":18,"to":22,"temp":19},
+	        	{"from":22,"to":24,"temp":17}
+	        ]	        
 	    },
 	    {
 	    	"name":"heater1Command",
