@@ -25,7 +25,7 @@ class PiModule:
         return self.__class__.__module__ + "." + self.__class__.__name__
     
     def getName(self):
-        return self.getName()
+        return self.name
 
     def setName(self, name):
         self.name = name
