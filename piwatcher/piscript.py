@@ -6,6 +6,7 @@ import threading
 import time
 
 from datetime import datetime, timedelta
+from gi.overrides.keysyms import target
 
 DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
@@ -146,6 +147,17 @@ class PiScript(pimodule.PiModule):
                 self.setState(prefix, "heater.comfort.remaingTime", 0)
         return modeComfort
 
+    def getNormalTemp(self, prefix):
+        if "hourlyTemps" in self.moduleConfig:
+            hourlyTemps = self.moduleConfig["hourlyTemps"]
+            hour = datetime.now().hour
+            for period in hourlyTemps:
+                if period["from"] <= hour and hour < period["to"]:
+                    targetStandby = period["temp"]
+                    self.setState(prefix, "heater.target.standby", targetStandby)
+                    return targetStandby
+        targetStandby = self.getState(prefix, "heater.target.standby")
+        return targetStandby
     
     def simpleHeater(self, measure, prefix, indoorTempName = None):
         # print("Incoming measure : " + str(measure))
@@ -153,16 +165,12 @@ class PiScript(pimodule.PiModule):
             indoorTemp = self.getState(None, indoorTempName)
         else:
             indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
-        targetComfort = self.getState(prefix, "heater.target.comfort")
-        targetStandby = self.getState(prefix, "heater.target.standby")
-        if self.verbose:
-            print("Update : temp=" + str(indoorTemp) + ", targetComfort=" + str(targetComfort)
-                   + ", targetStandby=" + str(targetStandby))
 
         modeComfort = self.updateModeComfort(prefix)
-        targetTemp = targetStandby
         if modeComfort:
-            targetTemp = targetComfort
+            targetTemp = self.getState(prefix, "heater.target.comfort")
+        else:
+            targetTemp = self.getNormalTemp(prefix)
 
         if indoorTemp < targetTemp:
             heaterCommand = "heaterOn"
