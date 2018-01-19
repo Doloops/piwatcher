@@ -103,7 +103,8 @@ class PiCurrentSensor(pimodule.PiModule):
 
         if self.verbose: 
             print("* Dir:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
-        vSec = (gap * self.vcc) / 2
+        realgap = vmean * np.pi
+        vSec = (realgap * self.vcc) / 2
         iSec = vSec / self.r0
         iPrim = iSec * self.nbRolls
         wPrim = (iPrim * self.vac) / sqrt(2)
@@ -129,7 +130,8 @@ class PiCurrentSensor(pimodule.PiModule):
             gap_vmean = 0
         if self.verbose: 
             print("* Amp:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
-        vSec = (gap * self.vcc) / self.lm324nRatio
+        realgap = vmean * np.pi
+        vSec = (realgap * self.vcc) / self.lm324nRatio
         if self.verbose:
             print("* gap=" + str(gap) + ", vSec=" + str(vSec))
         if asmType == "ASM30":
