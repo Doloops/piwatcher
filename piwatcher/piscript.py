@@ -166,10 +166,12 @@ class PiScript(pimodule.PiModule):
             indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
 
         modeComfort = self.updateModeComfort(prefix)
+        # We must evaluate normal temp now, to update UI with freshest timely values
+        normalTemp = self.getNormalTemp(prefix)
         if modeComfort:
             targetTemp = self.getState(prefix, "heater.target.comfort")
         else:
-            targetTemp = self.getNormalTemp(prefix)
+            targetTemp = normalTemp
 
         if indoorTemp < targetTemp:
             heaterCommand = "heaterOn"
