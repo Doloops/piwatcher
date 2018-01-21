@@ -77,7 +77,7 @@
 		"hostname" : "pizero3",
 	        "statsInterval" : 60,
 	        "hosts":[{"host" : "osmc"}, {"host" : "pizero3"}],
-	        "index": "oswh-pizero3-T1",
+	        "index": "oswh-pizero3-t1",
 	        "type": "sys-measure",
 		    "redis":{"host":"pizero3"}
 	    }
