@@ -14,6 +14,7 @@ class DiskWatcher(pimodule.PiModule):
     lastTotalIO = 0
     previousDiskState = "unknown"
     previousDiskStateTime = time.time()
+    useMeasurePerDisk = True
 
     hasGPIO = False
     ledPwm = None
@@ -32,6 +33,8 @@ class DiskWatcher(pimodule.PiModule):
             GPIO.output(self.diskLedPinout, False) ## Turn on GPIO pin 7
             self.ledPwm = GPIO.PWM(self.diskLedPinout, 0.5)
             self.ledPwm.start(25)
+        if "useMeasurePerDisk" in config:
+            self.useMeasurePerDisk = config["useMeasurePerDisk"]
 
     def checkDiskActivity(self):
         try:
@@ -86,9 +89,15 @@ class DiskWatcher(pimodule.PiModule):
         diskState = self.checkDiskState()
         self.setLedFromDiskState(diskState)
         previousDiskStateTime = self.updateDiskStateTime(diskState)
-        measure["diskState"] = diskState
-        measure["cumulateDiskStateTime"] = now - previousDiskStateTime
-        diskStateMessage = ", " + self.diskDeviceName + "=" + diskState + " for " + str(int(measure["cumulateDiskStateTime"])) + "s"
+        cumulateDiskStateTime = now - previousDiskStateTime
+        if self.useMeasurePerDisk:
+            diskMeasure = {}
+            measure[self.diskDeviceName] = diskMeasure
+        else:
+            diskMeasure = measure
+        diskMeasure["diskState"] = diskState
+        diskMeasure["cumulateDiskStateTime"] = cumulateDiskStateTime
+        diskStateMessage = ", " + self.diskDeviceName + "=" + diskState + " for " + str(int(cumulateDiskStateTime)) + "s"
         print(diskStateMessage, end='')
 
     def shutdown(self):

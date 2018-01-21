@@ -6,7 +6,8 @@
     	"name":"disk",
 		"enabled": true,
 		"ledPinout": 11,
-		"deviceName": "sda"
+		"deviceName": "sda",
+		"useMeasurePerDisk": false
     },
     {
     	"name": "bmp280"

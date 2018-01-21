@@ -1,5 +1,5 @@
 {
-    "updateInterval" : 2,
+    "updateInterval" : 30,
 	"modules" : [
 		{ "name": "cpu"},
 	   	{ "name":"disk",
@@ -11,12 +11,12 @@
 		  "deviceName": "sdb"
 	    },
 	    { "name" : "elastic",
-	        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"}],
+	        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"},{"host":"banane"}],
 	        "index": "oswh-lenovo-fba",
 	        "type": "sys-measure",
 		    "hostname": "lenovo-fba",
 	        "redis":{"host":"pizero3"},
-	        "statsInterval" : 30
+	        "statsInterval" : 60
 		}	
     ]
 }
