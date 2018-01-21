@@ -1,7 +1,7 @@
 {
     "updateInterval" : 30,
 	"modules" : [
-		{ "name": "cpu"},
+		{ "name": "cpu", "cpuTempFile": "/sys/devices/platform/w83627ehf.2576/temp2_input"},
 	   	{ "name":"disk", "deviceName": "sda"},
 	   	{ "name":"disk", "deviceName": "sdb"},
 	   	{ "name":"disk", "deviceName": "sdc"},

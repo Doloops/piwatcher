@@ -5,9 +5,12 @@ import time
 
 class CpuWatcher(pimodule.PiModule):
     cpuTempPattern = re.compile("temp=(.*)'C")
+    cpuTempFile = "/sys/devices/virtual/thermal/thermal_zone0/temp"
 
     def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"CPU")
+        if "cpuTempFile" in moduleConfig:
+            self.cpuTempFile = moduleConfig["cpuTempFile"]
 
     # Deprecated, long method
     def getCPUTemp_VCGENCMD(self):
@@ -22,7 +25,7 @@ class CpuWatcher(pimodule.PiModule):
         return temp
 
     def getCPUTemp(self):
-        with open("/sys/devices/virtual/thermal/thermal_zone0/temp") as temp_file:
+        with open(self.cpuTempFile) as temp_file:
             line = temp_file.read()
             temp = float(line)
             # Raspberry PI reports temp with 3 digits after the ., but BananaPI reports temps on 2 digits only.
