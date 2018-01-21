@@ -1,0 +1,24 @@
+{
+    "updateInterval" : 30,
+	"modules" : [
+		{ "name": "cpu"},
+	   	{ "name":"disk", "deviceName": "sda"},
+	   	{ "name":"disk", "deviceName": "sdb"},
+	   	{ "name":"disk", "deviceName": "sdc"},
+	   	{ "name":"disk", "deviceName": "sdd"},
+	   	{ "name":"disk", "deviceName": "sde"},
+	   	{ "name":"disk", "deviceName": "sdf"},
+	   	{ "name":"disk", "deviceName": "sdg"},
+	   	{ "name":"disk", "deviceName": "sdh"},
+	   	{ "name":"disk", "deviceName": "sdi"},
+	    { "name" : "elastic",
+	        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"},{"host":"banane"}],
+	        "index": "oswh-circee",
+	        "type": "sys-circee",
+		    "hostname": "lenovo-fba",
+	        "redis":{"host":"pizero3"},
+	        "statsInterval" : 60
+		}	
+    ]
+}
+
