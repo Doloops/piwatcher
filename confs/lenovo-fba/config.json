@@ -12,9 +12,9 @@
 	    },
 	    { "name" : "elastic",
 	        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"},{"host":"banane"}],
-	        "index": "oswh-lenovo-fba",
+	        "index": "oswh-lenovo-fba-T1",
 	        "type": "sys-measure",
-		    "hostname": "lenovo-fba",
+	        "hostname": "lenovo-fba",
 	        "redis":{"host":"pizero3"},
 	        "statsInterval" : 60
 		}	
