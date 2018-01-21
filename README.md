@@ -10,7 +10,7 @@ BMP280 i2c driver code comes from [SunFounder SensorKit](https://github.com/sunf
 Thanks guys for this great work !
 
 # Requirements and Installing
-apt-get install python3-rpi.gpio python3-smbus python3-elasticsearch
+apt-get install python3-rpi.gpio python3-smbus python3-elasticsearch python3-redis
 modprobe i2c_dev
 
 python3-daemonize may be helpfull in the future...

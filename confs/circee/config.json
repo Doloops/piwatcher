@@ -14,8 +14,8 @@
 	    { "name" : "elastic",
 	        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"},{"host":"banane"}],
 	        "index": "oswh-circee",
-	        "type": "sys-circee",
-		    "hostname": "lenovo-fba",
+	        "type": "sys-measure",
+		    "hostname": "circee",
 	        "redis":{"host":"pizero3"},
 	        "statsInterval" : 60
 		}	
