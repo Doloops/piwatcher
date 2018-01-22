@@ -13,6 +13,7 @@ class PiCurrentSensor(pimodule.PiModule):
     # Open SPI bus
     spi = spidev.SpiDev()
     spi.open(0, 0)
+    spi.max_speed_hz = 15600000 # 488000
 
     measuringInterval = 0.000150 # 150µs to take a value
     hZ = 50
