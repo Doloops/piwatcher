@@ -24,6 +24,11 @@ if [ -z $DAEMON_EXEC ] ; then
     $DAEMON_EXEC=$DAEMON
 fi
 
+# For some reason, HOME is not populated at startup time... Populate it manually
+if [ $HOME = "/" ] ; then
+    HOME=/root
+fi
+
 case "$1" in
 start)
     printf "%-50s" "Starting $NAME..."
