@@ -7,7 +7,7 @@ import http
 
 owmUrlHost = "api.openweathermap.org";
 
-es = elasticsearch.Elasticsearch(hosts=[{"host":"pizero3"},{"host":"192.168.1.63"},{"host":"osmc"}])
+es = elasticsearch.Elasticsearch(hosts=[{"host":"pizero3"},{"host":"banane"},{"host":"osmc"}])
 
 def getConfig():
     with open("/home/osmc/.openweathermap/config.json") as confFile:
