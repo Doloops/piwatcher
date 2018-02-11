@@ -16,9 +16,10 @@ class Controller(StateUpdateNotifyHandler):
         logging.info("Starting new Controller")
         self.sweetHome = sweetHome 
     
-    def modifyState(self, stateId, stateValue):
+    async def modifyState(self, stateId, stateValue):
         logging.debug("* modifyState : " + stateId + "=" + stateValue)
-        value = self.getState(stateId)
+        value = await self.getState(stateId)
+        logging.debug("** type(value)=" + str(type(value)))
         if value is None:
             logger.debug("State not in internalStates : " + stateId)
             return
@@ -45,21 +46,23 @@ class Controller(StateUpdateNotifyHandler):
         # self.sweetHome.setState(stateId, value)
         # mayUpdateItem(stateId, value)
         if stateId in self.backendHandlers:
-            self.backendHandlers[stateId].modifyState(value)
+            await self.backendHandlers[stateId].modifyState(value)
+        else:
+            logger.debug("Not a registered backend handler : " + stateId)
         valueStr = json.dumps(value);
         logger.debug("Updated " + stateId + "=" + valueStr + " (raw=" + str(value) + ", type=" + str(type(value)) + ")")
 
-    def getState(self, stateId):
+    async def getState(self, stateId):
         if stateId in self.backendHandlers:
-            return self.backendHandlers[stateId].getState()
+            return await self.backendHandlers[stateId].getState()
         return None
 
-    def getUpdatedHome(self):
+    async def getUpdatedHome(self):
         jsonHome = self.sweetHome.getHome()
         for room in jsonHome["home"]:
             for item in room["items"]:
                 itemId = item["id"]
-                itemValue = self.getState(itemId)
+                itemValue = await self.getState(itemId)
                 logger.debug("getUpdatedHome() : itemId=" + itemId + ", itemValue=" + str(itemValue))
                 if itemValue is not None:
                     if isinstance(itemValue, str):

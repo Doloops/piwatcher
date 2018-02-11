@@ -16,8 +16,8 @@ class WSServer(picadios.controller.StateUpdateNotifyHandler):
         self.wsConfig = wsConfig
         self.controller.registerStateUpdateNotifyHandler(handler=self)
     
-    def startup(self):
-        asyncio.get_event_loop().run_until_complete(websockets.serve(self.serveWebSocket, self.wsConfig["host"], self.wsConfig["port"]))
+    async def startup(self):
+        await websockets.serve(self.serveWebSocket, self.wsConfig["host"], self.wsConfig["port"])
     
     def doLogin(self, cn_user, cn_pass):
         for user in self.wsConfig["users"]:
@@ -55,13 +55,13 @@ class WSServer(picadios.controller.StateUpdateNotifyHandler):
                     return
                 if action == "get_home":
                     logger.debug("Sending Home !")
-                    jsonHome = self.controller.getUpdatedHome()
+                    jsonHome = await self.controller.getUpdatedHome()
                     response = {"msg":"get_home", "data":jsonHome}
                     await websocket.send(json.dumps(response))
                 elif action == "set_state":
                     stateId = jsonMessage["data"]["id"]
                     stateValue = jsonMessage["data"]["value"]
-                    self.controller.modifyState(stateId, stateValue)
+                    await self.controller.modifyState(stateId, stateValue)
         finally:
             self.wsClients.remove(websocket)
 

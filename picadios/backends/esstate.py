@@ -34,7 +34,7 @@ class ESState(BaseState):
 			logger.debug("ES Fetch : " + self.stateId + "=" + stateValueStr + " (" + str(stateValue) + ")")
 		return stateValue, stateValueStr
 
-	def getState(self):
+	async def getState(self):
 		stateValue, stateValueStr = self.getStateWithDisplayValue()
 		return stateValue
 
