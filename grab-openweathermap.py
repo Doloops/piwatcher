@@ -2,6 +2,7 @@ import elasticsearch
 import json
 from datetime import datetime
 import http
+from os.path import expanduser
 
 # http://api.openweathermap.org/data/2.5/weather?id=6444080&appid=26c230c3790ffb70be53053a90882a7e&units=metric
 
@@ -10,7 +11,7 @@ owmUrlHost = "api.openweathermap.org";
 es = elasticsearch.Elasticsearch(hosts=[{"host":"pizero3"},{"host":"banane"},{"host":"osmc"}])
 
 def getConfig():
-    with open("/home/osmc/.openweathermap/config.json") as confFile:
+    with open(expanduser("~") + "/.openweathermap/config.json") as confFile:
         confString = confFile.read()
 #        print("CONF=" + confString)
         return json.loads(confString)
