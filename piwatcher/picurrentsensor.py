@@ -9,16 +9,16 @@ import numpy as np
 import json
 from piwatcher import pimodule 
 
-class PiCurrentSensor(pimodule.PiModule):
+class PiCurrentSensor (pimodule.PiModule):
     # Open SPI bus
     spi = spidev.SpiDev()
     spi.open(0, 0)
-    spi.max_speed_hz = 15600000 # 488000
+    spi.max_speed_hz = 488000 # 15600000 # 488000
 
     measuringInterval = 0.000150 # 150µs to take a value
     hZ = 50
     wave = 1 / hZ
-    nbWaves = 25
+    nbWaves = 5
     maxVals = nbWaves * wave / measuringInterval
     
     verbose = False
@@ -71,7 +71,7 @@ class PiCurrentSensor(pimodule.PiModule):
     vac = 220
     r0 = 45.8
     nbRolls = 2000
-    lm324nRatio = 48
+    lm324nRatio = 24
     
     asm10_iPrim_vSec_Ratio = 300
     asm30_iPrim_vSec_Ratio = 500
@@ -101,7 +101,7 @@ class PiCurrentSensor(pimodule.PiModule):
             gap_vmean = gap / vmean
         else:
             gap_vmean = 0
-
+        
         if self.verbose: 
             print("* Dir:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
         realgap = vmean * np.pi
@@ -124,17 +124,19 @@ class PiCurrentSensor(pimodule.PiModule):
         vals, delta = self.readValues(channel)
         freq, amplitude = self.readFourier(vals, delta, measure)
         gap, vmin, vmax = self.computeGap(vals)
-        vmean = mean(vals)
+        vmean0 = mean(vals)
+        valps = abs(np.array(vals)-vmean0)
+        vmean = mean(valps)
         if vmean != 0:
             gap_vmean = gap / vmean
         else:
             gap_vmean = 0
         if self.verbose: 
-            print("* Amp:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", len=" + str(len(vals)))
-        realgap = vmean * np.pi
+            print("* Amp:" + str(channel) + " : min=" + str(vmin) + ", max=" + str(vmax) + ", gap=" + str(gap) + ", vmean0=" + str(vmean0) + ", vmean=" + str(vmean))
+        realgap = vmean * (np.pi / 2)
         vSec = (realgap * self.vcc) / self.lm324nRatio
         if self.verbose:
-            print("* gap=" + str(gap) + ", vSec=" + str(vSec))
+            print("* gap=" + str(gap)+ ", vmean=" + str(vmean) + ", pgap_vmean=" + str(gap_vmean) + ", vSec=" + str(vSec) )
         if asmType == "ASM30":
             ratio = self.asm30_iPrim_vSec_Ratio
         elif asmType == "ASM10":
@@ -142,7 +144,7 @@ class PiCurrentSensor(pimodule.PiModule):
         else:
             print("asmType=" + asmType + " not supported !")
             ratio = 0
-        
+
         iPrim = vSec * ratio
         wPrim = (iPrim * self.vac) / sqrt(2)
         if self.verbose:
@@ -163,6 +165,7 @@ class PiCurrentSensor(pimodule.PiModule):
         self.config = moduleConfig
 
     def update(self, measure):
+        print (", Current Senors :")
         for sensor in self.config["sensors"]:
             sensorId = sensor["id"]
             name = sensor["name"]
@@ -185,8 +188,9 @@ class PiCurrentSensor(pimodule.PiModule):
             if wPrim == 0:
                 print (", #" + sensorId + "=OFF", end='')
             else:
-                print(", #" + sensorId + "=" + ("%.2f" % wPrim) + "W (" + ("%.2f" % freq) + "Hz, " + ("%.2f" % amplitude) + ", gap=" + ("%.3f" % gap)
-                      + ", vmean=" + ("%.3f" % vmean) + ")", end='')
+                print(", #" + sensorId + "=\t" + ("%.2f" % wPrim) + "W"
+                      + " \t(" + ("%.2f" % freq) + "Hz, " + ("%.2f" % amplitude) + ", gap=" + ("%.6f" % gap)
+                      + ", vmean=" + ("%.6f" % vmean) + ")")
 
 if __name__ == "__main__":
     pics = PiCurrentSensor({})
@@ -194,18 +198,24 @@ if __name__ == "__main__":
         print("********************" + str(datetime.now()))
         measure = {}
         print("Direct 0 : Tableau *Bas*")
-        pics.readDirectChannel(0, measure)
+        pics.readAmplifiedChannel(0, measure)
 
         print("Amp 1: Tableau *Haut*")
-        pics.readAmplifiedChannel(1, measure)
-
-        print("Amp 7 : Dalles")
-        pics.readAmplifiedChannel(7, measure)
+        pics.readAmplifiedChannel(5, measure)
 
         print("Amp 2 : Chauffe-eau")
         pics.readAmplifiedChannel(2, measure, "ASM10")
 
-        time.sleep(10)
+        print("Amp 3 : Chauffage Living")
+        pics.readAmplifiedChannel(3, measure)
+
+        print("Amp 4 : TV Living")
+        pics.readAmplifiedChannel(4, measure, "ASM10")
+
+        print("Amp 7 : Dalles")
+        pics.readAmplifiedChannel(7, measure)
+
+        time.sleep(2)
         continue
 
         print("==> " + json.dumps(measure))
