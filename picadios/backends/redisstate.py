@@ -26,7 +26,7 @@ class RedisState(BaseState):
 		logger.info("Initial value for " + self.stateId + " is " + str(stateValue))
 		if stateValue is None and self.defaultValue is not None:
 			logger.info("Setting default value " + self.stateId + "=" + str(self.defaultValue))
-			self.modifyState(self.defaultValue)
+			await self.modifyState(self.defaultValue)
 #		if self.useBackgroundThread:
 #			pubsub = self.redisClient.pubsub()
 #			pubsub.subscribe(**{self.stateId: self.messageHandler} )
