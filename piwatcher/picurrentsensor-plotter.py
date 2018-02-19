@@ -75,15 +75,16 @@ class CurrentSensorPlotter:
     def loop(self):
         while True:
             plt.clf()
-            plt.axis([0, self.nbVals, 0, 1])            
+            plt.axis([0, self.nbVals, -1, 1])
 #            plt.axis([0, 100000, 0, 1])
 #            plt.axis([0, 20, 0, 200])
-            channels = range(6, 7)
+            channels = [2, 7] #range(4, 8)
             vals, timings, delta = self.readValues(channels)
-            for channel in range(6, 7):
+            noise = np.array(vals[7])
+            for channel in [2]:
                 print ("Display Ch#" + str(channel))
                 self.readFourier(vals[channel], timings, delta)
-                plt.plot(vals[channel], label=('Ch#' + str(channel)))
+                plt.plot(np.array(vals[channel]) - noise, label=('Ch#' + str(channel)))
 #                plt.scatter(timings, vals[channel], marker='.', linewidths=1)
             plt.pause(0.1)
 
