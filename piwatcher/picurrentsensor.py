@@ -36,7 +36,7 @@ class PiCurrentSensor (pimodule.PiModule):
 
     signalHz = 50
     nbWaves = 5
-    nbVals = 100
+    nbVals = 1000
     nbPointsPerWave = nbVals / nbWaves
     timingForAllWaves = (nbWaves / signalHz) 
     timingBetweenPoints = timingForAllWaves / nbVals
@@ -99,7 +99,7 @@ class PiCurrentSensor (pimodule.PiModule):
 
     def readAllValues(self, channels):
         # Perform a cold start
-        for j in range(0, 20):
+        for j in range(0, 100):
             for channel in channels:
                 self.readChannel(channel)
         
@@ -182,16 +182,17 @@ class PiCurrentSensor (pimodule.PiModule):
         print (", Current Sensors :")
         allChannels = range(0, 8)
         
-        for tries in range(0,10):
+        for tries in range(0,20):
             vals, timings, delta = self.readAllValues(allChannels)
             noiseChannel = self.config["noise.channel"]
             npNoise = np.array(vals[noiseChannel])
             noiseGap = max(npNoise) - min(npNoise)
-            print("=> Noise level " + str(noiseGap))
-            if noiseGap < 0.0075:
+            print("=> Noise level " + str(noiseGap) + ", nbTries=" + str(tries))
+            if noiseGap < 0.0075: # 0.0075:
                 break
         measure["noiseLevel"] = noiseGap
-        
+        measure["nbTries"] = tries
+
         if self.dumpVals:
             for channel in allChannels:
                 with open("/run/user/1000/output-" + str(channel) + ".json", "wb") as f:
