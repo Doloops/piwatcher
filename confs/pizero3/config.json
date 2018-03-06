@@ -41,7 +41,13 @@
 	    		{"id":"living.tv", "name":"TV and Co", "channel":4, "type": "amp", "asmType":"ASM10"},
 	    		{"id":"living.heating", "name":"Chauffage Living", "channel":3, "type": "amp", "threshold": 200}],
 	    	"noise.channel": 7
-	    },	    
+	    },
+	    {
+	    	"name":"pidigitalsensor",
+	    	"digitalPin": 40,
+	    	"mapping": [ "hc", "hp"],
+	    	"propertyName": "hphc"
+	    },
 	    {
 	    	"name": "elastic",
 		"hostname" : "pizero3",

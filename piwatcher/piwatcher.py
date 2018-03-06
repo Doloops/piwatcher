@@ -9,7 +9,8 @@ class PiWatcher:
     pwConfig = piwatcherconfig.getPiWatcherConfig()
 
     aliases = {"cpu":"cpuwatcher", "disk":"diskwatcher", "elastic":"push2es", "bmp280":"tempwatcher", 
-               "piscript": "piscript", "picommander":"picommandwatcher", "picurrentsensor": "picurrentsensor"}
+               "piscript": "piscript", "picommander":"picommandwatcher", "picurrentsensor": "picurrentsensor",
+               "pidigitalsensor": "pidigitalsensor"}
     
     piModules = []
     updateInterval = None
