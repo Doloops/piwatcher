@@ -1,7 +1,7 @@
 
 from matplotlib import pyplot as plt 
 import json
-plt.plot(json.loads(open("/tmp/pi3/run/user/1000/output-4.json").read()))
+plt.plot(json.loads(open("/tmp/pz3/run/user/1000/output-7.json").read()))
 plt.show()
 
 
