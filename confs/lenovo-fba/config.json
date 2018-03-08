@@ -1,5 +1,5 @@
 {
-    "updateInterval" : 30,
+    "updateInterval" : 5,
 	"modules" : [
 		{ "name": "cpu"},
 	   	{ "name":"disk",
@@ -10,14 +10,15 @@
 	   	  "enabled": true,
 		  "deviceName": "sdb"
 	    },
-	    { "name" : "elastic",
+	    { "name" : "elastic", "enabled": false,
 	        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"},{"host":"banane"}],
 	        "index": "oswh-lenovo-fba-t1",
 	        "type": "sys-measure",
 	        "hostname": "lenovo-fba",
 	        "redis":{"host":"pizero3"},
 	        "statsInterval" : 60
-		}	
+		},
+		{ "name" : "mqtt", "hosts" :["mqtt://localhost:1883"], "topicRoot": "lenovo-fba"}
     ]
 }
 

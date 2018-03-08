@@ -1,16 +1,25 @@
 from piwatcher import piwatcherconfig
 from piwatcher import pimodule
 
+import logging
+
 import sys
 import time
 import math
 
+logging.basicConfig(format='%(asctime)s:%(name)s:%(funcName)s:%(levelname)s:%(message)s', level=logging.INFO)
+logger = logging.getLogger('piwatcher.main')
+
 class PiWatcher:
+    
+    
+    logger.info("Welcome to Picadios Main !")
+
     pwConfig = piwatcherconfig.getPiWatcherConfig()
 
     aliases = {"cpu":"cpuwatcher", "disk":"diskwatcher", "elastic":"push2es", "bmp280":"tempwatcher", 
                "piscript": "piscript", "picommander":"picommandwatcher", "picurrentsensor": "picurrentsensor",
-               "pidigitalsensor": "pidigitalsensor"}
+               "pidigitalsensor": "pidigitalsensor", "mqtt":"publish2mqtt"}
     
     piModules = []
     updateInterval = None
@@ -20,10 +29,13 @@ class PiWatcher:
         for moduleConfig in self.pwConfig["modules"]:
             if moduleConfig["name"] is None:
                 raise ValueError("No moduleConfig name found for " + str(moduleConfig))
+            if "enabled" in moduleConfig and moduleConfig["enabled"] == False:
+                logger.warning("Disabled module :" + moduleConfig["name"])
+                continue
             self.__initModule(moduleConfig)
 
         for module in self.piModules:
-            print("* Using module name=" + module.getName() + ", module=" + module.getModuleName() + ", class=" + module.getModuleClassName())
+            logger.info("* Using module name=" + module.getName() + ", module=" + module.getModuleName() + ", class=" + module.getModuleClassName())
             module.setPiWatcher(self)
 
     def __initModule(self, moduleConfig):
@@ -44,17 +56,8 @@ class PiWatcher:
             if isinstance( attr, type ):
                 if issubclass(attr, pimodule.PiModule):
                     moduleInstance = attr(moduleConfig)
-                    print("=> New module instance : " + str(moduleInstance))
                     return moduleInstance
         raise ValueError("Could not instantiate " + moduleName)
-
-    def __print_classes(self, name = __name__):
-        current_module = sys.modules[name]
-        print("current_module=" + str(current_module))
-        for key in dir(current_module):
-            print("key " + str(key))
-            if isinstance( getattr(current_module, key), type ):
-                print(key)
 
     def run(self):    
         try:
