@@ -11,6 +11,7 @@ Thanks guys for this great work !
 
 # Requirements and Installing
 apt-get install python3-rpi.gpio python3-smbus python3-elasticsearch python3-redis
+pip3 install hbmqtt
 modprobe i2c_dev
 
 python3-daemonize may be helpfull in the future...
