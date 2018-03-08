@@ -1,25 +1,12 @@
 from piwatcher import pimodule
 import elasticsearch
+from piwatcher import fragmenthelper
 
 def updateFragment(fragmentRoot, stateId, stateValue):
-    idParts = stateId.split('.')
-    fragment = fragmentRoot
-    for part in idParts[0:len(idParts) - 1]:
-        if part not in fragment:
-            fragment[part] = {}
-        fragment = fragment[part]
-    fragment[idParts[len(idParts)-1]] = stateValue
-
+    fragmenthelper.updateFragment(fragmentRoot, stateId, stateValue)
+    
 def extractFragment(fragmentRoot, stateId):
-    idParts = stateId.split('.')
-    fragment = fragmentRoot
-    for part in idParts:
-        # print("At part=" + part + ", fragment=" + str(fragment))
-        if part not in fragment:
-            # print ("ERROR ! No component " + part + " in " + str(fragment))
-            return None
-        fragment = fragment[part]
-    return fragment
+    return fragmenthelper.extractFragment(fragmentRoot, stateId)
 
 # Low-level save to ES
 def llWriteStateToES(esClient, stateId, index, doc_type, esMode = "get", stateValue = None):

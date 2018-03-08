@@ -18,7 +18,12 @@
 	        "redis":{"host":"pizero3"},
 	        "statsInterval" : 60
 		},
-		{ "name" : "mqtt", "hosts" :["mqtt://localhost:1883"], "topicRoot": "lenovo-fba"}
+		{ "name" : "mqtt", "hosts" :["mqtt://localhost:1883"], "topicRoot": "lenovo-fba"},
+
+		{
+			"name": "piscript",
+	        "script":"self.justDump(measure,'lenovo-fba', 'cpuTemp')"
+	    }
     ]
 }
 

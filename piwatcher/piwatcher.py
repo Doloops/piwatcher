@@ -6,6 +6,7 @@ import logging
 import sys
 import time
 import math
+from piwatcher.statescontroller import StatesController
 
 logging.basicConfig(format='%(asctime)s:%(name)s:%(funcName)s:%(levelname)s:%(message)s', level=logging.INFO)
 logger = logging.getLogger('piwatcher.main')
@@ -23,6 +24,7 @@ class PiWatcher:
     
     piModules = []
     updateInterval = None
+    statesController = None
 
     def __init__(self):    
         self.updateInterval = self.pwConfig["updateInterval"]
@@ -73,7 +75,7 @@ class PiWatcher:
                     try:
                         module.update(measure)
                     except Exception as err:
-                        print(" ! Caught " + str(err))
+                        logger.exception("Module " + module.getModuleName() + " caught exception ", err)
                         print("Could not update module " + module.getModuleName(), str(sys.exc_info()))
                         # raise err
                         break
@@ -95,3 +97,9 @@ class PiWatcher:
         for module in self.piModules:
             if module.getName() == name:
                 module.update(measure)
+
+    def getStatesController(self):
+        return self.statesController
+
+    def setStatesController(self, statesController):
+        self.statesController = statesController

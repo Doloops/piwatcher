@@ -1,18 +1,20 @@
 from piwatcher import pimodule
-from piwatcher import fetchfromes
+from piwatcher import fragmenthelper
 import redis
 import json
 import threading
 import time
+import logging
 
 from datetime import datetime, timedelta
 
 DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
+logger = logging.getLogger('piwatcher.piscript')
+logger.setLevel(logging.DEBUG)
+
 class PiScript(pimodule.PiModule):
     
-    verbose = False
-
     # States
 
     moduleConfig = None
@@ -49,12 +51,10 @@ class PiScript(pimodule.PiModule):
                     pubsub.subscribe(key)
                 message = pubsub.get_message(timeout=60)
                 if message is not None and message["type"] == "message":
-                    if self.verbose:
-                        print ("data : " + message["data"] + " [" + str(type(message["data"]))+ "]")
+                    logger.debug("data : " + message["data"] + " [" + str(type(message["data"]))+ "]")
                     stateValue = message["data"].strip('"')
                     stateValue = self.parseValue(stateValue)
-                    if self.verbose:
-                        print ("U{" + key + "=" + str(stateValue) + "}")
+                    logger.debug("U{" + key + "=" + str(stateValue) + "}")
                     self.states[key] = stateValue
                     if self.lastMeasure is not None:
                         self.update(self.lastMeasure)
@@ -67,6 +67,8 @@ class PiScript(pimodule.PiModule):
                 time.sleep(2)
 
     def getState(self, prefix, stateId, defaultValue = None, subscribe = True):
+        if True:
+            return self.piwatcher.getStatesController().getState(prefix, stateId, defaultValue, subscribe, subscribedModule=self)
         if prefix is not None: 
             key = prefix + "." + stateId
         else:
@@ -98,6 +100,9 @@ class PiScript(pimodule.PiModule):
             return value
     
     def setState(self, prefix, stateId, stateValue):
+        if True:
+            self.piwatcher.getStatesController().setState(prefix, stateId, stateValue)
+            return
         key = prefix + "." + stateId
         self.states[key] = stateValue
         if type(stateValue) is datetime:
@@ -116,8 +121,7 @@ class PiScript(pimodule.PiModule):
         modeComfort = self.getState(prefix, "heater.mode.comfort")
         comfortStartTime = self.getState(prefix, "heater.comfort.startTime", subscribe=False)
         comfortTimeToLive = self.getState(prefix, "heater.comfort.ttl", 2)
-        if self.verbose:
-            print("Update : modeComfort=" + str(modeComfort) + ", comfortTimeToLive=" + str(comfortTimeToLive) 
+        logger.debug("Update : modeComfort=" + str(modeComfort) + ", comfortTimeToLive=" + str(comfortTimeToLive) 
                   + ", comfortStartTime=" + str(comfortStartTime))
 
         if modeComfort:
@@ -128,8 +132,7 @@ class PiScript(pimodule.PiModule):
                 comfortStartTime = datetime.strptime(comfortStartTime, DATE_ISO_FORMAT)
             comfortEndTime = comfortStartTime + timedelta(hours=comfortTimeToLive)
             now = datetime.utcnow()
-            if self.verbose:
-                print("comfortStartTime=" + str(comfortStartTime) + ", now=" + str(now) + ", comfortEndTime=" + str(comfortEndTime))
+            logger.debug("comfortStartTime=" + str(comfortStartTime) + ", now=" + str(now) + ", comfortEndTime=" + str(comfortEndTime))
             if now > comfortEndTime:
                 print(", End of Comfort !", end='')
                 modeComfort = False
@@ -163,7 +166,7 @@ class PiScript(pimodule.PiModule):
         if indoorTempName is not None:
             indoorTemp = self.getState(None, indoorTempName)
         else:
-            indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
+            indoorTemp = fragmenthelper.extractFragment(measure, "indoorTemp")
 
         modeComfort = self.updateModeComfort(prefix)
         # We must evaluate normal temp now, to update UI with freshest timely values
@@ -183,17 +186,21 @@ class PiScript(pimodule.PiModule):
         measurePrefix = "";
         if "prefix" in self.moduleConfig:
             measurePrefix = self.moduleConfig["prefix"] + "."
-        fetchfromes.updateFragment(measure, measurePrefix + "heater.targetTemp", targetTemp)
-        fetchfromes.updateFragment(measure, measurePrefix + "heater.command", heaterCommand)
+        fragmenthelper.updateFragment(measure, measurePrefix + "heater.targetTemp", targetTemp)
+        fragmenthelper.updateFragment(measure, measurePrefix + "heater.command", heaterCommand)
+
+    def justDump(self, measure, prefix, stateId):
+        logger.info("JustDump !")
+        value = self.getState(prefix, stateId)
+        logger.info("prefix=" + prefix + ", stateid=" + stateId + ", value=" + repr(value))
+        self.setState(prefix, stateId + "_done", "OK:" + str(value))
 
     def update(self, measure):
         self.lastMeasure = measure
         measure = self.mayWrap(measure)
-        if self.verbose:
-            print("Before SCRIPT : " + str(measure))
+        logger.debug("Before SCRIPT : " + str(measure))
         eval(self.moduleConfig["script"])
-        if self.verbose:
-            print("After SCRIPT : " + str(measure))
+        logger.debug("After SCRIPT : " + str(measure))
 
 if __name__ == "__main__":
     true = True
