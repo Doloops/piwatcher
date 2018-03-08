@@ -42,11 +42,11 @@ class Publish2MQTT(pimodule.PiModule):
             else:
                 channel = prefix + key
                 message = bytearray(json.dumps(body[key]), "utf-8")
-                logger.info("Publishing " + channel + "=" + str(message))
+                logger.debug("Publishing " + channel + "=" + str(message))
                 yield from self.mqttClient.publish(channel, message, retain=True)
 
     def update(self, measure):
-        logger.info("Measure=" + json.dumps(measure))
+        logger.debug("Measure=" + json.dumps(measure))
         try:
             asyncio.get_event_loop().run_until_complete(self.doUpdate(measure))
         except:
