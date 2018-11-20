@@ -31,7 +31,11 @@ class PiWatcher:
             moduleName = self.aliases[moduleConfig["module"]]
         else:
             moduleName = self.aliases[moduleConfig["name"]]
-        moduleInstance = self.__instantiateModule("piwatcher." + moduleName, moduleConfig)
+        if "enabled" in moduleConfig and moduleConfig["enabled"] == False:
+	    print("* Disabled module " + moduleConfig["name"] + ", enabled=" + moduleConfig["enabled"])
+	    continue
+
+	moduleInstance = self.__instantiateModule("piwatcher." + moduleName, moduleConfig)
         moduleInstance.setPiWatcher(self)
         moduleInstance.setName(moduleConfig["name"])
         self.piModules.append(moduleInstance)
