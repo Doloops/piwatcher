@@ -20,6 +20,9 @@ class PiWatcher:
         for moduleConfig in self.pwConfig["modules"]:
             if moduleConfig["name"] is None:
                 raise ValueError("No moduleConfig name found for " + str(moduleConfig))
+            if "enabled" in moduleConfig and moduleConfig["enabled"] == False:
+                print("* Disabled module " + moduleConfig["name"])
+                continue
             self.__initModule(moduleConfig)
 
         for module in self.piModules:
@@ -31,11 +34,8 @@ class PiWatcher:
             moduleName = self.aliases[moduleConfig["module"]]
         else:
             moduleName = self.aliases[moduleConfig["name"]]
-        if "enabled" in moduleConfig and moduleConfig["enabled"] == False:
-	    print("* Disabled module " + moduleConfig["name"] + ", enabled=" + moduleConfig["enabled"])
-	    continue
 
-	moduleInstance = self.__instantiateModule("piwatcher." + moduleName, moduleConfig)
+        moduleInstance = self.__instantiateModule("piwatcher." + moduleName, moduleConfig)
         moduleInstance.setPiWatcher(self)
         moduleInstance.setName(moduleConfig["name"])
         self.piModules.append(moduleInstance)
