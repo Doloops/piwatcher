@@ -2,16 +2,16 @@
     "updateInterval" : 30,
     "modules": [
     	{ "name": "cpu"},
-    	{ "name" : "bmp280"},
+	{ "name": "bmp280", "enabled": true},
     	{ 
     		"name" : "bmp280",
         	"prefix" : "victor",
         	"address": "0x76"
     	},
    		{
-   			"name": "piscript",
-	        "hosts":[{"host" : "pizero3"}, {"host" : "osmc"}],
-	        "script":"self.simpleHeater(measure,'pizero2')",
+   			"name": "piscript", "enabled": true,
+			"hosts":[{"host" : "pizero3"}, {"host" : "osmc"}],
+		"script":"self.simpleHeater(measure,'pizero2')",
 	        "updateModule": "heater1Command",
 	        "hourlyTemps":
 	        [
@@ -22,7 +22,7 @@
 	        ]
     	},
    		{
-   			"name": "piscript",
+   			"name": "piscript2Victor", "module": "piscript",
 	        "hosts":[{"host" : "pizero3"}, {"host" : "osmc"}],
 	        "script":"self.simpleHeater(measure,'pizero2.victor', indoorTempName='pizero2.victor.indoorTemp')",
 	        "prefix":"victor",
@@ -30,7 +30,7 @@
 			"hourlyTemps":
 	        [
 	        	{"from":0,"to":7,"temp":17},
-	        	{"from":7,"to":16,"temp":13},
+	        	{"from":7,"to":16,"temp":15},
 	        	{"from":16,"to":18,"temp":16},
 	        	{"from":18,"to":24,"temp":17}
 	        ]
@@ -40,6 +40,7 @@
 	    	"module" : "picommander",
         	"property" : "heater.command",
         	"defaultValue" : "heaterOff",
+		"enabled": true,
         	"channels": {"ch1mp":{"pinout":36},"ch1mn":{"pinout":38}},
         	"commands": { 
 	            "heaterOn": { "ch1mp": false, "ch1mn": false },
