@@ -182,7 +182,7 @@ class PiCurrentSensor (pimodule.PiModule):
         print (", Current Sensors :")
         allChannels = range(0, 8)
         
-        for tries in range(0,20):
+        for tries in range(0,10):
             vals, timings, delta = self.readAllValues(allChannels)
             noiseChannel = self.config["noise.channel"]
             npNoise = np.array(vals[noiseChannel])

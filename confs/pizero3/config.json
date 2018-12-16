@@ -3,20 +3,34 @@
     "modules" : [
     	{ "name": "cpu" },
 	    {
-	    	"name": "piscript",
+	    	"name": "piscriptHeader1",
+		"module": "piscript",
 	        "hosts":[{"host" : "pizero3"}],
 	        "script":"self.simpleHeater(measure,'pizero3', indoorTempName='osmc.indoorTemp')",
 	        "updateModule": "heater1Command",
-			"hourlyTemps":
+		"hourlyTemps":
 	        [
-	        	{"from":0,"to":5,"temp":16},
+	        	{"from":0,"to":5,"temp":17},
 	        	{"from":5,"to":9,"temp":19},
-	        	{"from":9,"to":16,"temp":14},
-	        	{"from":16,"to":17,"temp":16},
-	        	{"from":17,"to":18,"temp":17},
+	        	{"from":9,"to":16,"temp":17},
+	        	{"from":16,"to":18,"temp":18},
 	        	{"from":18,"to":22,"temp":19},
-	        	{"from":22,"to":24,"temp":17}
+	        	{"from":22,"to":24,"temp":18}
 	        ]	        
+	    },
+	    {
+	    	"name": "piscriptHeader2",
+		"module": "piscript",
+	        "hosts":[{"host" : "pizero3"}],
+	        "script":"self.simpleHeater(measure,'pizero3.dalles', indoorTempName='osmc.indoorTemp')",
+		"prefix":"dalles",
+	        "updateModule": "heater2Command",
+		"hourlyTemps":
+	        [
+	        	{"from":0,"to":6,"temp":21},
+	        	{"from":6,"to":23,"temp":10},
+	        	{"from":23,"to":24,"temp":21}
+	        ]
 	    },
 	    {
 	    	"name":"heater1Command",
@@ -30,6 +44,19 @@
 	        "commands": { 
 	            "heaterOn": {"ch1mp":false, "ch1mn":false, "ch2mp": false, "ch2mn": false},
 	            "heaterOff": {"ch1mp":true, "ch1mn":false, "ch2mp": true, "ch2mn": false}
+	        }
+	    },
+	    {
+	    	"name":"heater2Command",
+	    	"module" : "picommander",
+	    	"property" : "dalles.heater.command",
+	        "defaultValue" : "heaterOff",
+	        "channels": {
+	            "ch3mp":{"pinout":16}, "ch3mn":{"pinout":18}
+	        },
+	        "commands": {
+	            "heaterOn": {"ch3mp":true, "ch3mn":true},
+	            "heaterOff": {"ch3mp":false, "ch3mn":false}
 	        }
 	    },
 	    {
@@ -47,6 +74,35 @@
 	    	"digitalPin": 40,
 	    	"mapping": [ "hc", "hp"],
 	    	"propertyName": "hphc"
+	    },
+	    {
+		"name":"waterHeaterScript",
+		"module":"piscript",
+		"prefix":"waterHeater",
+	        "hosts":[{"host" : "pizero3"}],
+		"script":"self.simpleRelay(measure,'pizero3.waterHeater')",
+		"updateModule":"waterHeaterCommand",
+		"hourlyState":
+	        [
+	        	{"from":0,"to":2,"state":false},
+	        	{"from":4,"to":6,"state":true},
+	        	{"from":6,"to":18,"state":true},
+	        	{"from":18,"to":20,"state":true},
+	        	{"from":20,"to":24,"state":false}
+	        ]
+	    },
+	    {
+	    	"name":"waterHeaterCommand",
+	    	"module":"picommander",
+	    	"property":"waterHeater.state",
+	        "defaultValue":"relayOff",
+	        "channels": {
+	            "ch4mp":{"pinout":11}, "ch4mn":{"pinout":7}
+	        },
+	        "commands": {
+	            "relayOn": {"ch4mp":true, "ch4mn":true},
+	            "relayOff": {"ch4mp":false, "ch4mn":false}
+	        }
 	    },
 	    {
 	    	"name": "elastic",

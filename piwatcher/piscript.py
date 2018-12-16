@@ -110,7 +110,7 @@ class PiScript(pimodule.PiModule):
             self.getRedisClient().set(key, stateValueStr)
             self.getRedisClient().publish(key, stateValueStr)
         except Exception as e:
-            print("Caught exception while setting " + key + " : " + str(e))
+            print("Caught exception while setting " + key + " : " + str(e) + " (value=" + str(stateValue) + ", type=" + str(type(stateValue)) + ")")
     
     def updateModeComfort(self, prefix):
         modeComfort = self.getState(prefix, "heater.mode.comfort")
@@ -157,7 +157,7 @@ class PiScript(pimodule.PiModule):
                     return targetStandby
         targetStandby = self.getState(prefix, "heater.target.standby")
         return targetStandby
-    
+
     def simpleHeater(self, measure, prefix, indoorTempName = None):
         # print("Incoming measure : " + str(measure))
         if indoorTempName is not None:
@@ -180,11 +180,39 @@ class PiScript(pimodule.PiModule):
         self.setState(prefix, "heater.targetTemp", targetTemp)
         self.setState(prefix, "heater.command", heaterCommand)
 
-        measurePrefix = "";
+        measurePrefix = ""
         if "prefix" in self.moduleConfig:
             measurePrefix = self.moduleConfig["prefix"] + "."
         fetchfromes.updateFragment(measure, measurePrefix + "heater.targetTemp", targetTemp)
         fetchfromes.updateFragment(measure, measurePrefix + "heater.command", heaterCommand)
+
+    def getNormalState(self, prefix):
+        if "hourlyState" in self.moduleConfig:
+            hourlyState = self.moduleConfig["hourlyState"]
+            hour = datetime.now().hour
+            for period in hourlyState:
+                if period["from"] <= hour and hour < period["to"]:
+                    targetState = period["state"]
+                    if targetState:
+                        targetState = "relayOn"
+                    else:
+                        targetState = "relayOff"
+#                    self.setState(prefix, "state", targetState)
+                    return targetState
+        return "relayOff"
+
+
+
+    def simpleRelay(self, measure, prefix):
+        targetState = self.getNormalState(prefix)
+        print("simpleRelay prefix=" + prefix + " targetState=" + targetState)
+        self.setState(prefix, "state", targetState)
+        measurePrefix = ""
+        if "prefix" in self.moduleConfig:
+            measurePrefix = str(self.moduleConfig["prefix"]) + "."
+        print("measurePrefix=" + measurePrefix)
+        fetchfromes.updateFragment(measure, measurePrefix + "state", targetState)
+
 
     def update(self, measure):
         self.lastMeasure = measure
