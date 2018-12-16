@@ -8,7 +8,7 @@ from os.path import expanduser
 
 owmUrlHost = "api.openweathermap.org";
 
-es = elasticsearch.Elasticsearch(hosts=[{"host":"pizero3"},{"host":"banane"},{"host":"osmc"}])
+es = elasticsearch.Elasticsearch(hosts=[{"host":"pizero3"},{"host":"osmc"}])
 
 def getConfig():
     with open(expanduser("~") + "/.openweathermap/config.json") as confFile:
