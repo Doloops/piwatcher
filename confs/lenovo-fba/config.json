@@ -11,7 +11,7 @@
 		  "deviceName": "sdb"
 	    },
 	    { "name" : "elastic",
-	        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"},{"host":"banane"}],
+	        "hosts":[{"host":"pizero3"}],
 	        "index": "oswh-lenovo-fba-t1",
 	        "type": "sys-measure",
 	        "hostname": "lenovo-fba",

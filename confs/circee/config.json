@@ -12,7 +12,7 @@
 	   	{ "name":"disk", "deviceName": "sdh"},
 	   	{ "name":"disk", "deviceName": "sdi"},
 	    { "name" : "elastic",
-	        "hosts":[{"host" : "osmc"},{"host":"lenovo-fba"},{"host":"pizero3"},{"host":"banane"}],
+	        "hosts":[{"host":"pizero3"}],
 	        "index": "oswh-circee",
 	        "type": "sys-measure",
 		    "hostname": "circee",
