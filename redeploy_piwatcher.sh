@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ALL_HOSTS="osmc@osmc pi@pizero1 pi@pizero2 pi@pizero3 pi@banane"
+ALL_HOSTS="osmc@osmc pi@pizero1 pi@pizero2 pi@pizero3"
 
 # To allow sudo without password, add this to /etc/sudoers
 # pi	ALL=NOPASSWD: /etc/init.d/piwatcher-daemon
