@@ -29,7 +29,7 @@
 	        [
 	        	{"from":0,"to":6,"temp":21},
 	        	{"from":6,"to":23,"temp":10},
-	        	{"from":23,"to":24,"temp":21}
+	        	{"from":23,"to":24,"temp":11}
 	        ]
 	    },
 	    {
@@ -60,22 +60,6 @@
 	        }
 	    },
 	    {
-	    	"name": "picurrentsensor",
-	    	"sensors" : [{"id":"board.low", "name":"Tableau bas", "channel":0, "type":"amp", "asmType":"SCT013"},
-	    		{"id":"board.high", "name":"Tableau haut", "channel":5, "type": "amp"},
-	    		{"id":"underfloor.heating", "name":"Dalles", "channel":6, "type": "amp", "threshold": 200},
-	    		{"id":"water.heater", "name":"Chauffe-eau", "channel":2, "type": "amp", "asmType":"ASM10", "threshold": 200},
-	    		{"id":"living.tv", "name":"TV and Co", "channel":4, "type": "amp", "asmType":"ASM10"},
-	    		{"id":"living.heating", "name":"Chauffage Living", "channel":3, "type": "amp", "threshold": 200}],
-	    	"noise.channel": 7
-	    },
-	    {
-	    	"name":"pidigitalsensor",
-	    	"digitalPin": 40,
-	    	"mapping": [ "hc", "hp"],
-	    	"propertyName": "hphc"
-	    },
-	    {
 		"name":"waterHeaterScript",
 		"module":"piscript",
 		"prefix":"waterHeater",
@@ -84,11 +68,12 @@
 		"updateModule":"waterHeaterCommand",
 		"hourlyState":
 	        [
-	        	{"from":0,"to":2,"state":false},
-	        	{"from":4,"to":6,"state":true},
-	        	{"from":6,"to":18,"state":true},
-	        	{"from":18,"to":20,"state":true},
-	        	{"from":20,"to":24,"state":false}
+	        	{"from":0,"to":2,"state":true},
+	        	{"from":2,"to":6,"state":true},
+	        	{"from":6,"to":18,"state":false},
+	        	{"from":18,"to":20,"state":false},
+	        	{"from":20,"to":23,"state":false},
+	        	{"from":23,"to":24,"state":true}
 	        ]
 	    },
 	    {
@@ -103,6 +88,22 @@
 	            "relayOn": {"ch4mp":true, "ch4mn":true},
 	            "relayOff": {"ch4mp":false, "ch4mn":false}
 	        }
+	    },
+	    {
+	    	"name": "picurrentsensor",
+	    	"sensors" : [{"id":"board.low", "name":"Tableau bas", "channel":0, "type":"amp", "asmType":"SCT013"},
+	    		{"id":"board.high", "name":"Tableau haut", "channel":5, "type": "amp"},
+	    		{"id":"underfloor.heating", "name":"Dalles", "channel":6, "type": "amp", "threshold": 200},
+	    		{"id":"water.heater", "name":"Chauffe-eau", "channel":2, "type": "amp", "asmType":"ASM10", "threshold": 200},
+	    		{"id":"living.tv", "name":"TV and Co", "channel":4, "type": "amp", "asmType":"ASM10"},
+	    		{"id":"living.heating", "name":"Chauffage Living", "channel":3, "type": "amp", "threshold": 200}],
+	    	"noise.channel": 7
+	    },
+	    {
+	    	"name":"pidigitalsensor",
+	    	"digitalPin": 40,
+	    	"mapping": [ "hc", "hp"],
+	    	"propertyName": "hphc"
 	    },
 	    {
 	    	"name": "elastic",
