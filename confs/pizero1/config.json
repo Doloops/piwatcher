@@ -24,7 +24,7 @@
     	"name": "elastic",
         "hosts":[{"host" : "pizero3"}],
         "hostname" : "pizero1",
-        "index": "oswh-pizero1-t1",
+        "index": "oswh-pizero1-19-1",
         "type": "sys-measure",
         "statsInterval" : 60,
 		"redis":{"host":"pizero3"}
