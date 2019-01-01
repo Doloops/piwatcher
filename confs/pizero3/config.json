@@ -27,9 +27,10 @@
 	        "updateModule": "heater2Command",
 		"hourlyTemps":
 	        [
-	        	{"from":0,"to":6,"temp":21},
+	        	{"from":0,"to":2,"temp":10},
+	        	{"from":2,"to":6,"temp":22},
 	        	{"from":6,"to":23,"temp":10},
-	        	{"from":23,"to":24,"temp":11}
+	        	{"from":23,"to":24,"temp":10}
 	        ]
 	    },
 	    {
@@ -71,7 +72,7 @@
 	        	{"from":0,"to":2,"state":true},
 	        	{"from":2,"to":6,"state":true},
 	        	{"from":6,"to":18,"state":false},
-	        	{"from":18,"to":20,"state":false},
+	        	{"from":18,"to":20,"state":true},
 	        	{"from":20,"to":23,"state":false},
 	        	{"from":23,"to":24,"state":true}
 	        ]
