@@ -41,6 +41,11 @@ class TempWatcher(pimodule.PiModule):
         if self.tempSensor is None:
             self.initTempSensor()
         indoorTemp, indoorPressure = self.tempSensor.read()
+        if self.model == "BME280":
+            indoorHumidity = self.tempSensor.read_humidity()
+        else
+            indoorHumidity = None
+
         # Guard against absurd values
         if indoorPressure < 920.0:
             print ("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
@@ -53,10 +58,14 @@ class TempWatcher(pimodule.PiModule):
             measure = measure[self.prefix]
         measure["indoorTemp"] = indoorTemp
         measure["indoorPressure"] = indoorPressure
+        if indoorHumidity is not None:
+            measure["indoorHumidity"] = indoorHumidity
         tempSensorMessage = ", "
         if self.prefix is not None:
             tempSensorMessage += "[" + self.prefix + "]"
         tempSensorMessage += " temp=" + ("%2.2f'C" % indoorTemp) + ", pressure=" + ("%5.4f mbar" % indoorPressure)
+        if indoorHumidity is not None:
+            tempSensorMessage += " humidity=" + ("%3f %%" % indoorHumidity)
         print(tempSensorMessage, end='')
 
     def shutdown(self):
