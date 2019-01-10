@@ -2,7 +2,7 @@
 	"updateInterval" : 30,
 	"modules": [
 	{ "name": "cpu"},
-	{"name":"tempwatcher","address":"0x76","model":"bme280"}
+	{"name":"bmp280","address":"0x76","model":"bme280"},
     {
 	    "name": "elastic",
     	"statsInterval" : 60,
