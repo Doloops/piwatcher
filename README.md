@@ -72,10 +72,44 @@ Each conf:`stats.statsInterval`, it will push this information to ElasticSearch.
 Monitoring load (aka /proc/loadavg), taking the last-minute value, and pushing it into stats:`$host.cpuLoad`.
 CPU temperature is pushed to stats:`$host.cpuTemp`.
 
-## BMP280 Temperature sensor
-Temperature is pushed to stats:`$host.indoorTemp`, pressured is pushed to stats:`$host.indoorPressure`
+## BMP280/BME280 Temperature sensor
+	
+Temperature is pushed to stats:`$host.indoorTemp`, pressure is pushed to stats:`$host.indoorPressure`, humidity is push to stats: `$host.indoorHumidity` (BME280 only).
+
+Configuration is done via the same module, called bmp280 or bme280.
+For BME280 only, specify "model":"BME280" in the configuration.
+	{
+        "name":"bme280",
+        "address":"0x77",
+        "model":"BME280",
+        "busnum":1, 
+        "enabled": true
+	}
+Multiple addresses and multiple buses are supported as well.
+Add a prefix value to distinguish between multiple sensors on the same node.
+
 
 ## Disk monitoring
 Disk state is pushed to stats:`$host.diskState` and can take values `standby`, `idle` or `active`.
 stats:`$host.cumulateDiskStateTime` counts the number of seconds the state did not change. That's a float with may too much precision ATM...
+
+# Notes
+
+## Multiple I2C Buses on Raspberry PI
+
+Having multiple i2c buses on the same Raspberry PI *is* tricky !
+The default hardware one is wired to PIN3(SDA) and PIN5(SCL).
+Adding a new one, software driven via GPIO, can be easily achieved via /boot/config.txt such as :
+
+dtoverlay=i2c-gpio,bus=3,i2c_gpio_sda=27,i2c_gpio_scl=22,i2c_gpio_delay_us=200
+
+(See https://www.raspberrypi.org/forums/viewtopic.php?t=205576 for example).
+
+*BUT* the PINs to provide are not the 40-PIN header pin numbers, but the BCM ones.
+See https://raspberrypi.stackexchange.com/questions/12966/what-is-the-difference-between-board-and-bcm-for-gpio-pin-numbering !
+
+And then comes the pull-out problem, especially for the SCL line.
+This seems to depend on what is plugged into the i2c bus.
+
+Adding a 1k5 Ohm between SCL and 3.3V lines solved issues, along with a great value for i2c_gpio_delay_us value.
 

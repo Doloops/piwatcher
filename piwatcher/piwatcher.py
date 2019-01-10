@@ -8,7 +8,7 @@ import math
 class PiWatcher:
     pwConfig = piwatcherconfig.getPiWatcherConfig()
 
-    aliases = {"cpu":"cpuwatcher", "disk":"diskwatcher", "elastic":"push2es", "bmp280":"tempwatcher", 
+    aliases = {"cpu":"cpuwatcher", "disk":"diskwatcher", "elastic":"push2es", "bmp280":"tempwatcher", "bme280":"tempwatcher",
                "piscript": "piscript", "picommander":"picommandwatcher", "picurrentsensor": "picurrentsensor",
                "pidigitalsensor": "pidigitalsensor"}
     
