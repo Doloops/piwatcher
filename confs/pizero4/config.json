@@ -1,0 +1,15 @@
+{
+	"updateInterval" : 30,
+	"modules": [
+	{ "name": "cpu"},
+	{"name":"tempwatcher","address":0x76,"model":"bme280"}
+    {
+	    "name": "elastic",
+    	"statsInterval" : 60,
+    	"hostname" : "banane",	
+        "hosts":[{"host" : "pizero3"}],
+        "index": "oswh-pizero4",
+        "type": "sys-measure",
+	    "redis":{"host":"pizero3"}        
+    }]
+}
