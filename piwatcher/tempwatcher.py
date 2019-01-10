@@ -43,7 +43,7 @@ class TempWatcher(pimodule.PiModule):
         indoorTemp, indoorPressure = self.tempSensor.read()
         if self.model == "BME280":
             indoorHumidity = self.tempSensor.read_humidity()
-        else
+        else:
             indoorHumidity = None
 
         # Guard against absurd values
