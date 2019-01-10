@@ -11,6 +11,7 @@ class TempWatcher(pimodule.PiModule):
     prefix = None
     address = 0x77
     model = "BMP280"
+    busnum = None
 
     def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"Temp")
@@ -20,6 +21,8 @@ class TempWatcher(pimodule.PiModule):
             self.prefix = moduleConfig["prefix"]
         if "model" in moduleConfig:
             self.model = moduleConfig["model"]
+        if "busnum" in moduleConfig:
+            self.busnum = moduleConfig["busnum"]
         self.initTempSensor()
 
     def initTempSensor(self):
