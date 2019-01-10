@@ -4,11 +4,13 @@ Utility class to monitor temperatures
 
 from piwatcher import pimodule
 from piwatcher import bmp280
+from piwatcher import bme280
 
 class TempWatcher(pimodule.PiModule):
-    tempSensorBmp280 = None
+    tempSensor = None
     prefix = None
     address = 0x77
+    model = "BMP280"
     
     def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"Temp")
@@ -16,26 +18,33 @@ class TempWatcher(pimodule.PiModule):
             self.address = 0x76
         if "prefix" in moduleConfig:
             self.prefix = moduleConfig["prefix"]
-        self.initBmp280()
+        if "model" in moduleConfig:
+            self.prefix = moduleConfig["model"]
+        self.initTempSensor()
             
-    def initBmp280(self):
-        self.tempSensorBmp280 = bmp280.BMP280(address=self.address)
-        chip_id, chip_version = self.tempSensorBmp280.read_id()
+    def initTempSensor(self):
+        if self.model == "BMP280":
+            self.tempSensor = bmp280.BMP280(address=self.address)
+            chip_id, chip_version = self.tempSensor.read_id()
 
-        if chip_id == 88:
-            self.tempSensorBmp280.reg_check()
-        else:
-            raise ValueError ("Unsupported chip : " + chip_id + ", " + chip_version)
+            if chip_id == 88:
+                self.tempSensor.reg_check()
+            else:
+                raise ValueError ("Unsupported chip : " + chip_id + ", " + chip_version)
+         elif self.model == "BME280":
+            
+         else
+            raise ValueError ("Unsupported model : " + self.model)
 
     def update(self, measure):
-        if self.tempSensorBmp280 is None:
-            self.initBmp280()
-        indoorTemp, indoorPressure = self.tempSensorBmp280.read()
+        if self.tempSensor is None:
+            self.initTempSensor()
+        indoorTemp, indoorPressure = self.tempSensor.read()
         # Guard against absurd values
         if indoorPressure < 920.0:
             print ("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
-            self.tempSensorBmp280.bus.close()
-            self.tempSensorBmp280 = None
+            self.tempSensor.bus.close()
+            self.tempSensor = None
             raise ValueError("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
         if self.prefix is not None:
             if self.prefix not in measure:
