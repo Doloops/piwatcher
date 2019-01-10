@@ -280,7 +280,8 @@ class BME280(object):
         return dewpoint_f
         
     def read(self):
-        return self.read_temperature(), self.read_pressure() / 100.0, self.read_humidity()
+        return self.read_temperature(), self.read_pressure() / 100.0
+# , self.read_humidity()
 
 if __name__=="__main__":
     bme = BME280(address=0x76)
