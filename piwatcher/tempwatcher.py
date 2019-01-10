@@ -11,7 +11,7 @@ class TempWatcher(pimodule.PiModule):
     prefix = None
     address = 0x77
     model = "BMP280"
-    
+
     def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"Temp")
         if "address" in moduleConfig and moduleConfig["address"] == "0x76":
@@ -19,9 +19,9 @@ class TempWatcher(pimodule.PiModule):
         if "prefix" in moduleConfig:
             self.prefix = moduleConfig["prefix"]
         if "model" in moduleConfig:
-            self.prefix = moduleConfig["model"]
+            self.model = moduleConfig["model"]
         self.initTempSensor()
-            
+
     def initTempSensor(self):
         if self.model == "BMP280":
             self.tempSensor = bmp280.BMP280(address=self.address)
@@ -30,10 +30,11 @@ class TempWatcher(pimodule.PiModule):
             if chip_id == 88:
                 self.tempSensor.reg_check()
             else:
-                raise ValueError ("Unsupported chip : " + chip_id + ", " + chip_version)
-         elif self.model == "BME280":
+                raise ValueError ("Unsupported chip : " + str(chip_id) + ", " + str(chip_version))
+            print("BMP280 OK")
+        elif self.model == "BME280":
             self.tempSensor = bme280.BME280(address=self.address)
-         else
+        else:
             raise ValueError ("Unsupported model : " + self.model)
 
     def update(self, measure):

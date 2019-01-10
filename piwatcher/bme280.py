@@ -280,11 +280,11 @@ class BME280(object):
         return dewpoint_f
         
     def read(self):
-        return self.temperature(), self.pressure(), self.humidity()
+        return self.read_temperature(), self.read_pressure() / 100.0, self.read_humidity()
 
 if __name__=="__main__":
     bme = BME280(address=0x76)
-	while True:
+    while True:
         print("Temp : %2.2f C" % bme.read_temperature())
         print("Pressure : %5.4f Pa" % bme.read_pressure())
         print("Humidity : %3.0f %%" % bme.read_humidity())
