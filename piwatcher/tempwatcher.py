@@ -32,7 +32,7 @@ class TempWatcher(pimodule.PiModule):
             else:
                 raise ValueError ("Unsupported chip : " + chip_id + ", " + chip_version)
          elif self.model == "BME280":
-            
+            self.tempSensor = bme280.BME280(address=self.address)
          else
             raise ValueError ("Unsupported model : " + self.model)
 
