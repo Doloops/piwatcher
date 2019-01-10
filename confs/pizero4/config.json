@@ -3,6 +3,7 @@
 	"modules": [
 	{ "name": "cpu"},
 	{"name":"bmp280","address":"0x76","model":"BME280"},
+	{"name":"bmp280","address":"0x77","model":"BME280", "busnum":3, "prefix":"aux"},
     {
 	    "name": "elastic",
     	"statsInterval" : 60,

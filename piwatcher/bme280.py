@@ -91,7 +91,7 @@ BME280_REGISTER_DATA = 0xF7
 
 class BME280(object):
     def __init__(self, t_mode=BME280_OSAMPLE_1, p_mode=BME280_OSAMPLE_1, h_mode=BME280_OSAMPLE_1,
-                 standby=BME280_STANDBY_250, filter=BME280_FILTER_off, address=BME280_I2CADDR, i2c=None,
+                 standby=BME280_STANDBY_250, filter=BME280_FILTER_off, address=BME280_I2CADDR, i2c=None, busnum=None,
                  **kwargs):
         self._logger = logging.getLogger('Adafruit_BMP.BMP085')
         # Check that t_mode is valid.
@@ -129,7 +129,7 @@ class BME280(object):
             i2c = I2C
         # Create device, catch permission errors
         try:
-            self._device = i2c.get_i2c_device(address, **kwargs)
+            self._device = i2c.get_i2c_device(address, busnum=busnum, **kwargs)
         except IOError:
             print("Unable to communicate with sensor, check permissions.")
             exit()
