@@ -6,7 +6,7 @@
     {
 	    "name": "elastic",
     	"statsInterval" : 60,
-    	"hostname" : "banane",	
+    	"hostname" : "pizero4",
         "hosts":[{"host" : "pizero3"}],
         "index": "oswh-pizero4",
         "type": "sys-measure",
