@@ -2,6 +2,7 @@
     "updateInterval" : 30,
     "modules" : [
     	{ "name": "cpu" },
+	{"name":"bme280","address":"0x77","model":"BME280", "busnum":1, "prefix": "garage", "enabled": true},
 	    {
 	    	"name": "piscriptHeader1",
 		"module": "piscript",
@@ -27,7 +28,7 @@
 	        "updateModule": "heater2Command",
 		"hourlyTemps":
 	        [
-	        	{"from":0,"to":2,"temp":10},
+	        	{"from":0,"to":2,"temp":20},
 	        	{"from":2,"to":6,"temp":22},
 	        	{"from":6,"to":23,"temp":10},
 	        	{"from":23,"to":24,"temp":10}
@@ -88,6 +89,28 @@
 	        "commands": {
 	            "relayOn": {"ch4mp":true, "ch4mn":true},
 	            "relayOff": {"ch4mp":false, "ch4mn":false}
+	        }
+	    },
+	    {
+		"name":"circeeRelayScript",
+		"module":"piscript",
+		"prefix":"circeeRelay",
+	        "hosts":[{"host" : "pizero3"}],
+		"script":"self.commandRelay(measure,'pizero3.circeeRelay')",
+		"updateModule":"circeeRelayCommand"
+	    },
+	    {
+	    	"name":"circeeRelayCommand",
+	    	"module":"picommander",
+	    	"property":"circeeRelay.state",
+	        "defaultValue":"relayOn",
+		"enabled":true,
+	        "channels": {
+	            "ch5mp":{"pinout":15}, "ch5mn":{"pinout":13}
+	        },
+	        "commands": {
+	            "relayOn": {"ch5mp":true, "ch5mn":true},
+	            "relayOff": {"ch5mp":false, "ch5mn":false}
 	        }
 	    },
 	    {

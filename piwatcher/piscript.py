@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 class PiScript(pimodule.PiModule):
-    
     verbose = False
 
     # States
@@ -74,6 +73,7 @@ class PiScript(pimodule.PiModule):
         if key in self.states:
             return self.states[key]
         if subscribe and key not in self.subscribedUpdates:
+            print("Subscribing to key=" + str(key))
             thread = threading.Thread(target = self.backgroundStateUpdate, args=[key])
             self.subscribedUpdates[key] = thread
             thread.setDaemon(True)
@@ -206,6 +206,21 @@ class PiScript(pimodule.PiModule):
     def simpleRelay(self, measure, prefix):
         targetState = self.getNormalState(prefix)
         print("simpleRelay prefix=" + prefix + " targetState=" + targetState)
+        self.setState(prefix, "state", targetState)
+        measurePrefix = ""
+        if "prefix" in self.moduleConfig:
+            measurePrefix = str(self.moduleConfig["prefix"]) + "."
+        print("measurePrefix=" + measurePrefix)
+        fetchfromes.updateFragment(measure, measurePrefix + "state", targetState)
+
+    def commandRelay(self, measure, prefix):
+        targetState = self.getState(prefix, "command")
+        print("commandRelay prefix=" + prefix + " targetState=" + str(targetState))
+        if targetState:
+            targetState = "relayOn"
+        else:
+            targetState = "relayOff"
+
         self.setState(prefix, "state", targetState)
         measurePrefix = ""
         if "prefix" in self.moduleConfig:

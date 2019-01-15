@@ -439,7 +439,19 @@
           "state": "0.0",
           "io_type": "input",
           "displayFormat" : "%.2f"
+        },
+        {
+          "id": "pizero3.circeeRelay.command",
+          "name": "Circee",
+          "type": "WebOutputLight",
+          "var_type": "bool",
+          "visible": "true",
+          "gui_type": "light",
+          "state": "true",
+          "io_type": "output",
+          "mapping": { "relayOn": true, "relayOff": false }
         }
+
       ]
     }
   ],
