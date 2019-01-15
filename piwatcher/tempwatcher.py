@@ -63,6 +63,9 @@ class TempWatcher(pimodule.PiModule):
         measure["indoorPressure"] = indoorPressure
         if indoorHumidity is not None:
             measure["indoorHumidity"] = indoorHumidity
+
+        if self.model == "BME280":
+            measure["rawTemp"], measure["rawPressure"], measure["rawHumidity"] = self.tempSensor.read_raw()
         tempSensorMessage = ", "
         if self.prefix is not None:
             tempSensorMessage += "[" + self.prefix + "]"
