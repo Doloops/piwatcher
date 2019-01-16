@@ -103,7 +103,7 @@
 	    	"name":"circeeRelayCommand",
 	    	"module":"picommander",
 	    	"property":"circeeRelay.state",
-	        "defaultValue":"relayOn",
+	        "defaultValue":"relayOff",
 		"enabled":true,
 	        "channels": {
 	            "ch5mp":{"pinout":15}, "ch5mn":{"pinout":13}
