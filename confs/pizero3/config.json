@@ -4,7 +4,7 @@
     	{ "name": "cpu" },
 	{"name":"bme280","address":"0x77","model":"BME280", "busnum":1, "prefix": "garage", "enabled": true},
 	    {
-	    	"name": "piscriptHeader1",
+	    	"name": "piscriptHeater1",
 		"module": "piscript",
 	        "hosts":[{"host" : "pizero3"}],
 	        "script":"self.simpleHeater(measure,'pizero3', indoorTempName='osmc.indoorTemp')",
@@ -17,10 +17,10 @@
 	        	{"from":16,"to":18,"temp":18},
 	        	{"from":18,"to":22,"temp":19},
 	        	{"from":22,"to":24,"temp":18}
-	        ]	        
+	        ]
 	    },
 	    {
-	    	"name": "piscriptHeader2",
+	    	"name": "piscriptHeater2",
 		"module": "piscript",
 	        "hosts":[{"host" : "pizero3"}],
 	        "script":"self.simpleHeater(measure,'pizero3.dalles', indoorTempName='osmc.indoorTemp')",
