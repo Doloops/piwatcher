@@ -205,17 +205,17 @@ class PiScript(pimodule.PiModule):
 
     def simpleRelay(self, measure, prefix):
         targetState = self.getNormalState(prefix)
-        print("simpleRelay prefix=" + prefix + " targetState=" + targetState)
+        print("simpleRelay prefix=" + prefix + " targetState=" + str(targetState) + ",", end='')
         self.setState(prefix, "state", targetState)
         measurePrefix = ""
         if "prefix" in self.moduleConfig:
             measurePrefix = str(self.moduleConfig["prefix"]) + "."
-        print("measurePrefix=" + measurePrefix)
+#        print("measurePrefix=" + measurePrefix)
         fetchfromes.updateFragment(measure, measurePrefix + "state", targetState)
 
     def commandRelay(self, measure, prefix):
         targetState = self.getState(prefix, "command")
-        print("commandRelay prefix=" + prefix + " targetState=" + str(targetState))
+        print("commandRelay prefix=" + prefix + " targetState=" + str(targetState) + ",", end='')
         if targetState:
             targetState = "relayOn"
         else:
@@ -225,7 +225,7 @@ class PiScript(pimodule.PiModule):
         measurePrefix = ""
         if "prefix" in self.moduleConfig:
             measurePrefix = str(self.moduleConfig["prefix"]) + "."
-        print("measurePrefix=" + measurePrefix)
+#        print("measurePrefix=" + measurePrefix)
         fetchfromes.updateFragment(measure, measurePrefix + "state", targetState)
 
 
