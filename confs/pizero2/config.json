@@ -24,7 +24,7 @@
    		{
    			"name": "piscript2Victor", "module": "piscript",
 	        "hosts":[{"host" : "pizero3"}],
-	        "script":"self.simpleHeater(measure,'pizero2.victor', indoorTempName='pizero2.victor.indoorTemp')",
+	        "script":"self.simpleHeater(measure,'pizero2.victor', indoorTempName='pizero2.victor.indoorTemp', subscribeIndoorTemp=False)",
 	        "prefix":"victor",
 	        "updateModule": "heater2Command",
 			"hourlyTemps":

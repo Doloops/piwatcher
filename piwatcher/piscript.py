@@ -68,6 +68,8 @@ class PiScript(pimodule.PiModule):
                 time.sleep(2)
 
     def getState(self, prefix, stateId, defaultValue = None, subscribe = True):
+        if self.verbose:
+            print("getState(prefix=" + str(prefix) + ", stateId=" + str(stateId) + ", defaultValue=" + str(defaultValue) + ", subscribe=" + str(subscribe) + ")")
         if prefix is not None: 
             key = prefix + "." + stateId
         else:
@@ -99,7 +101,7 @@ class PiScript(pimodule.PiModule):
             return float(value)
         except:
             return value
-    
+
     def setState(self, prefix, stateId, stateValue):
         key = prefix + "." + stateId
         self.states[key] = stateValue
@@ -114,7 +116,7 @@ class PiScript(pimodule.PiModule):
             self.getRedisClient().publish(key, stateValueStr)
         except Exception as e:
             print("Caught exception while setting " + key + " : " + str(e) + " (value=" + str(stateValue) + ", type=" + str(type(stateValue)) + ")")
-    
+
     def updateModeComfort(self, prefix):
         modeComfort = self.getState(prefix, "heater.mode.comfort")
         comfortStartTime = self.getState(prefix, "heater.comfort.startTime", subscribe=False)
@@ -161,9 +163,9 @@ class PiScript(pimodule.PiModule):
         targetStandby = self.getState(prefix, "heater.target.standby")
         return targetStandby
 
-    def simpleHeater(self, measure, prefix, indoorTempName = None):
+    def simpleHeater(self, measure, prefix, indoorTempName = None, subscribeIndoorTemp = True):
         if indoorTempName is not None:
-            indoorTemp = self.getState(None, indoorTempName)
+            indoorTemp = self.getState(None, indoorTempName, subscribe=subscribeIndoorTemp)
         else:
             indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
 
