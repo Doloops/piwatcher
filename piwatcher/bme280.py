@@ -142,6 +142,9 @@ class BME280(object):
         self._device.write8(BME280_REGISTER_CONTROL_HUM, h_mode)  # Set Humidity Oversample
         self._device.write8(BME280_REGISTER_CONTROL, ((t_mode << 5) | (p_mode << 2) | 3))  # Set Temp/Pressure Oversample and enter Normal mode
         self.t_fine = 0.0
+        self.raw_temp = 0
+        self.raw_pressure = 0
+        self.raw_humidity = 0
 
     def _load_calibration(self):
 
@@ -194,6 +197,7 @@ class BME280(object):
             time.sleep(0.002)
         self.BME280Data = self._device.readList(BME280_REGISTER_DATA, 8)
         raw = ((self.BME280Data[3] << 16) | (self.BME280Data[4] << 8) | self.BME280Data[5]) >> 4
+        self.raw_temp = raw
         return raw
 
     def read_raw_pressure(self):
@@ -201,6 +205,7 @@ class BME280(object):
         """Assumes that the temperature has already been read """
         """i.e. that BME280Data[] has been populated."""
         raw = ((self.BME280Data[0] << 16) | (self.BME280Data[1] << 8) | self.BME280Data[2]) >> 4
+        self.raw_pressure = raw
         return raw
 
     def read_raw_humidity(self):
@@ -208,6 +213,7 @@ class BME280(object):
         """Assumes that the temperature has already been read """
         """i.e. that BME280Data[] has been populated."""
         raw = (self.BME280Data[6] << 8) | self.BME280Data[7]
+        self.raw_humidity = raw
         return raw
 
     def read_temperature(self):
@@ -281,6 +287,9 @@ class BME280(object):
         
     def read(self):
         return self.read_temperature(), self.read_pressure() / 100.0
+
+    def read_raw(self):
+        return self.raw_temp, self.raw_pressure, self.raw_humidity
 # , self.read_humidity()
 
 if __name__=="__main__":
