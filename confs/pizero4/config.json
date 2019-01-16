@@ -1,18 +1,54 @@
 {
-	"updateInterval" : 2,
-	"modules": [
-	{ "name": "cpu"},
-	{"name":"bme280","address":"0x77","model":"BME280", "busnum":1, "enabled": true},
-	{"name":"bme280","address":"0x76","model":"BME280", "busnum":1, "prefix":"bus1-76", "enabled": true},
-	{"name":"bme280","address":"0x77","model":"BME280", "busnum":3, "prefix":"bus3-77", "enabled": true},
-	{"name":"bme280","address":"0x76","model":"BME280", "busnum":3, "prefix":"aux", "enabled": true},
-    {
-	    "name": "elastic",
-    	"statsInterval" : 60,
-    	"hostname" : "pizero4",
-        "hosts":[{"host" : "pizero3"}],
-        "index": "oswh-pizero4",
-        "type": "sys-measure",
-	    "redis":{"host":"pizero3"}        
-    }]
+    "updateInterval": 2,
+    "modules": [
+        {
+            "name": "cpu"
+        },
+        {
+            "name": "bme280",
+            "address": "0x77",
+            "model": "BME280",
+            "busnum": 1,
+            "enabled": true
+        },
+        {
+            "name": "bme280",
+            "address": "0x76",
+            "model": "BME280",
+            "busnum": 1,
+            "prefix": "bus1-76",
+            "enabled": true
+        },
+        {
+            "name": "bme280",
+            "address": "0x77",
+            "model": "BME280",
+            "busnum": 3,
+            "prefix": "bus3-77",
+            "enabled": true
+        },
+        {
+            "name": "bme280",
+            "address": "0x76",
+            "model": "BME280",
+            "busnum": 3,
+            "prefix": "aux",
+            "enabled": true
+        },
+        {
+            "name": "elastic",
+            "statsInterval": 60,
+            "hostname": "pizero4",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "index": "oswh-pizero4",
+            "type": "sys-measure",
+            "redis": {
+                "host": "pizero3"
+            }
+        }
+    ]
 }

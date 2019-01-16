@@ -1,23 +1,33 @@
 {
-    "updateInterval" : 30,
-	"modules" : [
-		{ "name": "cpu"},
-	   	{ "name":"disk",
-		  "enabled": true,
-		  "deviceName": "sda"
-	    },
-	   	{ "name":"disk",
-	   	  "enabled": true,
-		  "deviceName": "sdb"
-	    },
-	    { "name" : "elastic",
-	        "hosts":[{"host":"pizero3"}],
-	        "index": "oswh-lenovo-fba-t1",
-	        "type": "sys-measure",
-	        "hostname": "lenovo-fba",
-	        "redis":{"host":"pizero3"},
-	        "statsInterval" : 60
-		}	
+    "updateInterval": 30,
+    "modules": [
+        {
+            "name": "cpu"
+        },
+        {
+            "name": "disk",
+            "enabled": true,
+            "deviceName": "sda"
+        },
+        {
+            "name": "disk",
+            "enabled": true,
+            "deviceName": "sdb"
+        },
+        {
+            "name": "elastic",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "index": "oswh-lenovo-fba-t1",
+            "type": "sys-measure",
+            "hostname": "lenovo-fba",
+            "redis": {
+                "host": "pizero3"
+            },
+            "statsInterval": 60
+        }
     ]
 }
-

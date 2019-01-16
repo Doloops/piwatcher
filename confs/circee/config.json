@@ -1,24 +1,60 @@
 {
-    "updateInterval" : 30,
-	"modules" : [
-		{ "name": "cpu", "cpuTempFile": "/sys/devices/platform/w83627ehf.2576/temp2_input"},
-	   	{ "name":"disk", "deviceName": "sda"},
-	   	{ "name":"disk", "deviceName": "sdb"},
-	   	{ "name":"disk", "deviceName": "sdc"},
-	   	{ "name":"disk", "deviceName": "sdd"},
-	   	{ "name":"disk", "deviceName": "sde"},
-	   	{ "name":"disk", "deviceName": "sdf"},
-	   	{ "name":"disk", "deviceName": "sdg"},
-	   	{ "name":"disk", "deviceName": "sdh"},
-	   	{ "name":"disk", "deviceName": "sdi"},
-	    { "name" : "elastic",
-	        "hosts":[{"host":"pizero3"}],
-	        "index": "oswh-circee",
-	        "type": "sys-measure",
-		    "hostname": "circee",
-	        "redis":{"host":"pizero3"},
-	        "statsInterval" : 60
-		}	
+    "updateInterval": 30,
+    "modules": [
+        {
+            "name": "cpu",
+            "cpuTempFile": "/sys/devices/platform/w83627ehf.2576/temp2_input"
+        },
+        {
+            "name": "disk",
+            "deviceName": "sda"
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdb"
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdc"
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdd"
+        },
+        {
+            "name": "disk",
+            "deviceName": "sde"
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdf"
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdg"
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdh"
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdi"
+        },
+        {
+            "name": "elastic",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "index": "oswh-circee",
+            "type": "sys-measure",
+            "hostname": "circee",
+            "redis": {
+                "host": "pizero3"
+            },
+            "statsInterval": 60
+        }
     ]
 }
-

@@ -1,71 +1,148 @@
 {
-    "updateInterval" : 30,
+    "updateInterval": 30,
     "modules": [
-    	{ "name": "cpu"},
-	{ "name": "bmp280", "enabled": true},
-    	{ 
-    		"name" : "bmp280",
-        	"prefix" : "victor",
-        	"address": "0x76"
-    	},
-   		{
-   			"name": "piscript", "enabled": true,
-			"hosts":[{"host" : "pizero3"}],
-		"script":"self.simpleHeater(measure,'pizero2')",
-	        "updateModule": "heater1Command",
-	        "hourlyTemps":
-	        [
-	        	{"from":0,"to":9,"temp":18},
-	        	{"from":9,"to":16,"temp":14},
-	        	{"from":16,"to":18,"temp":16},
-	        	{"from":18,"to":24,"temp":18}
-	        ]
-    	},
-   		{
-   			"name": "piscript2Victor", "module": "piscript",
-	        "hosts":[{"host" : "pizero3"}],
-	        "script":"self.simpleHeater(measure,'pizero2.victor', indoorTempName='pizero2.victor.indoorTemp', subscribeIndoorTemp=False)",
-	        "prefix":"victor",
-	        "updateModule": "heater2Command",
-			"hourlyTemps":
-	        [
-	        	{"from":0,"to":7,"temp":17},
-	        	{"from":7,"to":16,"temp":15},
-	        	{"from":16,"to":18,"temp":16},
-	        	{"from":18,"to":24,"temp":17}
-	        ]
-    	},
-    	{
-	    	"name": "heater1Command",
-	    	"module" : "picommander",
-        	"property" : "heater.command",
-        	"defaultValue" : "heaterOff",
-		"enabled": true,
-        	"channels": {"ch1mp":{"pinout":36},"ch1mn":{"pinout":38}},
-        	"commands": { 
-	            "heaterOn": { "ch1mp": false, "ch1mn": false },
-	            "heaterOff": { "ch1mp": true, "ch1mn": false }
-	        }
-    	},    
-    	{
-	    	"name": "heater2Command",
-	    	"module" : "picommander",
-        	"property" : "victor.heater.command",
-        	"defaultValue" : "heaterOff",
-        	"channels": {"ch2mp":{"pinout":22}, "ch2mn":{"pinout":32}},
-        	"commands": { 
-	            "heaterOn": { "ch2mp": false, "ch2mn": false },
-	            "heaterOff": { "ch2mp": true, "ch2mn": false }
-	        }
-    	},    
-    	{
-    		"name": "elastic",
-		    "hostname" : "pizero2",
-		    "statsInterval" : 60,
-		    "hosts":[{"host" : "pizero3"}],
-		    "index": "oswh-pizero2-19-1",
-		    "type": "sys-measure",
-		    "redis":{"host":"pizero3"}
-	    }
-	]
+        {
+            "name": "cpu"
+        },
+        {
+            "name": "bmp280",
+            "enabled": true
+        },
+        {
+            "name": "bmp280",
+            "prefix": "victor",
+            "address": "0x76"
+        },
+        {
+            "name": "piscript",
+            "enabled": true,
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "script": "self.simpleHeater(measure,'pizero2')",
+            "updateModule": "heater1Command",
+            "hourlyTemps": [
+                {
+                    "from": 0,
+                    "to": 9,
+                    "temp": 18
+                },
+                {
+                    "from": 9,
+                    "to": 16,
+                    "temp": 14
+                },
+                {
+                    "from": 16,
+                    "to": 18,
+                    "temp": 16
+                },
+                {
+                    "from": 18,
+                    "to": 24,
+                    "temp": 18
+                }
+            ]
+        },
+        {
+            "name": "piscript2Victor",
+            "module": "piscript",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "script": "self.simpleHeater(measure,'pizero2.victor', indoorTempName='pizero2.victor.indoorTemp', subscribeIndoorTemp=False)",
+            "prefix": "victor",
+            "updateModule": "heater2Command",
+            "hourlyTemps": [
+                {
+                    "from": 0,
+                    "to": 7,
+                    "temp": 17
+                },
+                {
+                    "from": 7,
+                    "to": 16,
+                    "temp": 15
+                },
+                {
+                    "from": 16,
+                    "to": 18,
+                    "temp": 16
+                },
+                {
+                    "from": 18,
+                    "to": 24,
+                    "temp": 17
+                }
+            ]
+        },
+        {
+            "name": "heater1Command",
+            "module": "picommander",
+            "property": "heater.command",
+            "defaultValue": "heaterOff",
+            "enabled": true,
+            "channels": {
+                "ch1mp": {
+                    "pinout": 36
+                },
+                "ch1mn": {
+                    "pinout": 38
+                }
+            },
+            "commands": {
+                "heaterOn": {
+                    "ch1mp": false,
+                    "ch1mn": false
+                },
+                "heaterOff": {
+                    "ch1mp": true,
+                    "ch1mn": false
+                }
+            }
+        },
+        {
+            "name": "heater2Command",
+            "module": "picommander",
+            "property": "victor.heater.command",
+            "defaultValue": "heaterOff",
+            "channels": {
+                "ch2mp": {
+                    "pinout": 22
+                },
+                "ch2mn": {
+                    "pinout": 32
+                }
+            },
+            "commands": {
+                "heaterOn": {
+                    "ch2mp": false,
+                    "ch2mn": false
+                },
+                "heaterOff": {
+                    "ch2mp": true,
+                    "ch2mn": false
+                }
+            }
+        },
+        {
+            "name": "elastic",
+            "hostname": "pizero2",
+            "statsInterval": 60,
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "index": "oswh-pizero2-19-1",
+            "type": "sys-measure",
+            "redis": {
+                "host": "pizero3"
+            }
+        }
+    ]
 }

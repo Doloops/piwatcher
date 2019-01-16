@@ -1,24 +1,33 @@
 {
-	"updateInterval" : 10,
-	"modules": [
-	{ "name": "cpu"},
-    {
-    	"name":"disk",
-		"enabled": true,
-		"ledPinout": 11,
-		"deviceName": "sda",
-		"useMeasurePerDisk": false
-    },
-    {
-    	"name": "bmp280"
-    },
-    {
-    	"name": "elastic",
-	    "hostname" : "osmc",
-	    "hosts":[{"host" : "pizero3"}],
-	    "index": "oswh-osmc-19-1",
-	    "type": "sys-measure",
-	    "redis":{"host":"pizero3"},
-	    "statsInterval" : 60
-    }]
+    "updateInterval": 10,
+    "modules": [
+        {
+            "name": "cpu"
+        },
+        {
+            "name": "disk",
+            "enabled": true,
+            "ledPinout": 11,
+            "deviceName": "sda",
+            "useMeasurePerDisk": false
+        },
+        {
+            "name": "bmp280"
+        },
+        {
+            "name": "elastic",
+            "hostname": "osmc",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "index": "oswh-osmc-19-1",
+            "type": "sys-measure",
+            "redis": {
+                "host": "pizero3"
+            },
+            "statsInterval": 60
+        }
+    ]
 }

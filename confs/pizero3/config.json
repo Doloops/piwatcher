@@ -1,143 +1,329 @@
 {
-    "updateInterval" : 30,
-    "modules" : [
-    	{ "name": "cpu" },
-	{"name":"bme280","address":"0x77","model":"BME280", "busnum":1, "prefix": "garage", "enabled": true},
-	    {
-	    	"name": "piscriptHeater1",
-		"module": "piscript",
-	        "hosts":[{"host" : "pizero3"}],
-	        "script":"self.simpleHeater(measure,'pizero3', indoorTempName='osmc.indoorTemp')",
-	        "updateModule": "heater1Command",
-		"hourlyTemps":
-	        [
-	        	{"from":0,"to":5,"temp":17},
-	        	{"from":5,"to":9,"temp":19},
-	        	{"from":9,"to":16,"temp":17},
-	        	{"from":16,"to":18,"temp":18},
-	        	{"from":18,"to":22,"temp":19},
-	        	{"from":22,"to":24,"temp":18}
-	        ]
-	    },
-	    {
-	    	"name": "piscriptHeater2",
-		"module": "piscript",
-	        "hosts":[{"host" : "pizero3"}],
-	        "script":"self.simpleHeater(measure,'pizero3.dalles', indoorTempName='osmc.indoorTemp')",
-		"prefix":"dalles",
-	        "updateModule": "heater2Command",
-		"hourlyTemps":
-	        [
-	        	{"from":0,"to":2,"temp":20},
-	        	{"from":2,"to":6,"temp":22},
-	        	{"from":6,"to":23,"temp":10},
-	        	{"from":23,"to":24,"temp":10}
-	        ]
-	    },
-	    {
-	    	"name":"heater1Command",
-	    	"module" : "picommander",
-	    	"property" : "heater.command",
-	        "defaultValue" : "heaterOff",
-	        "channels": {
-	            "ch1mp":{"pinout":36}, "ch1mn":{"pinout":38},
-	            "ch2mp":{"pinout":22}, "ch2mn":{"pinout":32}
-	        },
-	        "commands": { 
-	            "heaterOn": {"ch1mp":false, "ch1mn":false, "ch2mp": false, "ch2mn": false},
-	            "heaterOff": {"ch1mp":true, "ch1mn":false, "ch2mp": true, "ch2mn": false}
-	        }
-	    },
-	    {
-	    	"name":"heater2Command",
-	    	"module" : "picommander",
-	    	"property" : "dalles.heater.command",
-	        "defaultValue" : "heaterOff",
-	        "channels": {
-	            "ch3mp":{"pinout":16}, "ch3mn":{"pinout":18}
-	        },
-	        "commands": {
-	            "heaterOn": {"ch3mp":true, "ch3mn":true},
-	            "heaterOff": {"ch3mp":false, "ch3mn":false}
-	        }
-	    },
-	    {
-		"name":"waterHeaterScript",
-		"module":"piscript",
-		"prefix":"waterHeater",
-	        "hosts":[{"host" : "pizero3"}],
-		"script":"self.simpleRelay(measure,'pizero3.waterHeater')",
-		"updateModule":"waterHeaterCommand",
-		"hourlyState":
-	        [
-	        	{"from":0,"to":2,"state":true},
-	        	{"from":2,"to":6,"state":true},
-	        	{"from":6,"to":18,"state":false},
-	        	{"from":18,"to":20,"state":true},
-	        	{"from":20,"to":23,"state":false},
-	        	{"from":23,"to":24,"state":true}
-	        ]
-	    },
-	    {
-	    	"name":"waterHeaterCommand",
-	    	"module":"picommander",
-	    	"property":"waterHeater.state",
-	        "defaultValue":"relayOff",
-	        "channels": {
-	            "ch4mp":{"pinout":11}, "ch4mn":{"pinout":7}
-	        },
-	        "commands": {
-	            "relayOn": {"ch4mp":true, "ch4mn":true},
-	            "relayOff": {"ch4mp":false, "ch4mn":false}
-	        }
-	    },
-	    {
-		"name":"circeeRelayScript",
-		"module":"piscript",
-		"prefix":"circeeRelay",
-	        "hosts":[{"host" : "pizero3"}],
-		"script":"self.commandRelay(measure,'pizero3.circeeRelay')",
-		"updateModule":"circeeRelayCommand"
-	    },
-	    {
-	    	"name":"circeeRelayCommand",
-	    	"module":"picommander",
-	    	"property":"circeeRelay.state",
-	        "defaultValue":"relayOff",
-		"enabled":true,
-	        "channels": {
-	            "ch5mp":{"pinout":15}, "ch5mn":{"pinout":13}
-	        },
-	        "commands": {
-	            "relayOn": {"ch5mp":true, "ch5mn":true},
-	            "relayOff": {"ch5mp":false, "ch5mn":false}
-	        }
-	    },
-	    {
-	    	"name": "picurrentsensor",
-	    	"sensors" : [{"id":"board.low", "name":"Tableau bas", "channel":0, "type":"amp", "asmType":"SCT013"},
-	    		{"id":"board.high", "name":"Tableau haut", "channel":5, "type": "amp"},
-	    		{"id":"underfloor.heating", "name":"Dalles", "channel":6, "type": "amp", "threshold": 200},
-	    		{"id":"water.heater", "name":"Chauffe-eau", "channel":2, "type": "amp", "asmType":"ASM10", "threshold": 200},
-	    		{"id":"living.tv", "name":"TV and Co", "channel":4, "type": "amp", "asmType":"ASM10"},
-	    		{"id":"living.heating", "name":"Chauffage Living", "channel":3, "type": "amp", "threshold": 200}],
-	    	"noise.channel": 7
-	    },
-	    {
-	    	"name":"pidigitalsensor",
-		"enabled": false,
-	    	"digitalPin": 40,
-	    	"mapping": [ "hc", "hp"],
-	    	"propertyName": "hphc"
-	    },
-	    {
-	    	"name": "elastic",
-		"hostname" : "pizero3",
-	        "statsInterval" : 60,
-	        "hosts":[{"host" : "pizero3"}],
-	        "index": "oswh-pizero3-19-1",
-	        "type": "sys-measure",
-	        "redis":{"host":"pizero3"}
-	    }
+    "updateInterval": 30,
+    "modules": [
+        {
+            "name": "cpu"
+        },
+        {
+            "name": "bme280",
+            "address": "0x77",
+            "model": "BME280",
+            "busnum": 1,
+            "prefix": "garage",
+            "enabled": true
+        },
+        {
+            "name": "piscriptHeater1",
+            "module": "piscript",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "script": "self.simpleHeater(measure,'pizero3', indoorTempName='osmc.indoorTemp')",
+            "updateModule": "heater1Command",
+            "hourlyTemps": [
+                {
+                    "from": 0,
+                    "to": 5,
+                    "temp": 17
+                },
+                {
+                    "from": 5,
+                    "to": 9,
+                    "temp": 19
+                },
+                {
+                    "from": 9,
+                    "to": 16,
+                    "temp": 17
+                },
+                {
+                    "from": 16,
+                    "to": 18,
+                    "temp": 18
+                },
+                {
+                    "from": 18,
+                    "to": 22,
+                    "temp": 19
+                },
+                {
+                    "from": 22,
+                    "to": 24,
+                    "temp": 18
+                }
+            ]
+        },
+        {
+            "name": "piscriptHeater2",
+            "module": "piscript",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "script": "self.simpleHeater(measure,'pizero3.dalles', indoorTempName='osmc.indoorTemp')",
+            "prefix": "dalles",
+            "updateModule": "heater2Command",
+            "hourlyTemps": [
+                {
+                    "from": 0,
+                    "to": 2,
+                    "temp": 20
+                },
+                {
+                    "from": 2,
+                    "to": 6,
+                    "temp": 22
+                },
+                {
+                    "from": 6,
+                    "to": 23,
+                    "temp": 10
+                },
+                {
+                    "from": 23,
+                    "to": 24,
+                    "temp": 10
+                }
+            ]
+        },
+        {
+            "name": "heater1Command",
+            "module": "picommander",
+            "property": "heater.command",
+            "defaultValue": "heaterOff",
+            "channels": {
+                "ch1mp": {
+                    "pinout": 36
+                },
+                "ch1mn": {
+                    "pinout": 38
+                },
+                "ch2mp": {
+                    "pinout": 22
+                },
+                "ch2mn": {
+                    "pinout": 32
+                }
+            },
+            "commands": {
+                "heaterOn": {
+                    "ch1mp": false,
+                    "ch1mn": false,
+                    "ch2mp": false,
+                    "ch2mn": false
+                },
+                "heaterOff": {
+                    "ch1mp": true,
+                    "ch1mn": false,
+                    "ch2mp": true,
+                    "ch2mn": false
+                }
+            }
+        },
+        {
+            "name": "heater2Command",
+            "module": "picommander",
+            "property": "dalles.heater.command",
+            "defaultValue": "heaterOff",
+            "channels": {
+                "ch3mp": {
+                    "pinout": 16
+                },
+                "ch3mn": {
+                    "pinout": 18
+                }
+            },
+            "commands": {
+                "heaterOn": {
+                    "ch3mp": true,
+                    "ch3mn": true
+                },
+                "heaterOff": {
+                    "ch3mp": false,
+                    "ch3mn": false
+                }
+            }
+        },
+        {
+            "name": "waterHeaterScript",
+            "module": "piscript",
+            "prefix": "waterHeater",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "script": "self.simpleRelay(measure,'pizero3.waterHeater')",
+            "updateModule": "waterHeaterCommand",
+            "hourlyState": [
+                {
+                    "from": 0,
+                    "to": 2,
+                    "state": true
+                },
+                {
+                    "from": 2,
+                    "to": 6,
+                    "state": true
+                },
+                {
+                    "from": 6,
+                    "to": 18,
+                    "state": false
+                },
+                {
+                    "from": 18,
+                    "to": 20,
+                    "state": true
+                },
+                {
+                    "from": 20,
+                    "to": 23,
+                    "state": false
+                },
+                {
+                    "from": 23,
+                    "to": 24,
+                    "state": true
+                }
+            ]
+        },
+        {
+            "name": "waterHeaterCommand",
+            "module": "picommander",
+            "property": "waterHeater.state",
+            "defaultValue": "relayOff",
+            "channels": {
+                "ch4mp": {
+                    "pinout": 11
+                },
+                "ch4mn": {
+                    "pinout": 7
+                }
+            },
+            "commands": {
+                "relayOn": {
+                    "ch4mp": true,
+                    "ch4mn": true
+                },
+                "relayOff": {
+                    "ch4mp": false,
+                    "ch4mn": false
+                }
+            }
+        },
+        {
+            "name": "circeeRelayScript",
+            "module": "piscript",
+            "prefix": "circeeRelay",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "script": "self.commandRelay(measure,'pizero3.circeeRelay')",
+            "updateModule": "circeeRelayCommand"
+        },
+        {
+            "name": "circeeRelayCommand",
+            "module": "picommander",
+            "property": "circeeRelay.state",
+            "defaultValue": "relayOff",
+            "enabled": true,
+            "channels": {
+                "ch5mp": {
+                    "pinout": 15
+                },
+                "ch5mn": {
+                    "pinout": 13
+                }
+            },
+            "commands": {
+                "relayOn": {
+                    "ch5mp": true,
+                    "ch5mn": true
+                },
+                "relayOff": {
+                    "ch5mp": false,
+                    "ch5mn": false
+                }
+            }
+        },
+        {
+            "name": "picurrentsensor",
+            "sensors": [
+                {
+                    "id": "board.low",
+                    "name": "Tableau bas",
+                    "channel": 0,
+                    "type": "amp",
+                    "asmType": "SCT013"
+                },
+                {
+                    "id": "board.high",
+                    "name": "Tableau haut",
+                    "channel": 5,
+                    "type": "amp"
+                },
+                {
+                    "id": "underfloor.heating",
+                    "name": "Dalles",
+                    "channel": 6,
+                    "type": "amp",
+                    "threshold": 200
+                },
+                {
+                    "id": "water.heater",
+                    "name": "Chauffe-eau",
+                    "channel": 2,
+                    "type": "amp",
+                    "asmType": "ASM10",
+                    "threshold": 200
+                },
+                {
+                    "id": "living.tv",
+                    "name": "TV and Co",
+                    "channel": 4,
+                    "type": "amp",
+                    "asmType": "ASM10"
+                },
+                {
+                    "id": "living.heating",
+                    "name": "Chauffage Living",
+                    "channel": 3,
+                    "type": "amp",
+                    "threshold": 200
+                }
+            ],
+            "noise.channel": 7
+        },
+        {
+            "name": "pidigitalsensor",
+            "enabled": false,
+            "digitalPin": 40,
+            "mapping": [
+                "hc",
+                "hp"
+            ],
+            "propertyName": "hphc"
+        },
+        {
+            "name": "elastic",
+            "hostname": "pizero3",
+            "statsInterval": 60,
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "index": "oswh-pizero3-19-1",
+            "type": "sys-measure",
+            "redis": {
+                "host": "pizero3"
+            }
+        }
     ]
 }

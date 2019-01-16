@@ -1,32 +1,60 @@
 {
-    "updateInterval" : 30,
-    "modules" : [
-	{ "name": "cpu"},    
-    { "name": "bmp280"},
-    {
-        "name": "piscript",
-		"hosts":[{"host" : "pizero3"}],
-        "script":"self.simpleHeater(measure,'pizero1')",
-        "updateModule": "heater1Command"
-    },
-    {
-    	"name": "heater1Command",
-    	"module" : "picommander",
-		"property" : "heater.command",
-        "defaultValue" : "heaterOff",
-        "channels": {"mp":{"pinout":16},"mn":{"pinout":18}},
-        "commands": { 
-            "heaterOn": { "mp": false, "mn": false },
-            "heaterOff": { "mp": false, "mn": true }
+    "updateInterval": 30,
+    "modules": [
+        {
+            "name": "cpu"
+        },
+        {
+            "name": "bmp280"
+        },
+        {
+            "name": "piscript",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "script": "self.simpleHeater(measure,'pizero1')",
+            "updateModule": "heater1Command"
+        },
+        {
+            "name": "heater1Command",
+            "module": "picommander",
+            "property": "heater.command",
+            "defaultValue": "heaterOff",
+            "channels": {
+                "mp": {
+                    "pinout": 16
+                },
+                "mn": {
+                    "pinout": 18
+                }
+            },
+            "commands": {
+                "heaterOn": {
+                    "mp": false,
+                    "mn": false
+                },
+                "heaterOff": {
+                    "mp": false,
+                    "mn": true
+                }
+            }
+        },
+        {
+            "name": "elastic",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "hostname": "pizero1",
+            "index": "oswh-pizero1-19-1",
+            "type": "sys-measure",
+            "statsInterval": 60,
+            "redis": {
+                "host": "pizero3"
+            }
         }
-    },
-    {
-    	"name": "elastic",
-        "hosts":[{"host" : "pizero3"}],
-        "hostname" : "pizero1",
-        "index": "oswh-pizero1-19-1",
-        "type": "sys-measure",
-        "statsInterval" : 60,
-		"redis":{"host":"pizero3"}
-    }]
+    ]
 }

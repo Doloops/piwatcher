@@ -1,14 +1,23 @@
 {
-	"updateInterval" : 30,
-	"modules": [
-	{ "name": "cpu"},
-    {
-	    "name": "elastic",
-    	"statsInterval" : 60,
-    	"hostname" : "banane",	
-        "hosts":[{"host" : "pizero3"}],
-        "index": "oswh-banane",
-        "type": "sys-measure",
-	    "redis":{"host":"pizero3"}        
-    }]
+    "updateInterval": 30,
+    "modules": [
+        {
+            "name": "cpu"
+        },
+        {
+            "name": "elastic",
+            "statsInterval": 60,
+            "hostname": "banane",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "index": "oswh-banane",
+            "type": "sys-measure",
+            "redis": {
+                "host": "pizero3"
+            }
+        }
+    ]
 }
