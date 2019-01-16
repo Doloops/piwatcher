@@ -40,8 +40,9 @@ class PiCommandWatcher(pimodule.PiModule):
         value = fetchfromes.extractFragment(measure, self.propertyName)
         if value is None and self.defaultValue is not None:
             value = self.defaultValue
+            print (" (PiCommand.update " + self.propertyName + " use default value " + str(value) + "),", end='')
         if value is not None:
-            print(", " + self.propertyName + "=" + value, end='')
+            print(" (PiCommand.update " + self.propertyName + "=" + str(value) + "),", end='')
             self.applyCommand(self.propertyName, value)
         
     def __update(self, measure):
@@ -94,7 +95,6 @@ class PiCommandWatcher(pimodule.PiModule):
 #                        print("Setting PWM for channel :" + commandKey)
                     else:
                         pwm = self.pwms[commandKey]
-                        
                     pwm.ChangeDutyCycle(commandValue)
         else:
             raise ValueError("Invalid command key " + commandKey)

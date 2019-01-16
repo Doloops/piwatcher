@@ -34,7 +34,8 @@ class PiScript(pimodule.PiModule):
             return self.redisClient
         if "hosts" in self.moduleConfig:
             redisHost = self.moduleConfig["hosts"][0]["host"]
-            print("Connecting to redis host :" + redisHost)
+            if self.verbose:
+                print("[Connecting to redis host :" + redisHost + "]", end='')
             self.redisClient = redis.StrictRedis(host=redisHost, port=6379, db=0, decode_responses=True, 
                                                  socket_timeout=5, socket_connect_timeout=5)
         return self.redisClient
@@ -59,7 +60,8 @@ class PiScript(pimodule.PiModule):
                         self.update(self.lastMeasure)
                         if "updateModule" in self.moduleConfig:
                             self.piwatcher.updateModule(self.moduleConfig["updateModule"], self.lastMeasure)
-                        print(" => Updated")
+                        if self.verbose:
+                            print(" => Updated")
             except Exception as e:
                 print("Caught exception " + str(e))
                 pubsub = None
@@ -73,7 +75,8 @@ class PiScript(pimodule.PiModule):
         if key in self.states:
             return self.states[key]
         if subscribe and key not in self.subscribedUpdates:
-            print("Subscribing to key=" + str(key))
+            if self.verbose:
+                print("[Subscribing to key=" + str(key) + "]", end='')
             thread = threading.Thread(target = self.backgroundStateUpdate, args=[key])
             self.subscribedUpdates[key] = thread
             thread.setDaemon(True)
@@ -159,7 +162,6 @@ class PiScript(pimodule.PiModule):
         return targetStandby
 
     def simpleHeater(self, measure, prefix, indoorTempName = None):
-        # print("Incoming measure : " + str(measure))
         if indoorTempName is not None:
             indoorTemp = self.getState(None, indoorTempName)
         else:
@@ -205,7 +207,7 @@ class PiScript(pimodule.PiModule):
 
     def simpleRelay(self, measure, prefix):
         targetState = self.getNormalState(prefix)
-        print("simpleRelay prefix=" + prefix + " targetState=" + str(targetState) + ",", end='')
+        print("simpleRelay=" + prefix + ".command state=" + str(targetState) + ",", end='')
         self.setState(prefix, "state", targetState)
         measurePrefix = ""
         if "prefix" in self.moduleConfig:
@@ -215,7 +217,7 @@ class PiScript(pimodule.PiModule):
 
     def commandRelay(self, measure, prefix):
         targetState = self.getState(prefix, "command")
-        print("commandRelay prefix=" + prefix + " targetState=" + str(targetState) + ",", end='')
+        print("commandRelay=" + prefix + ".command state=" + str(targetState) + ",", end='')
         if targetState:
             targetState = "relayOn"
         else:
