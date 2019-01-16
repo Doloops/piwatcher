@@ -207,7 +207,8 @@ class PiScript(pimodule.PiModule):
 
     def simpleRelay(self, measure, prefix):
         targetState = self.getNormalState(prefix)
-        print("simpleRelay=" + prefix + ".command state=" + str(targetState) + ",", end='')
+        if self.verbose:
+            print("simpleRelay=" + prefix + ".command state=" + str(targetState) + ",", end='')
         self.setState(prefix, "state", targetState)
         measurePrefix = ""
         if "prefix" in self.moduleConfig:
@@ -217,7 +218,8 @@ class PiScript(pimodule.PiModule):
 
     def commandRelay(self, measure, prefix):
         targetState = self.getState(prefix, "command")
-        print("commandRelay=" + prefix + ".command state=" + str(targetState) + ",", end='')
+        if self.verbose:
+            print("commandRelay=" + prefix + ".command state=" + str(targetState) + ",", end='')
         if targetState:
             targetState = "relayOn"
         else:

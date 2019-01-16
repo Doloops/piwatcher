@@ -40,11 +40,11 @@ class PiCommandWatcher(pimodule.PiModule):
         value = fetchfromes.extractFragment(measure, self.propertyName)
         if value is None and self.defaultValue is not None:
             value = self.defaultValue
-            print (" (PiCommand.update " + self.propertyName + " use default value " + str(value) + "),", end='')
+            print (", update default " + self.propertyName + "=" + str(value), end='')
         if value is not None:
-            print(" (PiCommand.update " + self.propertyName + "=" + str(value) + "),", end='')
+            print(", update " + self.propertyName + "=" + str(value), end='')
             self.applyCommand(self.propertyName, value)
-        
+
     def __update(self, measure):
         timestamp = datetime.utcnow()
         try:

@@ -12,6 +12,13 @@ from piwatcher import pimodule
 import matplotlib.pyplot as plt
         
 class PiCurrentSensor (pimodule.PiModule):
+    signalHz = 50
+    nbWaves = 5
+    nbVals = 1000
+    nbPointsPerWave = nbVals / nbWaves
+    timingForAllWaves = (nbWaves / signalHz) 
+    timingBetweenPoints = timingForAllWaves / nbVals
+    shouldTake = timingBetweenPoints * nbVals
     # Open SPI bus
     spi = spidev.SpiDev()
     spi.open(0, 0)
@@ -31,32 +38,25 @@ class PiCurrentSensor (pimodule.PiModule):
 #  30.5 kHz     30500
 #  15.2 kHz     15200
 #  7629 Hz       7629
-    
+
     spi.max_speed_hz = 7800000 # 488000 # 15600000 # 
 
-    signalHz = 50
-    nbWaves = 5
-    nbVals = 1000
-    nbPointsPerWave = nbVals / nbWaves
-    timingForAllWaves = (nbWaves / signalHz) 
-    timingBetweenPoints = timingForAllWaves / nbVals
-    shouldTake = timingBetweenPoints * nbVals
-    
-    print("nbWaves=" + str(nbWaves) + ", nbPointsPerWave=" + str(nbPointsPerWave) + ", timingForAllWaves=" + str(timingForAllWaves)
-        + ", timingBetweenPoints=" + str(timingBetweenPoints) + ", shoudTake=" + str(shouldTake))
-    
-    verbose = True
+    verbose = False
     dumpVals = True
     plotVals = False
-    
     config = None
+
+    if verbose:
+        print("nbWaves=" + str(nbWaves) + ", nbPointsPerWave=" + str(nbPointsPerWave) + ", timingForAllWaves=" + str(timingForAllWaves)
+            + ", timingBetweenPoints=" + str(timingBetweenPoints) + ", shoudTake=" + str(shouldTake))
+
 
     def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"PiCurrentSensor")
         self.config = moduleConfig
         if self.plotVals:
             plt.ion()
-    
+
     # Function to read SPI data from MCP3008 chip
     # Channel must be an integer 0-7
     def readChannel(self, channel):
@@ -66,7 +66,6 @@ class PiCurrentSensor (pimodule.PiModule):
 
     def readValues(self, channel):
         vals = []
-    
         start = datetime.now()    
         idx = 0
         while idx < self.maxVals:
@@ -102,7 +101,7 @@ class PiCurrentSensor (pimodule.PiModule):
         for j in range(0, 100):
             for channel in channels:
                 self.readChannel(channel)
-        
+
         vals = [0] * (max(channels) + 1)
         for i in channels:
             vals[i] = [0] * self.nbVals
@@ -126,9 +125,10 @@ class PiCurrentSensor (pimodule.PiModule):
             last = datetime.now()
         end = datetime.now()
         delta = end - start
-        print("totalSleep=" + str(totalSleep) + ", totalTook=" + str(totalTook) 
+        if self.verbose:
+            print("totalSleep=" + str(totalSleep) + ", totalTook=" + str(totalTook) 
                 + ", delta=" + str(delta.microseconds) + ", shouldTake=" + str(self.shouldTake))
-        print("* vals taken in " + str(delta.microseconds) + "µs "
+            print("* vals taken in " + str(delta.microseconds) + "µs "
              + "(" + ("%.2f" % (1000000/delta.microseconds)) + " Hz) => "
              + str(delta.microseconds / len(vals)) + " µs per val")
         return vals, timings, delta
@@ -139,9 +139,8 @@ class PiCurrentSensor (pimodule.PiModule):
     asm10_iPrim_vSec_Ratio = 300
     asm30_iPrim_vSec_Ratio = 500
     sct013_iPrim_vSec_Ratio = 826
-    
     noiseOffset = 0
-    
+
     def computeChannel(self, channel, measure, asmType, channelValues, noiseValues, timings, delta, threshold):
         if self.plotVals and channel == 4:
             plt.plot(channelValues)
@@ -176,18 +175,19 @@ class PiCurrentSensor (pimodule.PiModule):
         measure["wPrim"] = wPrim
         measure["vmean"] = vmean
         return wPrim, freq, amplitude, vmean, iPrim
-        
-        
+
     def update(self, measure):
-        print (", Current Sensors :")
+        if self.verbose:
+            print (", Current Sensors :")
         allChannels = range(0, 8)
-        
+
         for tries in range(0,10):
             vals, timings, delta = self.readAllValues(allChannels)
             noiseChannel = self.config["noise.channel"]
             npNoise = np.array(vals[noiseChannel])
             noiseGap = max(npNoise) - min(npNoise)
-            print("=> Noise level " + str(noiseGap) + ", nbTries=" + str(tries))
+            if self.verbose:
+                print("=> Noise level " + str(noiseGap) + ", nbTries=" + str(tries))
             if noiseGap < 0.0075: # 0.0075:
                 break
         measure["noiseLevel"] = noiseGap
@@ -197,7 +197,7 @@ class PiCurrentSensor (pimodule.PiModule):
             for channel in allChannels:
                 with open("/run/user/1000/output-" + str(channel) + ".json", "wb") as f:
                     f.write(json.dumps(vals[channel]).encode())
-                            
+
         if self.plotVals:
             plt.clf()
             plt.axis([0, self.nbVals, -1, 1]) 
@@ -209,7 +209,7 @@ class PiCurrentSensor (pimodule.PiModule):
             sensorType = sensor["type"]
             if self.verbose:
                 print("*** Id#" + sensorId + " : " + name + " (channel=" + str(channel) + ", type=" + sensorType + ")")
-                
+
             measure[sensorId] = {}
             asmType = "ASM30"
             if "asmType" in sensor:
@@ -223,11 +223,12 @@ class PiCurrentSensor (pimodule.PiModule):
                 np.array(vals[channel]), npNoise, timings, delta, threshold)
 
             if wPrim == 0:
-                print ("=> #" + sensorId + "=OFF")
+                print (", " + sensorId + "=OFF", end='')
             else:
-                print("=> #" + sensorId + "=\t" + ("%.2f" % wPrim) + "W"
-                      + " \t(" + ("%.2f" % freq) + "Hz, " + ("%.2f" % amplitude)
-                      + ", vmean=" + ("%.6f" % vmean) + ")")
+                print(", " + sensorId + "=" + ("%.2f" % wPrim) + "W", end='')
+                if self.verbose:
+                      print("(" + ("%.2f" % freq) + "Hz, " + ("%.2f" % amplitude)
+                          + ", vmean=" + ("%.6f" % vmean) + ")")
         if self.plotVals:
             plt.pause(30)
 

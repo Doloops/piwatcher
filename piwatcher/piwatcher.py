@@ -11,11 +11,11 @@ class PiWatcher:
     aliases = {"cpu":"cpuwatcher", "disk":"diskwatcher", "elastic":"push2es", "bmp280":"tempwatcher", "bme280":"tempwatcher",
                "piscript": "piscript", "picommander":"picommandwatcher", "picurrentsensor": "picurrentsensor",
                "pidigitalsensor": "pidigitalsensor"}
-    
+
     piModules = []
     updateInterval = None
 
-    def __init__(self):    
+    def __init__(self):
         self.updateInterval = self.pwConfig["updateInterval"]
         for moduleConfig in self.pwConfig["modules"]:
             if moduleConfig["name"] is None:
@@ -48,7 +48,6 @@ class PiWatcher:
             if isinstance( attr, type ):
                 if issubclass(attr, pimodule.PiModule):
                     moduleInstance = attr(moduleConfig)
-                    print("=> New module instance : " + str(moduleInstance))
                     return moduleInstance
         raise ValueError("Could not instantiate " + moduleName)
 
@@ -60,16 +59,15 @@ class PiWatcher:
             if isinstance( getattr(current_module, key), type ):
                 print(key)
 
-    def run(self):    
+    def run(self):
         try:
             while True:
                 loopstart = time.time()
                 tnow = time.strftime("%Y%m%d-%H%M%S")
                 print (tnow, end='')
-                
                 # measure={"statsInterval": self.statsInterval}
                 measure = {}
-                
+
                 for module in self.piModules:
                     try:
                         module.update(measure)
@@ -78,21 +76,23 @@ class PiWatcher:
                         print("Could not update module " + module.getModuleName(), str(sys.exc_info()))
                         # raise err
                         break
-        
+
                 loopend = time.time()
                 looptime = loopend - loopstart
                 print(" {" + ("%.3f"%((looptime)*1000)) + "}", end='')
                 print(".")
                 time.sleep(math.fabs(self.updateInterval - looptime))
-        
+
         finally:
             for module in self.piModules:
                 try:
                     module.shutdown()
                 except:
                     print("Could not shutdown " + module.getModuleName(), sys.exc_info()[0])
-    
+
     def updateModule(self, name, measure):
         for module in self.piModules:
             if module.getName() == name:
                 module.update(measure)
+                # This occurs out of band, so we have to add a line terminator for proper logs
+                print(".")

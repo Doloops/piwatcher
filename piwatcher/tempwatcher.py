@@ -71,7 +71,7 @@ class TempWatcher(pimodule.PiModule):
             tempSensorMessage += "[" + self.prefix + "]"
         tempSensorMessage += " temp=" + ("%2.2f'C" % indoorTemp) + ", pressure=" + ("%5.4f mbar" % indoorPressure)
         if indoorHumidity is not None:
-            tempSensorMessage += ", humidity=" + ("%3f %%" % indoorHumidity)
+            tempSensorMessage += ", humidity=" + ("%3.1f%%" % indoorHumidity)
         print(tempSensorMessage, end='')
 
     def shutdown(self):
