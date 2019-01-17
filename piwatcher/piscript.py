@@ -165,7 +165,7 @@ class PiScript(pimodule.PiModule):
 
     def simpleHeater(self, measure, prefix, indoorTempName = None, localIndoorTempName = None):
         if indoorTempName is not None:
-            indoorTemp = self.getState(None, indoorTempName, subscribe=subscribeIndoorTemp)
+            indoorTemp = self.getState(None, indoorTempName, subscribe=True)
         else:
             if localIndoorTempName is not None:
                 tempName = localIndoorTempName
