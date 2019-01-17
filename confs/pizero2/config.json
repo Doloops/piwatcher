@@ -54,7 +54,7 @@
                     "host": "pizero3"
                 }
             ],
-            "script": "self.simpleHeater(measure,'pizero2.victor', indoorTempName='pizero2.victor.indoorTemp', subscribeIndoorTemp=False)",
+            "script": "self.simpleHeater(measure,'pizero2.victor', localIndoorTempName='victor.indoorTemp')",
             "prefix": "victor",
             "updateModule": "heater2Command",
             "hourlyTemps": [

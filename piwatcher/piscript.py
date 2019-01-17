@@ -163,11 +163,18 @@ class PiScript(pimodule.PiModule):
         targetStandby = self.getState(prefix, "heater.target.standby")
         return targetStandby
 
-    def simpleHeater(self, measure, prefix, indoorTempName = None, subscribeIndoorTemp = True):
+    def simpleHeater(self, measure, prefix, indoorTempName = None, localIndoorTempName = None):
         if indoorTempName is not None:
             indoorTemp = self.getState(None, indoorTempName, subscribe=subscribeIndoorTemp)
         else:
-            indoorTemp = fetchfromes.extractFragment(measure, "indoorTemp")
+            if localIndoorTempName is not None:
+                tempName = localIndoorTempName
+            else:
+                tempName = "indoorTemp"
+            indoorTemp = fetchfromes.extractFragment(measure, tempName)
+
+        if self.verbose:
+            print("Collected indoorTemp=" + str(indoorTemp))
 
         modeComfort = self.updateModeComfort(prefix)
         # We must evaluate normal temp now, to update UI with freshest timely values
