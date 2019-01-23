@@ -7,7 +7,7 @@
         {
             "name": "disk",
             "enabled": true,
-            "ledPinout": 11,
+            "ledPinout_": 11,
             "deviceName": "sda",
             "useMeasurePerDisk": false
         },
