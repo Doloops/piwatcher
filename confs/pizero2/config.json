@@ -1,5 +1,5 @@
 {
-    "updateInterval": 30,
+    "updateInterval": 60,
     "modules": [
         {
             "name": "cpu"
