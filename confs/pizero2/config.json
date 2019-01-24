@@ -60,18 +60,18 @@
             "hourlyTemps": [
                 {
                     "from": 0,
-                    "to": 7,
-                    "temp": 17
+                    "to": 8,
+                    "temp": 18
                 },
                 {
                     "from": 7,
-                    "to": 16,
-                    "temp": 15
+                    "to": 15,
+                    "temp": 16
                 },
                 {
-                    "from": 16,
+                    "from": 15,
                     "to": 18,
-                    "temp": 16
+                    "temp": 17
                 },
                 {
                     "from": 18,
