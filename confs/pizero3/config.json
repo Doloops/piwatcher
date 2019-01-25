@@ -176,18 +176,18 @@
                 },
                 {
                     "from": 18,
-                    "to": 20,
+                    "to": 19,
                     "state": true
                 },
                 {
-                    "from": 20,
+                    "from": 19,
                     "to": 23,
                     "state": false
                 },
                 {
                     "from": 23,
                     "to": 24,
-                    "state": true
+                    "state": false
                 }
             ]
         },
