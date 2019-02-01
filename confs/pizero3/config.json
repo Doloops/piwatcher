@@ -171,16 +171,16 @@
                 },
                 {
                     "from": 6,
-                    "to": 17,
+                    "to": 16,
                     "state": false
                 },
                 {
-                    "from": 17,
-                    "to": 19,
+                    "from": 16,
+                    "to": 20,
                     "state": true
                 },
                 {
-                    "from": 19,
+                    "from": 20,
                     "to": 23,
                     "state": false
                 },
