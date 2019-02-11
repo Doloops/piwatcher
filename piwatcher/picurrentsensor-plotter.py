@@ -122,6 +122,7 @@ class CurrentSensorPlotter:
 #                self.sk.send(bytearray(json.dumps(vals[channel]) + "\n","utf-8"))
                 self.skmf.write(json.dumps(vals) + "\n")
                 self.skmf.flush()
+                time.sleep(0.1)
 #                plt.scatter(timings, vals[channel], marker='.', linewidths=1)
             if self.doPlot:
                 plt.pause(0.1)
