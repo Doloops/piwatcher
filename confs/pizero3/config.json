@@ -100,26 +100,16 @@
                 },
                 "ch1mn": {
                     "pinout": 38
-                },
-                "ch2mp": {
-                    "pinout": 22
-                },
-                "ch2mn": {
-                    "pinout": 32
                 }
             },
             "commands": {
                 "heaterOn": {
                     "ch1mp": false,
-                    "ch1mn": false,
-                    "ch2mp": false,
-                    "ch2mn": false
+                    "ch1mn": false
                 },
                 "heaterOff": {
                     "ch1mp": true,
-                    "ch1mn": false,
-                    "ch2mp": true,
-                    "ch2mn": false
+                    "ch1mn": false
                 }
             }
         },
@@ -129,21 +119,21 @@
             "property": "dalles.heater.command",
             "defaultValue": "heaterOff",
             "channels": {
-                "ch3mp": {
-                    "pinout": 16
+                "ch2mp": {
+                    "pinout": 22
                 },
-                "ch3mn": {
-                    "pinout": 18
+                "ch2mn": {
+                    "pinout": 32
                 }
             },
             "commands": {
                 "heaterOn": {
-                    "ch3mp": true,
-                    "ch3mn": true
+                    "ch2mp": true,
+                    "ch2mn": true
                 },
                 "heaterOff": {
-                    "ch3mp": false,
-                    "ch3mn": false
+                    "ch2mp": false,
+                    "ch2mn": false
                 }
             }
         },
@@ -197,21 +187,21 @@
             "property": "waterHeater.state",
             "defaultValue": "relayOff",
             "channels": {
-                "ch4mp": {
-                    "pinout": 11
+                "ch3mp": {
+                    "pinout": 16
                 },
-                "ch4mn": {
-                    "pinout": 7
+                "ch3mn": {
+                    "pinout": 18
                 }
             },
             "commands": {
                 "relayOn": {
-                    "ch4mp": true,
-                    "ch4mn": true
+                    "ch3mp": true,
+                    "ch3mn": true
                 },
                 "relayOff": {
-                    "ch4mp": false,
-                    "ch4mn": false
+                    "ch3mp": false,
+                    "ch3mn": false
                 }
             }
         },
@@ -231,49 +221,43 @@
             "name": "circeeRelayCommand",
             "module": "picommander",
             "property": "circeeRelay.state",
-            "defaultValue": "relayOff",
+            "defaultValue": "relayOn",
             "enabled": true,
             "channels": {
-                "ch5mp": {
-                    "pinout": 15
+                "ch4mp": {
+                    "pinout": 11
                 },
-                "ch5mn": {
-                    "pinout": 13
+                "ch4mn": {
+                    "pinout": 7
                 }
             },
             "commands": {
                 "relayOn": {
-                    "ch5mp": true,
-                    "ch5mn": true
+                    "ch4mp": true,
+                    "ch4mn": true
                 },
                 "relayOff": {
-                    "ch5mp": false,
-                    "ch5mn": false
+                    "ch4mp": false,
+                    "ch4mn": false
                 }
             }
         },
         {
             "name": "picurrentsensor",
+            "enabled": true,
             "sensors": [
-                {
-                    "id": "board.low",
-                    "name": "Tableau bas",
-                    "channel": 0,
-                    "type": "amp",
-                    "asmType": "SCT013"
-                },
                 {
                     "id": "board.high",
                     "name": "Tableau haut",
-                    "channel": 5,
+                    "channel": 0,
                     "type": "amp"
                 },
                 {
-                    "id": "underfloor.heating",
-                    "name": "Dalles",
-                    "channel": 6,
+                    "id": "board.low",
+                    "name": "Tableau bas",
+                    "channel": 1,
                     "type": "amp",
-                    "threshold": 200
+                    "asmType": "SCT013"
                 },
                 {
                     "id": "water.heater",
@@ -284,6 +268,13 @@
                     "threshold": 200
                 },
                 {
+                    "id": "living.heating",
+                    "name": "Chauffage Living",
+                    "channel": 3,
+                    "type": "amp",
+                    "threshold": 200
+                },
+                {
                     "id": "living.tv",
                     "name": "TV and Co",
                     "channel": 4,
@@ -291,9 +282,9 @@
                     "asmType": "ASM10"
                 },
                 {
-                    "id": "living.heating",
-                    "name": "Chauffage Living",
-                    "channel": 3,
+                    "id": "underfloor.heating",
+                    "name": "Dalles",
+                    "channel": 5,
                     "type": "amp",
                     "threshold": 200
                 }
