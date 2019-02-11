@@ -5,6 +5,56 @@
             "name": "cpu"
         },
         {
+            "name": "disk",
+            "deviceName": "md1",
+            "useHdparm": false
+        },
+        {
+            "name": "disk",
+            "deviceName": "sda",
+            "useHdparm": false
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdb",
+            "useHdparm": false
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdc",
+            "useHdparm": false
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdd",
+            "useHdparm": false
+        },
+        {
+            "name": "disk",
+            "deviceName": "sde",
+            "useHdparm": false
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdf",
+            "useHdparm": false
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdg",
+            "useHdparm": false
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdh",
+            "useHdparm": false
+        },
+        {
+            "name": "disk",
+            "deviceName": "sdi",
+            "useHdparm": false
+        },
+        {
             "name": "elastic",
             "statsInterval": 60,
             "hostname": "rockpro64",

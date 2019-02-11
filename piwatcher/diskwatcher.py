@@ -12,18 +12,20 @@ class DiskWatcher(pimodule.PiModule):
     diskLedPinout = None
     diskDeviceName = None
     lastTotalIO = 0
+    lastDiffIO = 0
     previousDiskState = "unknown"
     previousDiskStateTime = time.time()
     useMeasurePerDisk = True
 
     hasGPIO = False
     ledPwm = None
+    useHdparm = True
 
     def __init__(self, config):
         pimodule.PiModule.__init__(self,"Disk")
         self.diskDeviceName = config["deviceName"]
 
-        if "ledPinout" in config:    
+        if "ledPinout" in config:
             self.diskLedPinout = config["ledPinout"]
 
             import RPi.GPIO as GPIO
@@ -35,6 +37,8 @@ class DiskWatcher(pimodule.PiModule):
             self.ledPwm.start(25)
         if "useMeasurePerDisk" in config:
             self.useMeasurePerDisk = config["useMeasurePerDisk"]
+        if "useHdparm" in config:
+            self.useHdparm = config["useHdparm"]
 
     def checkDiskActivity(self):
         try:
@@ -46,16 +50,20 @@ class DiskWatcher(pimodule.PiModule):
             diskActivity = False
             if totalIO != self.lastTotalIO:
                 diskActivity = True
+            self.lastDiffIO = totalIO - self.lastTotalIO
             self.lastTotalIO = totalIO
             return diskActivity
         finally:
             stat_file.close()
 
     def checkDiskState(self):
-        result = subprocess.check_output(["hdparm", "-C", "/dev/" + self.diskDeviceName], shell=False)
-        result = result.decode("utf-8")
-        match = self.hdparmPattern.match(result);
-        state = match.group(1);
+        if self.useHdparm:
+            result = subprocess.check_output(["hdparm", "-C", "/dev/" + self.diskDeviceName], shell=False)
+            result = result.decode("utf-8")
+            match = self.hdparmPattern.match(result);
+            state = match.group(1);
+        else:
+            state = "active/idle"
         if state == "active/idle":
             if self.checkDiskActivity():
                 return "active"
@@ -97,6 +105,8 @@ class DiskWatcher(pimodule.PiModule):
             diskMeasure = measure
         diskMeasure["diskState"] = diskState
         diskMeasure["cumulateDiskStateTime"] = cumulateDiskStateTime
+        diskMeasure["totalIO"] = self.lastTotalIO
+        diskMeasure["diffIO"] = self.lastDiffIO
         diskStateMessage = ", " + self.diskDeviceName + "=" + diskState + " for " + str(int(cumulateDiskStateTime)) + "s"
         print(diskStateMessage, end='')
 
