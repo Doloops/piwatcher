@@ -1,0 +1,23 @@
+{
+    "updateInterval": 60,
+    "modules": [
+        {
+            "name": "cpu"
+        },
+        {
+            "name": "elastic",
+            "statsInterval": 60,
+            "hostname": "rockpro64",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "index": "oswh-rockpro64",
+            "type": "sys-measure",
+            "redis": {
+                "host": "pizero3"
+            }
+        }
+    ]
+}
