@@ -29,11 +29,14 @@ class PiCommandWatcher(pimodule.PiModule):
                 pinout = channel["pinout"]
                 print("Configuring channel " + name + " to pinout " + str(pinout))
                 GPIO.setup(pinout, GPIO.OUT)
-                GPIO.output(pinout, False)
+#                GPIO.output(pinout, False)
             else:
                 raise ValueError("Invalid channel " + name + " : " + str(channel))
         if "init" in self.commands:
             self.applyCommand("__init__", "init")
+        elif self.defaultValue is not None:
+            print("Setting default " + str(self.defaultValue))
+            self.applyCommand(self.propertyName, self.defaultValue)
 
     def update(self, measure):
         measure = self.mayWrap(measure)
