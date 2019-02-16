@@ -198,6 +198,10 @@ class PiScript(pimodule.PiModule):
         fetchfromes.updateFragment(measure, measurePrefix + "heater.command", heaterCommand)
 
     def getNormalState(self, prefix):
+        forceState = self.getState(prefix, "forceCommand")
+        print("(" + prefix + " forceCommand=" + str(forceState), end='')
+        if forceState:
+            return "relayOn"
         if "hourlyState" in self.moduleConfig:
             hourlyState = self.moduleConfig["hourlyState"]
             hour = datetime.now().hour

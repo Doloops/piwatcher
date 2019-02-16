@@ -453,6 +453,34 @@
                     "displayFormat": "%.2f"
                 },
                 {
+                    "id": "pizero3.waterHeater.state",
+                    "name": "Chauffe-eau",
+                    "type": "WebOutputLight",
+                    "var_type": "bool",
+                    "visible": "true",
+                    "gui_type": "light",
+                    "state": "false",
+                    "io_type": "output",
+                    "mapping": {
+                        "relayOn": true,
+                        "relayOff": false
+                    }
+                },
+                {
+                    "id": "pizero3.waterHeater.forceCommand",
+                    "name": "Chauffe-eau forcé",
+                    "type": "WebOutputLight",
+                    "var_type": "bool",
+                    "visible": "true",
+                    "gui_type": "light",
+                    "state": "false",
+                    "io_type": "output",
+                    "mapping": {
+                        "relayOn": true,
+                        "relayOff": false
+                    }
+                },
+                {
                     "id": "pizero3.circeeRelay.command",
                     "name": "Circee",
                     "type": "WebOutputLight",
