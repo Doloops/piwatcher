@@ -36,7 +36,7 @@
                     "host": "pizero3"
                 }
             ],
-            "script": "self.simpleHeater(measure,'pizero3', indoorTempName='osmc.indoorTemp')",
+            "script": "self.simpleHeater(measure,'pizero3', localIndoorTempName='salon.indoorTemp')",
             "updateModule": "heater1Command",
             "hourlyTemps": [
                 {
@@ -79,7 +79,7 @@
                     "host": "pizero3"
                 }
             ],
-            "script": "self.simpleHeater(measure,'pizero3.dalles', indoorTempName='osmc.indoorTemp')",
+            "script": "self.simpleHeater(measure,'pizero3.dalles', localIndoorTempName='salon.indoorTemp')",
             "prefix": "dalles",
             "updateModule": "heater2Command",
             "hourlyTemps": [
