@@ -6,8 +6,8 @@
             "hits": "23",
             "items": [
                 {
-                    "id": "osmc.indoorTemp",
-                    "name": "Température Salon",
+                    "id": "pizero3.salon..indoorTemp",
+                    "name": "Temperature Salon",
                     "type": "WebInputTemp",
                     "var_type": "float",
                     "visible": "true",
@@ -23,7 +23,7 @@
                 },
                 {
                     "id": "pizero3.heater.target.comfort",
-                    "name": "Température Confort Salon",
+                    "name": "Temperature Confort Salon",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -34,7 +34,7 @@
                 },
                 {
                     "id": "pizero3.heater.target.standby",
-                    "name": "Température Normale Salon",
+                    "name": "Temperature Normale Salon",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -45,7 +45,7 @@
                 },
                 {
                     "id": "pizero3.heater.comfort.ttl",
-                    "name": "Durée du mode confort (heures)",
+                    "name": "Duree du mode confort (heures)",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -97,8 +97,8 @@
             "hits": "0",
             "items": [
                 {
-                    "id": "pizero1.indoorTemp",
-                    "name": "Température Bureau",
+                    "id": "pizero2.bureau.indoorTemp",
+                    "name": "Temperature Bureau",
                     "type": "WebInputTemp",
                     "var_type": "float",
                     "visible": "true",
@@ -109,8 +109,8 @@
                     "displayFormat": "%.2f"
                 },
                 {
-                    "id": "pizero1.heater.target.comfort",
-                    "name": "Température Confort Bureau",
+                    "id": "pizero2.bureau.heater.target.comfort",
+                    "name": "Temperature Confort Bureau",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -120,8 +120,8 @@
                     "io_type": "inout"
                 },
                 {
-                    "id": "pizero1.heater.target.standby",
-                    "name": "Température Normale Bureau",
+                    "id": "pizero2.bureau.heater.target.standby",
+                    "name": "Temperature Normale Bureau",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -131,8 +131,8 @@
                     "io_type": "inout"
                 },
                 {
-                    "id": "pizero1.heater.comfort.ttl",
-                    "name": "Durée du mode confort (heures)",
+                    "id": "pizero2.bureau.heater.comfort.ttl",
+                    "name": "Duree du mode confort (heures)",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -142,7 +142,7 @@
                     "io_type": "inout"
                 },
                 {
-                    "id": "pizero1.heater.comfort.remaingTime",
+                    "id": "pizero2.bureau.heater.comfort.remaingTime",
                     "name": "Temps restant en mode confort (minutes)",
                     "type": "InternalInt",
                     "var_type": "float",
@@ -152,7 +152,7 @@
                     "io_type": "inout"
                 },
                 {
-                    "id": "pizero1.heater.mode.comfort",
+                    "id": "pizero2.bureau.heater.mode.comfort",
                     "name": "Mode Confort",
                     "type": "InternalBool",
                     "var_type": "bool",
@@ -163,7 +163,7 @@
                     "io_type": "inout"
                 },
                 {
-                    "id": "pizero1.heater.command",
+                    "id": "pizero2.bureau.heater.command",
                     "name": "Chauffage",
                     "type": "WebOutputLight",
                     "var_type": "bool",
@@ -185,7 +185,7 @@
             "items": [
                 {
                     "id": "pizero2.indoorTemp",
-                    "name": "Température Mezzanine",
+                    "name": "Temperature Mezzanine",
                     "type": "WebInputTemp",
                     "var_type": "float",
                     "visible": "true",
@@ -197,7 +197,7 @@
                 },
                 {
                     "id": "pizero2.heater.target.comfort",
-                    "name": "Température Confort Mezzanine",
+                    "name": "Temperature Confort Mezzanine",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -208,7 +208,7 @@
                 },
                 {
                     "id": "pizero2.heater.target.standby",
-                    "name": "Température Normale Mezzanine",
+                    "name": "Temperature Normale Mezzanine",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -219,7 +219,7 @@
                 },
                 {
                     "id": "pizero2.heater.comfort.ttl",
-                    "name": "Durée du mode confort (heures)",
+                    "name": "Duree du mode confort (heures)",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -272,7 +272,7 @@
             "items": [
                 {
                     "id": "pizero2.victor.indoorTemp",
-                    "name": "Température Victor",
+                    "name": "Temperature Victor",
                     "type": "WebInputTemp",
                     "var_type": "float",
                     "visible": "true",
@@ -284,7 +284,7 @@
                 },
                 {
                     "id": "pizero2.victor.heater.target.comfort",
-                    "name": "Température Confort Victor",
+                    "name": "Temperature Confort Victor",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -295,7 +295,7 @@
                 },
                 {
                     "id": "pizero2.victor.heater.target.standby",
-                    "name": "Température Normale Victor",
+                    "name": "Temperature Normale Victor",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -306,7 +306,7 @@
                 },
                 {
                     "id": "pizero2.victor.heater.comfort.ttl",
-                    "name": "Durée du mode confort (heures)",
+                    "name": "Duree du mode confort (heures)",
                     "type": "InternalInt",
                     "var_type": "float",
                     "visible": "true",
@@ -354,12 +354,12 @@
         },
         {
             "type": "exterieur",
-            "name": "Extérieur",
+            "name": "Exterieur",
             "hits": "0",
             "items": [
                 {
                     "id": "main.temp",
-                    "name": "Température Extérieure",
+                    "name": "Temperature Exterieure",
                     "type": "WebInputTemp",
                     "var_type": "float",
                     "visible": "true",
@@ -468,7 +468,7 @@
                 },
                 {
                     "id": "pizero3.waterHeater.forceCommand",
-                    "name": "Chauffe-eau forcé",
+                    "name": "Chauffe-eau force",
                     "type": "WebOutputLight",
                     "var_type": "bool",
                     "visible": "true",
