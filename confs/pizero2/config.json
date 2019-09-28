@@ -6,12 +6,27 @@
         },
         {
             "name": "bmp280",
-            "enabled": true
+            "enabled": true,
+            "busnum": 1
         },
         {
             "name": "bmp280",
             "prefix": "victor",
             "address": "0x76"
+        },
+        {
+            "name": "bme280",
+            "model": "BME280",
+            "prefix": "bureau",
+            "address": "0x77",
+            "busnum": 3
+        },
+        {
+            "name": "bme280",
+            "prefix": "bureau-2",
+            "address": "0x76",
+            "busnum": 3,
+            "enabled": false
         },
         {
             "name": "piscript",
@@ -81,6 +96,18 @@
             ]
         },
         {
+            "name": "piscript3Bureau",
+            "module": "piscript",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "script": "self.simpleHeater(measure,'pizero2.bureau', localIndoorTempName='bureau.indoorTemp')",
+            "prefix": "bureau",
+            "updateModule": "heater3Command"
+        },
+        {
             "name": "heater1Command",
             "module": "picommander",
             "property": "heater.command",
@@ -126,6 +153,33 @@
                 "heaterOff": {
                     "ch2mp": true,
                     "ch2mn": false
+                }
+            }
+        },
+        {
+            "name": "heater3Command",
+            "module": "picommander",
+            "property": "bureau.heater.command",
+            "defaultValue": "heaterOff",
+            "model": "mcp230xx",
+            "address": 32,
+            "busnum": 3,
+            "channels": {
+                "ch1mp": {
+                    "pinout": 8
+                },
+                "ch1mn": {
+                    "pinout": 9
+                }
+            },
+            "commands": {
+                "heaterOn": {
+                    "ch1mp": false,
+                    "ch1mn": false
+                },
+                "heaterOff": {
+                    "ch1mp": false,
+                    "ch1mn": true
                 }
             }
         },
