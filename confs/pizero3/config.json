@@ -6,18 +6,10 @@
         },
         {
             "name": "bme280",
-            "address": "0x77",
-            "model": "BME280",
-            "busnum": 4,
-            "prefix": "garage",
-            "enabled": true
-        },
-        {
-            "name": "bme280",
             "address": "0x76",
             "model": "BME280",
             "busnum": 4,
-            "prefix": "garage-2",
+            "prefix": "garage",
             "enabled": true
         },
         {
