@@ -4,6 +4,7 @@ from piwatcher import pimodule
 import sys
 import time
 import math
+import traceback
 
 class PiWatcher:
     pwConfig = piwatcherconfig.getPiWatcherConfig()
@@ -73,7 +74,10 @@ class PiWatcher:
                         module.update(measure)
                     except Exception as err:
                         print(" ! Caught " + str(err))
-                        print("Could not update module " + module.getModuleName(), str(sys.exc_info()))
+                        track = traceback.format_exc()
+                        print(track)
+                        print("Could not update module " + module.getName() + " (" + module.getModuleName() + ")")
+                        # , str(sys.exc_info()))
                         # raise err
                         break
 
