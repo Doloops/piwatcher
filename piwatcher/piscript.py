@@ -184,6 +184,10 @@ class PiScript(pimodule.PiModule):
         else:
             targetTemp = normalTemp
 
+        if targetTemp is None:
+            print("Forcing default !", end='')
+            targetTemp = 20.0
+
         if indoorTemp < targetTemp:
             heaterCommand = "heaterOn"
         else:
