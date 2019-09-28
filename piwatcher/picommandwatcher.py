@@ -2,9 +2,10 @@ from piwatcher import piwatcherconfig
 from piwatcher import pimodule
 import time
 import sys
-import RPi.GPIO as GPIO
+import RPi.GPIO
 from piwatcher import fetchfromes
 from datetime import datetime
+from piwatcher.MCP230XX import MCP230XX
 
 class PiCommandWatcher(pimodule.PiModule):
     channels = None
@@ -12,10 +13,18 @@ class PiCommandWatcher(pimodule.PiModule):
     propertyName = None
     defaultValue = None
     pwms = {}
+    model = None
+    gpio = None
 
     def __init__(self, moduleConfig):
         pimodule.PiModule.__init__(self,"PiCommandWatcher")
-        GPIO.setmode(GPIO.BOARD)
+        if "model" in moduleConfig:
+            self.model = moduleConfig["model"]
+        if self.model == "mcp230xx":
+            self.gpio = MCP230XX('MCP23017', moduleConfig["address"], '16bit', busnum=moduleConfig["busnum"])
+        else:
+            self.gpio = RPi.GPIO
+            self.gpio.setmode(self.gpio.BOARD)
         self.channels = moduleConfig["channels"]
         self.commands = moduleConfig["commands"]
         self.propertyName = moduleConfig["property"]
@@ -28,17 +37,19 @@ class PiCommandWatcher(pimodule.PiModule):
             if "pinout" in channel:
                 pinout = channel["pinout"]
                 print("Configuring channel " + name + " to pinout " + str(pinout))
-                GPIO.setup(pinout, GPIO.OUT)
-#                GPIO.output(pinout, False)
+                if self.model == "mcp230xx":
+                    self.gpio.set_mode(pinout, "output")
+                else:
+                    self.gpio.setup(pinout, self.gpio.OUT)
+                self.gpio.output(pinout, False)
             else:
                 raise ValueError("Invalid channel " + name + " : " + str(channel))
         if "init" in self.commands:
             self.applyCommand("__init__", "init")
-        elif self.defaultValue is not None:
-            print("Setting default " + str(self.defaultValue))
-            self.applyCommand(self.propertyName, self.defaultValue)
+        print("PiCommand OK")
 
     def update(self, measure):
+#        print("[update()]")
         measure = self.mayWrap(measure)
         value = fetchfromes.extractFragment(measure, self.propertyName)
         if value is None and self.defaultValue is not None:
@@ -88,11 +99,11 @@ class PiCommandWatcher(pimodule.PiModule):
                         # When disabling PWM, we have to wait a bit before setting value
                         freq = channel["freq"]
                         time.sleep(2/freq)
-                    GPIO.output(pinout, commandValue)
+                    self.gpio.output(pinout, commandValue)
                 else:
                     if commandKey not in self.pwms:
                         freq = channel["freq"]
-                        pwm = GPIO.PWM(pinout, freq)
+                        pwm = self.gpio.PWM(pinout, freq)
                         pwm.start(0)
                         self.pwms[commandKey] = pwm
 #                        print("Setting PWM for channel :" + commandKey)
@@ -130,13 +141,13 @@ class PiCommandWatcher(pimodule.PiModule):
             if "pinout" in channel:
                 pinout = channel["pinout"]
                 print("Disabling channel " + name + ", pinout " + str(pinout))
-                GPIO.output(pinout, False)
-        GPIO.cleanup()
+                self.gpio.output(pinout, False)
+        self.gpio.cleanup()
 
 
 if __name__=="__main__":
     pwConfig = piwatcherconfig.PiWatcherConfig.getConfig()
-    if "picommander" in pwConfig:    
+    if "picommander" in pwConfig:
         picmd = PiCommandWatcher(moduleConfig = pwConfig["picommander"])
     try:
         while True:
@@ -150,17 +161,3 @@ if __name__=="__main__":
                 print("Invalid input : " + input)
     finally:
         picmd.shutdown()
-        
-# Garbage
-
-# Sample ES query from Python
-#        query = {"query":
-#            {"bool":
-#                {"must":[
-#                    {"range":{"timestamp":{"lt":timestamp}}}
-#                    ],
-#                 "must_not":[],"should":[]}},
-#             "from":0,"size":1,
-#             "sort":[{"timestamp":{"order":"desc"}}],
-#             "aggs":{}}
-
