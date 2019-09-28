@@ -27,7 +27,7 @@ class TempWatcher(pimodule.PiModule):
 
     def initTempSensor(self):
         if self.model == "BMP280":
-            self.tempSensor = bmp280.BMP280(address=self.address)
+            self.tempSensor = bmp280.BMP280(address=self.address, bus_number=self.busnum)
             chip_id, chip_version = self.tempSensor.read_id()
 
             if chip_id == 88:
@@ -37,6 +37,7 @@ class TempWatcher(pimodule.PiModule):
             print("BMP280 OK")
         elif self.model == "BME280":
             self.tempSensor = bme280.BME280(address=self.address, busnum=self.busnum)
+            print("BME280 OK")
         else:
             raise ValueError ("Unsupported model : " + self.model)
 
