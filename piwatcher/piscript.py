@@ -250,6 +250,15 @@ class PiScript(pimodule.PiModule):
         fetchfromes.updateFragment(measure, measurePrefix + "state", targetState)
 
 
+    def grabRemoteCommand(self, measure, externalCommand, localCommand, defaultValue):
+        commandValue = self.getState(externalCommand, "command")
+        if commandValue is None:
+            commandValue = defaultValue
+        if commandValue.startswith('"'):
+            commandValue = json.loads(commandValue)
+        print(", (grabbed " + externalCommand + "=" + commandValue + " => " + localCommand + ")", end='')
+        fetchfromes.updateFragment(measure, localCommand + ".command", commandValue)
+
     def update(self, measure):
         self.lastMeasure = measure
         measure = self.mayWrap(measure)

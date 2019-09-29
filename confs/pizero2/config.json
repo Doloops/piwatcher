@@ -108,6 +108,18 @@
             "updateModule": "heater3Command"
         },
         {
+            "name": "piscript4SalleAManger",
+            "module": "piscript",
+            "hosts": [
+                {
+                    "host": "pizero3"
+                }
+            ],
+            "script": "self.grabRemoteCommand(measure,'pizero3.heater', 'salleamanger.heater', 'heaterOff')",
+            "prefix": "salleamanger",
+            "updateModule": "heater4Command"
+        },
+        {
             "name": "heater1Command",
             "module": "picommander",
             "property": "heater.command",
@@ -170,6 +182,33 @@
                 },
                 "ch1mn": {
                     "pinout": 9
+                }
+            },
+            "commands": {
+                "heaterOn": {
+                    "ch1mp": false,
+                    "ch1mn": false
+                },
+                "heaterOff": {
+                    "ch1mp": false,
+                    "ch1mn": true
+                }
+            }
+        },
+        {
+            "name": "heater4Command",
+            "module": "picommander",
+            "property": "salleamanger.heater.command",
+            "defaultValue": "heaterOff",
+            "model": "mcp230xx",
+            "address": 32,
+            "busnum": 3,
+            "channels": {
+                "ch1mp": {
+                    "pinout": 10
+                },
+                "ch1mn": {
+                    "pinout": 11
                 }
             },
             "commands": {
