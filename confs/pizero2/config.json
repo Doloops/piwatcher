@@ -231,7 +231,7 @@
                     "host": "pizero3"
                 }
             ],
-            "index": "oswh-pizero2-19-1",
+            "index": "oswh-pizero2-19-2",
             "type": "sys-measure",
             "redis": {
                 "host": "pizero3"
