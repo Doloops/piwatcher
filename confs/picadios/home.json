@@ -6,7 +6,7 @@
             "hits": "23",
             "items": [
                 {
-                    "id": "pizero3.salon..indoorTemp",
+                    "id": "pizero3.salon.indoorTemp",
                     "name": "Temperature Salon",
                     "type": "WebInputTemp",
                     "var_type": "float",
