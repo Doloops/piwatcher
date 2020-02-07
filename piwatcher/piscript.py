@@ -211,6 +211,9 @@ class PiScript(pimodule.PiModule):
         fetchfromes.updateFragment(measure, measurePrefix + "heater.command", heaterCommand)
 
     def getNormalState(self, prefix):
+        if self.isModeAway():
+            print("(" + prefix + " away)", end='')
+            return "relayOff"
         forceState = self.getState(prefix, "forceCommand")
         print("(" + prefix + " forceCommand=" + str(forceState), end='')
         if forceState:
