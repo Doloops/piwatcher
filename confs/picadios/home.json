@@ -381,6 +381,43 @@
             "hits": "0",
             "items": [
                 {
+                    "id": "pizero3.garage.indoorTemp",
+                    "name": "Temperature Garage",
+                    "type": "WebInputTemp",
+                    "var_type": "float",
+                    "visible": "true",
+                    "unit": "",
+                    "gui_type": "temp",
+                    "state": "0.0",
+                    "io_type": "input",
+                    "displayFormat": "%.2f"
+                },
+                {
+                    "id": "general.away.command",
+                    "name": "Mode Absent",
+                    "type": "WebOutputLight",
+                    "var_type": "bool",
+                    "visible": "true",
+                    "gui_type": "light",
+                    "state": "false",
+                    "io_type": "output",
+                    "mapping": {
+                        "relayOn": true,
+                        "relayOff": false
+                    }
+                },
+                {
+                    "id": "general.away.target",
+                    "name": "Temperature Mode Absent",
+                    "type": "InternalInt",
+                    "var_type": "float",
+                    "visible": "true",
+                    "rw": "true",
+                    "gui_type": "var_int",
+                    "state": "12.0",
+                    "io_type": "inout"
+                },
+                {
                     "id": "pizero3.board.high.wPrim",
                     "name": "Tableau Haut",
                     "type": "WebInputTemp",
