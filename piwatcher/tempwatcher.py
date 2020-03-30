@@ -42,20 +42,27 @@ class TempWatcher(pimodule.PiModule):
             raise ValueError ("Unsupported model : " + self.model)
 
     def update(self, measure):
-        if self.tempSensor is None:
-            self.initTempSensor()
-        indoorTemp, indoorPressure = self.tempSensor.read()
-        if self.model == "BME280":
-            indoorHumidity = self.tempSensor.read_humidity()
-        else:
-            indoorHumidity = None
+        nbtry = 0
+        while True:
+            if self.tempSensor is None:
+                self.initTempSensor()
+            indoorTemp, indoorPressure = self.tempSensor.read()
+            if self.model == "BME280":
+                indoorHumidity = self.tempSensor.read_humidity()
+            else:
+                indoorHumidity = None
 
-        # Guard against absurd values
-        if indoorTemp > 60.0 or indoorPressure < 920.0:
-            print ("Invalid values provided: temp=" + str(indoorTemp) + ", pressure=" + str(indoorPressure) + ", skipping values");
-            self.tempSensor.bus.close()
-            self.tempSensor = None
-            raise ValueError("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
+            # Guard against absurd values
+            if indoorTemp > 60.0 or indoorPressure < 920.0:
+                print ("Invalid values provided: temp=" + str(indoorTemp) + ", pressure=" + str(indoorPressure) + ", skipping values, try=" + str(nbtry))
+                self.tempSensor.bus.close()
+                self.tempSensor = None
+                nbtry = nbtry + 1
+                if nbtry >= 10:
+                    raise ValueError("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value")
+                continue
+            else:
+                break
         if self.prefix is not None:
             if self.prefix not in measure:
                 measure[self.prefix] = {}
