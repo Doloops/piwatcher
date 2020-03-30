@@ -51,8 +51,8 @@ class TempWatcher(pimodule.PiModule):
             indoorHumidity = None
 
         # Guard against absurd values
-        if indoorPressure < 920.0:
-            print ("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
+        if indoorTemp > 60.0 or indoorPressure < 920.0:
+            print ("Invalid values provided: temp=" + str(indoorTemp) + ", pressure=" + str(indoorPressure) + ", skipping values");
             self.tempSensor.bus.close()
             self.tempSensor = None
             raise ValueError("Invalid indoorPressure provided : " + str(indoorPressure) + ", skipping value");
