@@ -33,13 +33,18 @@
             "hourlyTemps": [
                 {
                     "from": 0,
-                    "to": 5,
+                    "to": 4,
                     "temp": 17
                 },
                 {
-                    "from": 5,
-                    "to": 9,
+                    "from": 4,
+                    "to": 6,
                     "temp": 19
+                },
+                {
+                    "from": 6,
+                    "to": 9,
+                    "temp": 21
                 },
                 {
                     "from": 9,
@@ -78,22 +83,22 @@
                 {
                     "from": 0,
                     "to": 2,
-                    "temp": 20
+                    "temp": 16
                 },
                 {
                     "from": 2,
                     "to": 6,
-                    "temp": 22
+                    "temp": 17 
                 },
                 {
                     "from": 6,
                     "to": 23,
-                    "temp": 10
+                    "temp": 0
                 },
                 {
                     "from": 23,
                     "to": 24,
-                    "temp": 10
+                    "temp": 0
                 }
             ]
         },
