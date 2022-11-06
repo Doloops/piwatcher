@@ -49,17 +49,17 @@
                 {
                     "from": 9,
                     "to": 16,
-                    "temp": 17
+                    "temp": 21
                 },
                 {
                     "from": 16,
                     "to": 18,
-                    "temp": 18
+                    "temp": 21
                 },
                 {
                     "from": 18,
                     "to": 22,
-                    "temp": 19
+                    "temp": 21
                 },
                 {
                     "from": 22,
@@ -82,13 +82,13 @@
             "hourlyTemps": [
                 {
                     "from": 0,
-                    "to": 2,
-                    "temp": 16
+                    "to": 4,
+                    "temp": 0
                 },
                 {
-                    "from": 2,
+                    "from": 4,
                     "to": 6,
-                    "temp": 17 
+                    "temp": 23
                 },
                 {
                     "from": 6,
@@ -174,11 +174,11 @@
                 },
                 {
                     "from": 6,
-                    "to": 16,
+                    "to": 19,
                     "state": false
                 },
                 {
-                    "from": 16,
+                    "from": 19,
                     "to": 20,
                     "state": true
                 },
