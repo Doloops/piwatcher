@@ -25,7 +25,7 @@
             "module": "piscript",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.simpleHeater(measure,'pizero3', localIndoorTempName='salon.indoorTemp')",
@@ -73,7 +73,7 @@
             "module": "piscript",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.simpleHeater(measure,'pizero3.dalles', localIndoorTempName='salon.indoorTemp')",
@@ -156,7 +156,7 @@
             "prefix": "waterHeater",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.simpleRelay(measure,'pizero3.waterHeater')",
@@ -224,7 +224,7 @@
             "prefix": "circeeRelay",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.commandRelay(measure,'pizero3.circeeRelay')",
@@ -320,13 +320,13 @@
             "statsInterval": 60,
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "index": "oswh-pizero3-20-1",
             "type": "sys-measure",
             "redis": {
-                "host": "pizero3"
+                "host": "pi4b"
             }
         }
     ]

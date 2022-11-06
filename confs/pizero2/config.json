@@ -33,7 +33,7 @@
             "enabled": true,
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.simpleHeater(measure,'pizero2')",
@@ -71,7 +71,7 @@
             "module": "piscript",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.simpleHeater(measure,'pizero2.victor', localIndoorTempName='victor.indoorTemp')",
@@ -105,7 +105,7 @@
             "module": "piscript",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.simpleHeater(measure,'pizero2.bureau', localIndoorTempName='bureau.indoorTemp')",
@@ -117,7 +117,7 @@
             "module": "piscript",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.grabRemoteCommand(measure,'pizero3.heater', 'salleamanger.heater', 'heaterOff')",
@@ -233,13 +233,13 @@
             "statsInterval": 60,
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "index": "oswh-pizero2-20-1",
             "type": "sys-measure",
             "redis": {
-                "host": "pizero3"
+                "host": "pi4b"
             }
         }
     ]

@@ -10,13 +10,13 @@
             "hostname": "pi4b",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "index": "oswh-pi4b-2019-2",
             "type": "sys-measure",
             "redis": {
-                "host": "pizero3"
+                "host": "pi4b"
             }
         }
     ]
