@@ -25,7 +25,7 @@
             "module": "piscript",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.simpleHeater(measure,'pizero3', localIndoorTempName='salon.indoorTemp')",
@@ -49,17 +49,17 @@
                 {
                     "from": 9,
                     "to": 16,
-                    "temp": 17
+                    "temp": 21
                 },
                 {
                     "from": 16,
                     "to": 18,
-                    "temp": 18
+                    "temp": 21
                 },
                 {
                     "from": 18,
                     "to": 22,
-                    "temp": 19
+                    "temp": 21
                 },
                 {
                     "from": 22,
@@ -73,7 +73,7 @@
             "module": "piscript",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.simpleHeater(measure,'pizero3.dalles', localIndoorTempName='salon.indoorTemp')",
@@ -82,13 +82,13 @@
             "hourlyTemps": [
                 {
                     "from": 0,
-                    "to": 2,
-                    "temp": 16
+                    "to": 4,
+                    "temp": 0
                 },
                 {
-                    "from": 2,
+                    "from": 4,
                     "to": 6,
-                    "temp": 17 
+                    "temp": 23
                 },
                 {
                     "from": 6,
@@ -156,7 +156,7 @@
             "prefix": "waterHeater",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.simpleRelay(measure,'pizero3.waterHeater')",
@@ -174,11 +174,11 @@
                 },
                 {
                     "from": 6,
-                    "to": 16,
+                    "to": 19,
                     "state": false
                 },
                 {
-                    "from": 16,
+                    "from": 19,
                     "to": 20,
                     "state": true
                 },
@@ -224,7 +224,7 @@
             "prefix": "circeeRelay",
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "script": "self.commandRelay(measure,'pizero3.circeeRelay')",
@@ -320,13 +320,13 @@
             "statsInterval": 60,
             "hosts": [
                 {
-                    "host": "pizero3"
+                    "host": "pi4b"
                 }
             ],
             "index": "oswh-pizero3-20-1",
             "type": "sys-measure",
             "redis": {
-                "host": "pizero3"
+                "host": "pi4b"
             }
         }
     ]
