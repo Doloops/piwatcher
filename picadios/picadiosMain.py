@@ -36,7 +36,7 @@ class PicadiosMain:
         self.wsserver = picadios.ws.wsserver.WSServer(controller=self.controller, wsConfig = wsConfig)
         
     async def init(self):
-        self.redisClient = await asyncio_redis.Pool.create(host='pizero3', port=6379, poolsize=100)
+        self.redisClient = await asyncio_redis.Pool.create(host='pi4b', port=6379, poolsize=100)
         for item in self.sweetHome.getItems():
             item = self.sweetHome.getItems()[item]
             stateId = item["id"]
