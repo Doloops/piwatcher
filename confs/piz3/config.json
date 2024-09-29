@@ -1,0 +1,22 @@
+{
+    "updateInterval": 60,
+    "modules": [
+        {
+            "name": "cpu"
+        },
+        {
+            "name": "elastic",
+            "statsInterval": 60,
+            "hostname": "piz3",
+            "hosts": [
+                {
+                    "host": "pircee"
+                }
+            ],
+            "index": "piwatcher",
+            "redis": {
+                "host": "pircee"
+            }
+        }
+    ]
+}
