@@ -179,6 +179,10 @@ class PiScript(pimodule.PiModule):
                 tempName = "indoorTemp"
             indoorTemp = fetchfromes.extractFragment(measure, tempName)
 
+        if indoorTemp is None:
+            print("No indoorTemp for " + str(indoorTempName) + ", local: " + str(localIndoorTempName) + ", measure: " + str(measure))
+            return
+
         if self.verbose:
             print("Collected indoorTemp=" + str(indoorTemp))
 
