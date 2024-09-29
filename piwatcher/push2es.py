@@ -12,7 +12,6 @@ class Push2ES(pimodule.PiModule):
     es = None
     hostname = None
     esIndex = None
-    esType = None
     lastESUpdate = time.time()
     statsInterval = 60
     statsIntervalMargin = 8
@@ -23,7 +22,6 @@ class Push2ES(pimodule.PiModule):
         self.es = OpenSearch(moduleConfig["hosts"], use_ssl=False)
         self.hostname = moduleConfig["hostname"]
         self.esIndex = moduleConfig["index"]
-        self.esType = moduleConfig["type"]
         self.statsInterval = moduleConfig["statsInterval"]
 
         if "redis" in moduleConfig:
