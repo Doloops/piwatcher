@@ -62,7 +62,7 @@ class Push2ES(pimodule.PiModule):
             try:
                 tsBefore = time.time()
                 indexName = self.esIndex + "-" + time.strftime("%Y")
-                self.es.update(index=self.esIndex, id=tnow, body=esbody)
+                self.es.update(index=indexName, id=tnow, body=esbody)
                 print (" * Indexed in " + ("%.3f s" % (time.time() - tsBefore)), end='')
                 self.lastESUpdate = now
             except Exception as e:
