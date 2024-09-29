@@ -229,7 +229,7 @@
         },
         {
             "name": "elastic",
-            "hostname": "pizero2",
+            "hostname": "pizw2",
             "statsInterval": 60,
             "hosts": [
                 {
@@ -237,7 +237,6 @@
                 }
             ],
             "index": "piwatcher",
-            "type": "_doc",
             "redis": {
                 "host": "pircee"
             }
