@@ -50,7 +50,7 @@ class Push2ES(pimodule.PiModule):
 
         if self.redisClient is not None:
             try:
-                self.publishToRedis(body = esbody)
+                self.publishToRedis(body = esbody.doc)
             except Exception as e:
                 print("Could not push to Redis : " + str(e), sys.exc_info()[0])    
 
